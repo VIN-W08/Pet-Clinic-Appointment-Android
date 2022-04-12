@@ -57,9 +57,9 @@ class MainAppState(
     fun navigateTo(
         route: String,
         popUpToRoute: String? = null,
-        inclusiveCurrent: Boolean = true
+        inclusiveCurrent: Boolean = true,
     ){
-        navController.navigate(route){
+        navController.navigate(route) {
             if(!popUpToRoute.isNullOrEmpty()) {
                 popUpTo(popUpToRoute) { inclusive = inclusiveCurrent }
                 launchSingleTop = true

@@ -54,6 +54,9 @@ dependencies {
     def hilt_navigation_compose_version = "1.0.0"
     def activity_version = "1.4.0"
     def dataStore_version = "1.0.0"
+    def gps_version = "19.0.1"
+    def compose_maps_version = "1.2.0"
+    def gps_maps_version= "18.0.2"
 
     implementation 'androidx.core:core-ktx:1.7.0'
     implementation "androidx.compose.ui:ui:$compose_version"
