@@ -149,7 +149,7 @@ val petClinicList = listOf<PetClinic>(
     ),
     PetClinic(
         "2",
-        "Clinic B",
+        "Clinic C",
         R.drawable.nearest_clinic_image,
         "01234567891",
         "C Street",

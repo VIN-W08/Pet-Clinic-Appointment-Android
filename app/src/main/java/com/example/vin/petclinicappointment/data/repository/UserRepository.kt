@@ -4,13 +4,21 @@ import com.example.vin.petclinicappointment.data.UserDataStore
 import com.example.vin.petclinicappointment.data.dummyUser
 import com.example.vin.petclinicappointment.data.model.Call
 import com.example.vin.petclinicappointment.data.model.User
+import com.example.vin.petclinicappointment.data.network.ApiService
 import kotlinx.coroutines.delay
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import java.lang.Exception
 import javax.inject.Inject
 
 class UserRepository @Inject constructor(
     private val userDataStore: UserDataStore
 ) {
+    val apiService = Retrofit.Builder()
+        .baseUrl("https://api.geoapify.com/v1/geocode/")
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
+        .create(ApiService::class.java)
 
     suspend fun login(User: User): Call<User> {
         val response = try {

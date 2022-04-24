@@ -3,6 +3,7 @@ plugins {
     id 'org.jetbrains.kotlin.android'
     id 'kotlin-kapt'
     id 'dagger.hilt.android.plugin'
+    id 'com.google.android.libraries.mapsplatform.secrets-gradle-plugin'
 }
 
 android {
@@ -56,7 +57,8 @@ dependencies {
     def dataStore_version = "1.0.0"
     def gps_version = "19.0.1"
     def compose_maps_version = "1.2.0"
-    def gps_maps_version= "18.0.2"
+    def gps_maps_version = "18.0.2"
+    def retrofit_version = "2.9.0"
 
     implementation 'androidx.core:core-ktx:1.7.0'
     implementation "androidx.compose.ui:ui:$compose_version"
@@ -88,8 +90,19 @@ dependencies {
     //Data Store
     implementation "androidx.datastore:datastore-preferences:$dataStore_version"
 
+    // Google Play Services
+    implementation "com.google.android.gms:play-services-location:$gps_version"
+
+    // Google Map
+    implementation "com.google.maps.android:maps-compose:$compose_maps_version"
+    implementation "com.google.android.gms:play-services-maps:$gps_maps_version"
+
     // Material Icons
     implementation "androidx.compose.material:material-icons-extended:$compose_version"
+
+    // Retrofit
+    implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
+    implementation "com.squareup.retrofit2:converter-gson:$retrofit_version"
 }
 
 kapt {

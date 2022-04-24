@@ -1,6 +1,7 @@
 package com.example.vin.petclinicappointment.ui.components.main
 
 import androidx.annotation.StringRes
+import androidx.compose.material.ScaffoldState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.History
@@ -13,11 +14,15 @@ import com.example.vin.petclinicappointment.MainAppState
 import com.example.vin.petclinicappointment.R
 import com.example.vin.petclinicappointment.ui.components.home.HomePage
 
-fun NavGraphBuilder.mainBottomNavGraph (appState: MainAppState){
+fun NavGraphBuilder.mainBottomNavGraph (appState: MainAppState, scaffoldState: ScaffoldState){
     composable(route = "home") {
         HomePage(
-            navigateToSearchPetClinic = {},
-            navigateTo = appState::navigateTo
+            scaffoldState = scaffoldState,
+            navigateToSearchPetClinic = { appState.navigateTo("search-pet-clinic-list")},
+            navigateTo = appState::navigateTo,
+            getLocation = appState::getLocation,
+            getLocationPermissionStatus = appState::getLocationPermissionStatus,
+            getGpsEnabledStatus = appState::getGpsEnabledStatus,
         )
     }
     composable(route = "history") {}
