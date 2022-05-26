@@ -6,18 +6,26 @@ import android.content.res.Resources
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.unit.dp
 import com.example.vin.petclinicappointment.R
 import com.example.vin.petclinicappointment.data.actionCategoryList
 import com.example.vin.petclinicappointment.ui.components.common.ModalBottomSheet
+import com.example.vin.petclinicappointment.ui.components.common.View
+import com.example.vin.petclinicappointment.ui.theme.PetClinicAppointmentTheme
 import com.google.android.gms.common.api.ResolvableApiException
 import kotlinx.coroutines.launch
 
@@ -33,7 +41,7 @@ fun HomePage(
 ) {
     val modalBottomSheetState = rememberModalBottomSheetState(
         initialValue = ModalBottomSheetValue.Hidden,
-        confirmStateChange = { state -> state != ModalBottomSheetValue.HalfExpanded}
+        confirmStateChange = { state -> state != ModalBottomSheetValue.HalfExpanded }
     )
     val selectedActionCategoryList = rememberSaveable { mutableStateOf("") }
     val coroutineScope = rememberCoroutineScope()
@@ -41,7 +49,7 @@ fun HomePage(
     val context = LocalContext.current
     val locationPermission = Manifest.permission.ACCESS_FINE_LOCATION
 
-    fun onFailGetLocation(){
+    fun onFailGetLocation() {
         coroutineScope.launch {
             scaffoldState.snackbarHostState.showSnackbar(
                 Resources.getSystem().getString(R.string.fail_get_location_message),
@@ -50,19 +58,21 @@ fun HomePage(
     }
 
     val ACCEPTED_CODE_GPS = -1
-    val settingLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartIntentSenderForResult()){ activityResult ->
-        if(activityResult.resultCode == ACCEPTED_CODE_GPS){
-            getLocation(context) { onFailGetLocation() }
+    val settingLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { activityResult ->
+            if (activityResult.resultCode == ACCEPTED_CODE_GPS) {
+                getLocation(context) { onFailGetLocation() }
+            }
         }
-    }
 
-    fun onLocationPermissionGranted(){
+    fun onLocationPermissionGranted() {
         getGpsEnabledStatus(
             context,
-            { getLocation(context) { onFailGetLocation() }},
+            { getLocation(context) { onFailGetLocation() } },
             { exception ->
-                if(exception is ResolvableApiException){
-                    val intentSenderRequest = IntentSenderRequest.Builder(exception.resolution).build()
+                if (exception is ResolvableApiException) {
+                    val intentSenderRequest =
+                        IntentSenderRequest.Builder(exception.resolution).build()
                     settingLauncher.launch(intentSenderRequest)
                 }
             }
@@ -72,7 +82,7 @@ fun HomePage(
     val launcher =
         rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { permissionGranted ->
             if (permissionGranted) {
-              onLocationPermissionGranted()
+                onLocationPermissionGranted()
             }
         }
 
@@ -85,7 +95,7 @@ fun HomePage(
         }
     }
 
-    Surface (
+    Surface(
         modifier = Modifier
             .fillMaxSize()
             .pointerInput(Unit) {
@@ -99,30 +109,49 @@ fun HomePage(
                 })
             },
         color = MaterialTheme.colors.background
-            ){
-        Column {
+    ) {
+        Column(
+            Modifier
+                .fillMaxSize()
+                .background(PetClinicAppointmentTheme.colors.primary)
+        ) {
             HomeHeader(navigateToPetClinicList = navigateToSearchPetClinic)
             ModalBottomSheet(
+                Modifier.fillMaxSize(),
                 modalBottomSheetState = modalBottomSheetState,
                 sheetContent = { MoreCategoryContent(selectedActionCategoryList.value) }
-            ){
-                Column {
-                    ActionCategoryList(
-                        modalBottomSheetState,
-                        selectedActionCategoryList,
-                        "Klinik",
-                        actionCategoryList,
-                        navigateTo,
-                        "pet-clinic-list"
-                    )
-                    ActionCategoryList(
-                        modalBottomSheetState,
-                        selectedActionCategoryList,
-                        "Layanan",
-                        actionCategoryList,
-                        navigateTo,
-                        "pet-clinic-list"
-                    )
+            ) {
+                Column(
+                    Modifier
+                        .fillMaxSize()
+                        .clip(RoundedCornerShape(
+                            topStart = 30.dp,
+                            topEnd = 30.dp
+                        ))
+                        .background(Color.White)
+                ) {
+                    Column(
+                        Modifier.padding(
+                            top = PetClinicAppointmentTheme.dimensions.grid_3
+                        )
+                    ) {
+                        ActionCategoryList(
+                            modalBottomSheetState,
+                            selectedActionCategoryList,
+                            "Klinik",
+                            actionCategoryList,
+                            navigateTo,
+                            "pet-clinic-list"
+                        )
+                        ActionCategoryList(
+                            modalBottomSheetState,
+                            selectedActionCategoryList,
+                            "Layanan",
+                            actionCategoryList,
+                            navigateTo,
+                            "pet-clinic-list"
+                        )
+                    }
                 }
             }
         }

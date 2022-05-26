@@ -11,6 +11,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.material.Typography
+import androidx.compose.ui.graphics.Color
 
 private val DarkColorPalette = darkColors(
     primary = Purple200,
@@ -19,13 +20,17 @@ private val DarkColorPalette = darkColors(
 )
 
 private val LightColorPalette = lightColors(
-    primary = Eucalyptus,
-    secondary = DarkTurqoise,
-    background = White,
-    surface = White,
-    onSurface = Black,
-    onBackground = Black,
-    error = CGRed
+    primary = MetallicBlue,
+    primaryVariant = Rackley,
+    secondary = MiddleBlueGreen,
+    background = Color.White,
+    surface = Color.White,
+    error = CGRed,
+    onPrimary = Color.White,
+    onSecondary = Color.White,
+    onBackground = Color.Black,
+    onSurface = Color.Black,
+    onError = Color.White,
 )
 
 @Composable

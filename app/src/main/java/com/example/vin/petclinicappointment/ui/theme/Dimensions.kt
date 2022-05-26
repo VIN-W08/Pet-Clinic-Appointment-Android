@@ -4,7 +4,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 data class Dimensions (
-    val grid_0_1: Dp,
+    val grid_0_125: Dp,
     val grid_0_25: Dp,
     val grid_0_5: Dp,
     val grid_1: Dp,
@@ -21,14 +21,18 @@ data class Dimensions (
     val grid_6_5: Dp,
     val grid_7: Dp,
     val grid_7_5: Dp,
-    val grid_8: Dp
+    val grid_8: Dp,
+    val grid_8_5: Dp,
+    val grid_9: Dp,
+    val grid_9_5: Dp,
+    val grid_10: Dp
         )
 
 class DimensionsBuilder {
     fun createDimensionSystem(breakpoint: Int): Dimensions{
         val grid_1 = breakpoint/45.0
         return Dimensions(
-            grid_0_1 = (grid_1*0.1).dp,
+            grid_0_125 = (grid_1*0.125).dp,
             grid_0_25 = (grid_1*0.25).dp,
             grid_0_5 = (grid_1*0.5).dp,
             grid_1 = grid_1.dp,
@@ -46,12 +50,16 @@ class DimensionsBuilder {
             grid_7 = (grid_1*7).dp,
             grid_7_5 = (grid_1*7.5).dp,
             grid_8 = (grid_1*8).dp,
+            grid_8_5 = (grid_1*8.5).dp,
+            grid_9 = (grid_1*9).dp,
+            grid_9_5 = (grid_1*9.5).dp,
+            grid_10 = (grid_1*10).dp
         )
     }
 }
 
 val sw360Dimensions = Dimensions(
-    grid_0_1 = 0.8.dp,
+    grid_0_125 = 1.dp,
     grid_0_25 = 2.dp,
     grid_0_5 = 4.dp,
     grid_1 = 8.dp,
@@ -69,4 +77,8 @@ val sw360Dimensions = Dimensions(
     grid_7 = 56.dp,
     grid_7_5 = 60.dp,
     grid_8 = 64.dp,
+    grid_8_5 = 68.dp,
+    grid_9 = 72.dp,
+    grid_9_5 = 76.dp,
+    grid_10 = 80.dp
 )

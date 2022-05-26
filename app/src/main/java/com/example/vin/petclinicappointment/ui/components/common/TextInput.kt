@@ -22,7 +22,6 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.unit.dp
 import com.example.vin.petclinicappointment.ui.theme.PetClinicAppointmentTheme
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -54,10 +53,15 @@ fun TextInput(
     val interactionSource = remember { MutableInteractionSource() }
     val keyModifier =
         if(hasOutline)
-            modifier.border(
-                    width = PetClinicAppointmentTheme.dimensions.grid_0_1,
+            modifier
+                .border(
+                    width = PetClinicAppointmentTheme.dimensions.grid_0_125,
                     color =  if(isFocused) PetClinicAppointmentTheme.colors.primary else Color.Gray,
                     shape = shape
+                )
+                .padding(
+                    start = PetClinicAppointmentTheme.dimensions.grid_1_5,
+                    end = PetClinicAppointmentTheme.dimensions.grid_1_5
                 )
         else modifier
 
@@ -80,7 +84,9 @@ fun TextInput(
             ) {
                 if (leadingIcon !== null) {
                     Row(
-                        Modifier.fillMaxHeight(),
+                        Modifier
+                            .fillMaxHeight()
+                            .padding(end = PetClinicAppointmentTheme.dimensions.grid_0_5),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         leadingIcon()
@@ -97,10 +103,6 @@ fun TextInput(
                         onValueChange = onValueChange,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(
-                                start = if (hasOutline && leadingIcon === null) PetClinicAppointmentTheme.dimensions.grid_2 else 0.dp,
-                                end = if (hasOutline && trailingIcon === null ) PetClinicAppointmentTheme.dimensions.grid_2 else 0.dp
-                            )
                             .onFocusChanged {
                                 isFocused = it.isFocused
                                 if (isFocused) {
@@ -135,7 +137,9 @@ fun TextInput(
                 }
                 if (trailingIcon !== null) {
                     Row(
-                        Modifier.fillMaxHeight(),
+                        Modifier
+                            .fillMaxHeight()
+                            .padding(start = PetClinicAppointmentTheme.dimensions.grid_0_5),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         trailingIcon()
@@ -153,7 +157,7 @@ fun TextInput(
                     Divider(
                         Modifier.fillMaxWidth(),
                         color = if (isFocused) PetClinicAppointmentTheme.colors.primary else Color.Gray,
-                        thickness = if (isFocused) PetClinicAppointmentTheme.dimensions.grid_0_25 else PetClinicAppointmentTheme.dimensions.grid_0_1,
+                        thickness = if (isFocused) PetClinicAppointmentTheme.dimensions.grid_0_25 else PetClinicAppointmentTheme.dimensions.grid_0_125,
                     )
                 }
             }
