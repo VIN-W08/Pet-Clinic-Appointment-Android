@@ -1,14 +1,8 @@
 package com.example.vin.petclinicappointment.data.network
 
-import com.example.vin.petclinicappointment.data.model.LoginBody
-import com.example.vin.petclinicappointment.data.model.LoginResponse
-import com.example.vin.petclinicappointment.data.model.RegisterBody
-import com.example.vin.petclinicappointment.data.model.RegisterResponse
+import com.example.vin.petclinicappointment.data.model.*
 import retrofit2.Response
-import retrofit2.http.Body
-import retrofit2.http.GET
-import retrofit2.http.HTTP
-import retrofit2.http.POST
+import retrofit2.http.*
 
 interface ApiService {
     @POST("customer")
@@ -16,7 +10,7 @@ interface ApiService {
         @Body body: RegisterBody
     ): Response<RegisterResponse>
 
-    @POST("auth")
+    @POST("customer/auth")
     suspend fun loginCustomer(
         @Body body: LoginBody
     ): Response<LoginResponse>
