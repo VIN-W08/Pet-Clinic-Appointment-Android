@@ -5,8 +5,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Scaffold
 import androidx.compose.material.ScaffoldState
-import androidx.compose.material.rememberScaffoldState
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavGraphBuilder
@@ -14,19 +13,20 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import com.example.vin.petclinicappointment.ui.components.common.Snackbar
+import com.example.vin.petclinicappointment.ui.components.login.LoginOptionsPage
 import com.example.vin.petclinicappointment.ui.components.login.LoginPage
 import com.example.vin.petclinicappointment.ui.components.main.MainBottomNavBar
 import com.example.vin.petclinicappointment.ui.components.main.mainBottomNavGraph
 import com.example.vin.petclinicappointment.ui.components.petclinic.CurrentLocationMapPage
 import com.example.vin.petclinicappointment.ui.components.petclinic.PetClinicListPage
 import com.example.vin.petclinicappointment.ui.components.petclinic.SearchPetClinicListPage
-import com.example.vin.petclinicappointment.ui.components.sign_up.SignUpPage
+import com.example.vin.petclinicappointment.ui.components.sign_up.CustomerSignUpPage
 
 @Composable
 fun MainApp() {
     val appState = rememberMainAppState()
-    val startDestination = if(appState.getUserAuthStatus()) "main" else "login"
-    val scaffoldState = rememberScaffoldState()
+    val startDestination = if(appState.getUserAuthStatus()) "main" else "login-option"
+    val scaffoldState = appState.scaffoldState
 
     Scaffold (
         scaffoldState = scaffoldState,
@@ -64,19 +64,29 @@ fun MainApp() {
 private fun NavGraphBuilder.appNavGraph (appState: MainAppState, scaffoldState: ScaffoldState){
     navigation(
         route = "main",
-        startDestination = "home"
+        startDestination = "home-customer"
     ){
         mainBottomNavGraph(appState, scaffoldState)
     }
-    composable(route = "login") {
-        LoginPage(
-            navigateToHome = { appState.navigateTo("main", "login") },
-            navigateToSignUp = { appState.navigateTo("sign-up", "login")}
+    composable(route = "login-option"){
+        LoginOptionsPage (
+            navigateToLogin = {appState.navigateTo("login", "sign-up")},
+            userRole = appState.userRole
         )
     }
-    composable(route = "sign-up") {
-        SignUpPage(
-            navigateToLogin = { appState.navigateTo("login", "sign-up")}
+    composable(route = "login") {
+        LoginPage(
+            navigateToCustomerHome = { appState.navigateTo("main", "login") },
+            navigateToCustomerCustomerSignUp = { appState.navigateTo("sign-up-customer", "login")},
+            userRole = appState.userRole,
+            scaffoldState = appState.scaffoldState
+        )
+    }
+    composable(route = "sign-up-customer") {
+        CustomerSignUpPage(
+            navigateToLogin = { appState.navigateTo("login", "sign-up-customer")},
+            navigateToHome = { appState.navigateTo("main", "login") },
+            scaffoldState = appState.scaffoldState
         )
     }
     composable(route = "pet-clinic-list/{title}/{type}"){ navBackStackEntry ->

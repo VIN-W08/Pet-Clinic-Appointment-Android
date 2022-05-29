@@ -5,6 +5,8 @@ import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import com.example.vin.petclinicappointment.ui.theme.PetClinicAppointmentTheme
 
 @Composable
 fun Snackbar(
@@ -17,14 +19,15 @@ fun Snackbar(
         snackbar = { snackbarData ->  
             Snackbar(
                 content = {
-                    Text(
-                        snackbarData.message
-                    )
+                    Text(snackbarData.message)
                 },
                 action = {
                     snackbarData.actionLabel?.let {
                         TextButton(onClick = onClickAction) {
-                            Text(it)
+                            Text(
+                                it,
+                                fontWeight = FontWeight.SemiBold
+                            )
                         }
                     }
                 },

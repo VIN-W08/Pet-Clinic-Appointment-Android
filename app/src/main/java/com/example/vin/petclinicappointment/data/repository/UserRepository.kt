@@ -1,34 +1,36 @@
 package com.example.vin.petclinicappointment.data.repository
 
 import com.example.vin.petclinicappointment.data.UserDataStore
-import com.example.vin.petclinicappointment.data.dummyUser
-import com.example.vin.petclinicappointment.data.model.Call
-import com.example.vin.petclinicappointment.data.model.User
+import com.example.vin.petclinicappointment.data.model.*
 import com.example.vin.petclinicappointment.data.network.ApiService
-import kotlinx.coroutines.delay
+import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import java.lang.Exception
 import javax.inject.Inject
 
 class UserRepository @Inject constructor(
     private val userDataStore: UserDataStore
 ) {
     val apiService = Retrofit.Builder()
-        .baseUrl("https://api.geoapify.com/v1/geocode/")
+        .baseUrl("http://10.0.2.2:7284/api/")
         .addConverterFactory(GsonConverterFactory.create())
         .build()
         .create(ApiService::class.java)
 
-    suspend fun login(User: User): Call<User> {
-        val response = try {
-            /*TODO: Network Request*/
-            delay(5000)
-            dummyUser
-        }catch (e: Exception){
-            return Call.Error("Error")
+    suspend fun login(body: LoginBody): Call<Response<LoginResponse>> {
+        val response = apiService.loginCustomer(body)
+        if(response.isSuccessful) {
+            return Call.Success(response)
         }
-        return Call.Success(response)
+        return Call.Error(response)
+    }
+
+    suspend fun registerCustomer(body: RegisterBody): Call<Response<RegisterResponse>>{
+        val response = apiService.registerCustomer(body)
+        if(response.isSuccessful) {
+            return Call.Success(response)
+        }
+        return Call.Error(response)
     }
 
     suspend fun saveUserName(value: String) =
@@ -48,10 +50,4 @@ class UserRepository @Inject constructor(
 
     suspend fun getUserPassword() =
         userDataStore.getUserPassword()
-
-    suspend fun saveUserAddress(value: String) =
-        userDataStore.saveUserAddress(value)
-
-    suspend fun getUserAddress() =
-        userDataStore.getUserAddress()
 }

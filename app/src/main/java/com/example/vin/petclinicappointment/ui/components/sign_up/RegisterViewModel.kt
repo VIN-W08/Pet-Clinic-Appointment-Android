@@ -1,10 +1,11 @@
-package com.example.vin.petclinicappointment.ui.components.login
+package com.example.vin.petclinicappointment.ui.components.sign_up
 
 import android.util.Patterns
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.vin.petclinicappointment.data.model.Call
 import com.example.vin.petclinicappointment.data.model.Customer
-import com.example.vin.petclinicappointment.data.model.LoginBody
+import com.example.vin.petclinicappointment.data.model.RegisterBody
 import com.example.vin.petclinicappointment.data.model.User
 import com.example.vin.petclinicappointment.data.repository.UserRepository
 import com.example.vin.petclinicappointment.ui.BaseViewModel
@@ -17,7 +18,7 @@ import java.util.regex.Pattern
 import javax.inject.Inject
 
 @HiltViewModel
-class LoginViewModel @Inject constructor (
+class RegisterViewModel @Inject constructor(
     private val userRepository: UserRepository
 ): BaseViewModel() {
     private val _isLoggedIn = MutableStateFlow(false)
@@ -35,15 +36,19 @@ class LoginViewModel @Inject constructor (
         if(user.password.isEmpty() && !passwordPattern.matcher(user.password).matches()){
             return false
         }
+        if(user.name.isNullOrEmpty()){
+            return false
+        }
         return true
     }
 
-    suspend fun login(user: User) {
+    suspend fun register(user: User) {
         if(validateUser(user)) {
             val response = viewModelScope.async(Dispatchers.IO) {
-                userRepository.login(LoginBody(
+                userRepository.registerCustomer(RegisterBody(
                     email = user.email,
-                    password = user.password
+                    password = user.password,
+                    name = if(user.name !== null) user.name else ""
                 ))
             }.await()
             when (response) {

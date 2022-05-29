@@ -5,6 +5,8 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Looper
+import androidx.compose.material.ScaffoldState
+import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.ActivityCompat
@@ -25,22 +27,25 @@ import kotlinx.coroutines.*
 @Composable
 fun rememberMainAppState(
     navController: NavHostController = rememberNavController(),
-    userDataStore: UserDataStore = UserDataStore(LocalContext.current),
+    scaffoldState: ScaffoldState = rememberScaffoldState(),
+    userDataStore : UserDataStore = UserDataStore (LocalContext.current),
     userRepository: UserRepository = UserRepository(userDataStore),
     locationRepository: LocationRepository = LocationRepository(),
-    coroutineScope: CoroutineScope = rememberCoroutineScope()
+    coroutineScope: CoroutineScope = rememberCoroutineScope(),
 ): MainAppState {
    return remember(navController) {
-        MainAppState(navController, userRepository, locationRepository, coroutineScope)
+        MainAppState(navController, scaffoldState, userRepository, locationRepository, coroutineScope)
     }
 }
 
 class MainAppState(
     val navController: NavHostController,
+    val scaffoldState: ScaffoldState,
     val userRepository: UserRepository,
     val locationRepository: LocationRepository,
     val coroutineScope: CoroutineScope
 ){
+    var userRole: MutableState<String?> = mutableStateOf(null)
     val locationRequest = LocationRequest.create().apply {
         interval = 10000
         fastestInterval = 5000

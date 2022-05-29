@@ -12,11 +12,11 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import com.example.vin.petclinicappointment.MainAppState
 import com.example.vin.petclinicappointment.R
-import com.example.vin.petclinicappointment.ui.components.home.HomePage
+import com.example.vin.petclinicappointment.ui.components.home.CustomerHomePage
 
 fun NavGraphBuilder.mainBottomNavGraph (appState: MainAppState, scaffoldState: ScaffoldState){
-    composable(route = "home") {
-        HomePage(
+    composable(route = "home-customer") {
+        CustomerHomePage(
             scaffoldState = scaffoldState,
             navigateToSearchPetClinic = { appState.navigateTo("search-pet-clinic-list")},
             navigateTo = appState::navigateTo,

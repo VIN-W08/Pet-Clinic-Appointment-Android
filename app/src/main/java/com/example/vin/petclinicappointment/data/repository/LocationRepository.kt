@@ -2,6 +2,7 @@ package com.example.vin.petclinicappointment.data.repository
 
 import com.example.vin.petclinicappointment.data.model.GeocodingApiResult
 import com.example.vin.petclinicappointment.data.network.ApiService
+import com.example.vin.petclinicappointment.data.network.GeocodeApiService
 import com.google.android.gms.maps.model.LatLng
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -11,7 +12,7 @@ class LocationRepository {
         .baseUrl("https://api.geoapify.com/v1/geocode/")
         .addConverterFactory(GsonConverterFactory.create())
         .build()
-        .create(ApiService::class.java)
+        .create(GeocodeApiService::class.java)
 
     suspend fun getReverseGeocodingLocation(coordinate: LatLng): GeocodingApiResult? {
         val response = apiService.getReverseGeocodingLocation(

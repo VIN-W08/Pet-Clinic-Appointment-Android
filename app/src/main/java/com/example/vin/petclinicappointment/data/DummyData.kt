@@ -1,13 +1,14 @@
 package com.example.vin.petclinicappointment.data
 
 import com.example.vin.petclinicappointment.R
+import com.example.vin.petclinicappointment.data.model.Customer
 import com.example.vin.petclinicappointment.data.model.PetClinic
 import com.example.vin.petclinicappointment.data.model.User
 import com.example.vin.petclinicappointment.ui.components.home.ActionCategory
 import com.example.vin.petclinicappointment.ui.theme.Topaz
 import com.example.vin.petclinicappointment.ui.theme.TrueBlue
 
-val dummyUser = User("test1@gmail.com", "password1", "0", "Test 1", "Street Test 1")
+val dummyUser = Customer("test1@gmail.com", "password1", "Test 1")
 
 val actionCategoryList = listOf(
     ActionCategory(

@@ -1,9 +1,10 @@
 package com.example.vin.petclinicappointment.data.model
 
-data class User(
+abstract class User(
     val email: String,
     val password: String,
     val id: String? = null,
     val name: String? = null,
-    val address: String? = null
+    val phoneNum: String? = null,
+    val image: String? = null
 )

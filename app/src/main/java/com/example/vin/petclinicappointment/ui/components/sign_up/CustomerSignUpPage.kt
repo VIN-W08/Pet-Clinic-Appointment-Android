@@ -1,4 +1,4 @@
-package com.example.vin.petclinicappointment.ui.components.login
+package com.example.vin.petclinicappointment.ui.components.sign_up
 
 import android.util.Patterns
 import androidx.compose.foundation.*
@@ -6,8 +6,11 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
-import androidx.compose.material.*
 import androidx.compose.material.ButtonDefaults.buttonColors
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.ScaffoldState
+import androidx.compose.material.Surface
+import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -18,44 +21,52 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.vin.petclinicappointment.data.model.Customer
 import com.example.vin.petclinicappointment.ui.components.common.AppButton
-import com.example.vin.petclinicappointment.ui.components.common.TextInput
-import com.example.vin.petclinicappointment.ui.theme.*
-import kotlinx.coroutines.*
-import java.util.regex.Pattern
 import com.example.vin.petclinicappointment.ui.components.common.CircularProgressIndicator
+import com.example.vin.petclinicappointment.ui.components.common.TextInput
+import com.example.vin.petclinicappointment.ui.theme.PetClinicAppointmentTheme
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
+import java.util.regex.Pattern
 
 @Composable
-fun LoginPage(
-    loginViewModel: LoginViewModel = hiltViewModel(),
-    coroutineScope: CoroutineScope = rememberCoroutineScope(),
+fun CustomerSignUpPage(
+    registerViewModel: RegisterViewModel = hiltViewModel(),
     scaffoldState: ScaffoldState,
-    navigateToCustomerHome: () -> Unit,
-    navigateToCustomerCustomerSignUp: () -> Unit,
-    userRole: MutableState<String?>
+    navigateToLogin: () -> Unit,
+    navigateToHome: () -> Unit
 ){
+    var name by rememberSaveable{ mutableStateOf("") }
     var email by rememberSaveable { mutableStateOf("") }
-    var password by rememberSaveable { mutableStateOf("")}
+    var password by rememberSaveable { mutableStateOf("") }
+    var showNameError by rememberSaveable { mutableStateOf(false)}
+    var nameErrorMessage by rememberSaveable { mutableStateOf<String?>( null )}
     var showEmailError by rememberSaveable { mutableStateOf( false )}
-    var emailErrorMessage by rememberSaveable { mutableStateOf<String?>( null)}
+    var emailErrorMessage by rememberSaveable { mutableStateOf<String?>( null )}
     var showPasswordError by rememberSaveable { mutableStateOf( false )}
     var passwordErrorMessage by rememberSaveable { mutableStateOf<String?>( null )}
     var progressIndicatorVisible by rememberSaveable { mutableStateOf(false) }
 
     val localFocusManager = LocalFocusManager.current
+    val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
-        loginViewModel.message.collectLatest {
+        registerViewModel.message.collectLatest {
             if(it.isNotEmpty()) {
                 scaffoldState.snackbarHostState.showSnackbar(it)
             }
         }
     }
 
-    fun onClickLogin(){
+    fun onClickSignUp(){
+        nameErrorMessage = validateUserName(email)
+        if(!nameErrorMessage.isNullOrEmpty()){
+            showNameError = true
+            return
+        }
         emailErrorMessage = validateEmail(email)
         if(!emailErrorMessage.isNullOrEmpty()){
             showEmailError = true
@@ -68,19 +79,11 @@ fun LoginPage(
         }
         progressIndicatorVisible = true
         coroutineScope.launch {
-            loginViewModel.login(Customer(email, password))
+            registerViewModel.register(Customer(email, password, name))
             progressIndicatorVisible = false
-            if (loginViewModel.isLoggedIn.value) {
-                if(userRole.value.equals("customer")) {
-                    navigateToCustomerHome()
-                }
+            if (registerViewModel.isLoggedIn.value) {
+                navigateToHome()
             }
-        }
-    }
-
-    fun onClickSignUp(){
-        if(userRole.value.equals("customer")){
-            navigateToCustomerCustomerSignUp()
         }
     }
 
@@ -95,14 +98,14 @@ fun LoginPage(
             .verticalScroll(rememberScrollState()),
         color = MaterialTheme.colors.background
     ) {
-        Column(
+        Column (
             Modifier
                 .fillMaxSize()
                 .padding(
                     top = PetClinicAppointmentTheme.dimensions.grid_7
                 ),
             horizontalAlignment = Alignment.CenterHorizontally
-        ) {
+        ){
             Column(
                 Modifier
                     .fillMaxWidth()
@@ -118,16 +121,32 @@ fun LoginPage(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(PetClinicAppointmentTheme.dimensions.grid_5 * 9),
+                    .height(PetClinicAppointmentTheme.dimensions.grid_5*10),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Text(
-                    "Masuk",
+                    "Daftar",
                     style = PetClinicAppointmentTheme.typography.h1,
                     modifier = Modifier.padding(
                         top = PetClinicAppointmentTheme.dimensions.grid_4,
                         bottom = PetClinicAppointmentTheme.dimensions.grid_8
                     )
+                )
+                TextInput(
+                    value = name,
+                    onValueChange = { name = it },
+                    placeholder = "Nama Lengkap",
+                    containerModifier = Modifier
+                        .padding(bottom = PetClinicAppointmentTheme.dimensions.grid_2),
+                    showError = showNameError,
+                    errorMessage = nameErrorMessage,
+                    onFocus = { showNameError = false },
+                    onLeaveFocus = {
+                        nameErrorMessage = validateUserName(name)
+                        if (!nameErrorMessage.isNullOrEmpty()) {
+                            showNameError = true
+                        }
+                    }
                 )
                 TextInput(
                     value = email,
@@ -150,7 +169,7 @@ fun LoginPage(
                     onValueChange = { password = it },
                     placeholder = "Kata Sandi",
                     containerModifier = Modifier
-                        .padding(bottom = PetClinicAppointmentTheme.dimensions.grid_4_5),
+                        .padding(bottom = PetClinicAppointmentTheme.dimensions.grid_4),
                     inputType = "password",
                     showError = showPasswordError,
                     errorMessage = passwordErrorMessage,
@@ -163,15 +182,15 @@ fun LoginPage(
                     }
                 )
                 AppButton(
-                    onClick = { onClickLogin() },
+                    onClick = { onClickSignUp() },
                     modifier = Modifier
                         .width(PetClinicAppointmentTheme.dimensions.grid_9 * 4)
                         .height(PetClinicAppointmentTheme.dimensions.grid_5_5),
-                    colors = buttonColors(PetClinicAppointmentTheme.colors.primary),
+                    colors = buttonColors(PetClinicAppointmentTheme.colors.secondary),
                     shape = RoundedCornerShape(PetClinicAppointmentTheme.dimensions.grid_5)
                 ) {
                     Text(
-                        text = "Masuk",
+                        text = "Daftar",
                         color = Color.White,
                         fontWeight = FontWeight.Bold
                     )
@@ -185,19 +204,13 @@ fun LoginPage(
                         bottom = PetClinicAppointmentTheme.dimensions.grid_2
                     ),
                 horizontalAlignment = Alignment.CenterHorizontally
-                    ){
-                ClickableText(
-                    text = AnnotatedString("Lupa Password?"),
-                    onClick = {},
-                    style = TextStyle(color = PetClinicAppointmentTheme.colors.secondary)
-                )
-                Spacer(Modifier.height(PetClinicAppointmentTheme.dimensions.grid_4))
+            ) {
                 Row {
-                    Text("Belum punya akun?")
+                    Text("Sudah punya akun?")
                     Spacer(modifier = Modifier.width(PetClinicAppointmentTheme.dimensions.grid_1))
                     ClickableText(
-                        text = AnnotatedString("Daftar Akun"),
-                        onClick = { onClickSignUp() },
+                        text = AnnotatedString("Masuk"),
+                        onClick = { navigateToLogin() },
                         style = TextStyle(color = PetClinicAppointmentTheme.colors.secondary)
                     )
                 }
@@ -210,6 +223,13 @@ fun LoginPage(
     ) {
         CircularProgressIndicator(visible = progressIndicatorVisible)
     }
+}
+
+fun validateUserName(username: String): String? {
+    if(username.isEmpty()){
+        return "Nama wajib diinput."
+    }
+    return null
 }
 
 fun validateEmail(email: String): String? {
@@ -229,7 +249,7 @@ fun validatePassword(password: String): String? {
         return "Kata sandi wajib diinput."
     }
     if(!passwordPattern.matcher(password).matches()) {
-        return "Kata sandi harus memiliki minimal 8 karakter yang terdiri dari huruf besar, huruf kecil, dan angka."
+        return "Kata sandi harus memiliki minimal 8 karakter yang terdiri huruf besar, huruf kecil, dan angka."
     }
     return null
 }

@@ -1,5 +1,6 @@
 package com.example.vin.petclinicappointment.ui.components.common
 
+import android.util.Log
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -38,6 +39,7 @@ fun TextInput(
     leadingIcon: @Composable (() -> Unit)? = null,
     trailingIcon: @Composable (() -> Unit)? = null,
     hasOutline: Boolean = true,
+    outlineColor: Color = Color.Gray,
     visualTransformation: VisualTransformation = VisualTransformation.None,
     inputType: String = "text",
     keyBoardOptions: KeyboardOptions = KeyboardOptions.Default,
@@ -56,7 +58,7 @@ fun TextInput(
             modifier
                 .border(
                     width = PetClinicAppointmentTheme.dimensions.grid_0_125,
-                    color =  if(isFocused) PetClinicAppointmentTheme.colors.primary else Color.Gray,
+                    color =  if(isFocused) PetClinicAppointmentTheme.colors.primary else outlineColor,
                     shape = shape
                 )
                 .padding(
@@ -66,7 +68,9 @@ fun TextInput(
         else modifier
 
     Column (
-        Modifier.clip(shape)
+        containerModifier
+            .clip(shape)
+            .width(IntrinsicSize.Min)
             ){
         Box(
             keyModifier
@@ -110,7 +114,7 @@ fun TextInput(
                                     if (onFocus != null) {
                                         onFocus()
                                     }
-                                } else {
+                                } else if(!isFocused && !initialInput) {
                                     if (onLeaveFocus != null) {
                                         onLeaveFocus()
                                     }
@@ -162,7 +166,7 @@ fun TextInput(
                 }
             }
         }
-        if(errorMessage !== null && showError && !initialInput) {
+        if(errorMessage !== null && showError) {
             Column {
                 Text(
                     errorMessage,

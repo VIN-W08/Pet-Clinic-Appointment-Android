@@ -31,7 +31,7 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun HomePage(
+fun CustomerHomePage(
     scaffoldState: ScaffoldState,
     navigateToSearchPetClinic: () -> Unit,
     navigateTo: (route: String) -> Unit,

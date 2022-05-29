@@ -1,31 +1,23 @@
 package com.example.vin.petclinicappointment.data.network
 
-import com.example.vin.petclinicappointment.BuildConfig
-import com.example.vin.petclinicappointment.data.model.GeocodingApiResponse
-import retrofit2.Call
+import com.example.vin.petclinicappointment.data.model.LoginBody
+import com.example.vin.petclinicappointment.data.model.LoginResponse
+import com.example.vin.petclinicappointment.data.model.RegisterBody
+import com.example.vin.petclinicappointment.data.model.RegisterResponse
 import retrofit2.Response
+import retrofit2.http.Body
 import retrofit2.http.GET
-import retrofit2.http.Query
+import retrofit2.http.HTTP
+import retrofit2.http.POST
 
 interface ApiService {
-    @GET("autocomplete")
-    suspend fun getAddressAutocompleteList(
-        @Query("text") text: String,
-        @Query("type") type: String? = null,
-        @Query("lang") lang: String? = null,
-        @Query("filter") filter: String? = null,
-        @Query("format") format: String? = "json",
-        @Query("apiKey") apiKey: String = BuildConfig.GEOAPIFY_API_KEY
-    ): Response<GeocodingApiResponse>
+    @POST("customer")
+    suspend fun registerCustomer(
+        @Body body: RegisterBody
+    ): Response<RegisterResponse>
 
-    @GET("reverse")
-    suspend fun getReverseGeocodingLocation(
-        @Query("lat") lat: String,
-        @Query("lon") lon: String,
-        @Query("limit") limit: String = "1",
-        @Query("type") type: String? = null,
-        @Query("lang") lang: String? = null,
-        @Query("format") format: String? = "json",
-        @Query("apiKey") apiKey: String = BuildConfig.GEOAPIFY_API_KEY
-    ): Response<GeocodingApiResponse>
+    @POST("auth")
+    suspend fun loginCustomer(
+        @Body body: LoginBody
+    ): Response<LoginResponse>
 }
