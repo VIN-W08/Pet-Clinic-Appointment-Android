@@ -5,13 +5,11 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.NavigateBefore
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.vin.petclinicappointment.data.petClinicList
 
 @Composable
 fun PetClinicListPage(
@@ -38,7 +36,7 @@ fun PetClinicListPage(
                     )
                 }
             }
-                PetClinicList(petClinicList)
+//                PetClinicList(petClinicList)
         }
     }
 }

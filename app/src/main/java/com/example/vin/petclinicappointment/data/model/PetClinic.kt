@@ -1,13 +1,23 @@
 package com.example.vin.petclinicappointment.data.model
 
-data class PetClinic(
-    val id: String,
+import retrofit2.http.Field
+
+data class PetClinic (
+    @Field("pet_clinic_id")
+    val id: Int,
     val name: String,
-    val image: Int? = null,
-    val phone: String,
+    val email: String,
+    @Field("phone_num")
+    val phoneNum: String,
     val address: String,
-    val rating: Double,
-    val ratingCount: Int,
-    val latitude: Double? = null,
-    val longitude: Double? = null
-)
+    @Field("village_id")
+    val villageId: Int,
+    val rating: Int,
+    val latitude: Double,
+    val longitude: Double,
+    @Field("updated_at")
+    val updatedAt: String,
+    @Field("created_at")
+    val createdAt: String
+        )
+

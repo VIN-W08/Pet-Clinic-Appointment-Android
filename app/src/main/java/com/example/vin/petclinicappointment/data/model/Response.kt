@@ -31,3 +31,8 @@ data class CustomerData (
     val updated_at: String?,
     val created_at: String
     )
+
+data class PetClinicListResponse (
+    val status: ResponseStatus,
+    val data: List<PetClinic>
+)

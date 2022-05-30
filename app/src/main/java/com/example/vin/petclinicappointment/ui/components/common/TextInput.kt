@@ -1,6 +1,5 @@
 package com.example.vin.petclinicappointment.ui.components.common
 
-import android.util.Log
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -23,6 +22,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.unit.dp
 import com.example.vin.petclinicappointment.ui.theme.PetClinicAppointmentTheme
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -53,12 +53,13 @@ fun TextInput(
     var initialInput by rememberSaveable { mutableStateOf( true )}
     val focusRequester = remember { FocusRequester() }
     val interactionSource = remember { MutableInteractionSource() }
+
     val keyModifier =
         if(hasOutline)
             modifier
                 .border(
                     width = PetClinicAppointmentTheme.dimensions.grid_0_125,
-                    color =  if(isFocused) PetClinicAppointmentTheme.colors.primary else outlineColor,
+                    color = if (isFocused) PetClinicAppointmentTheme.colors.primary else outlineColor,
                     shape = shape
                 )
                 .padding(
@@ -69,9 +70,9 @@ fun TextInput(
 
     Column (
         containerModifier
+            .width(PetClinicAppointmentTheme.dimensions.grid_8 * 4)
             .clip(shape)
-            .width(IntrinsicSize.Min)
-            ){
+    ){
         Box(
             keyModifier
                 .width(PetClinicAppointmentTheme.dimensions.grid_8 * 4)
@@ -80,12 +81,10 @@ fun TextInput(
                 .clickable(
                     interactionSource = interactionSource,
                     indication = null,
-                    onClick = {  focusRequester.requestFocus() }
+                    onClick = { focusRequester.requestFocus() }
                 )
         ) {
-            Row(
-                Modifier.fillMaxSize()
-            ) {
+            Row {
                 if (leadingIcon !== null) {
                     Row(
                         Modifier
@@ -114,7 +113,7 @@ fun TextInput(
                                     if (onFocus != null) {
                                         onFocus()
                                     }
-                                } else if(!isFocused && !initialInput) {
+                                } else if (!isFocused && !initialInput) {
                                     if (onLeaveFocus != null) {
                                         onLeaveFocus()
                                     }

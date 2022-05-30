@@ -14,11 +14,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import com.example.vin.petclinicappointment.R
 import com.example.vin.petclinicappointment.data.model.PetClinic
 import com.example.vin.petclinicappointment.ui.theme.PetClinicAppointmentTheme
@@ -26,17 +24,15 @@ import com.example.vin.petclinicappointment.ui.theme.RipeMango
 
 @Composable
 fun PetClinicList(petClinicList: List<PetClinic>){
-    BoxWithConstraints {
-        Column(
-            Modifier.fillMaxHeight()
-        ) {
-            LazyColumn {
-                items(petClinicList) { petClinic ->
-                    PetClinicListItem(
-                        modifier =  Modifier.height(this@BoxWithConstraints.maxHeight * 0.2f),
-                        petClinic
-                    )
-                }
+    Column(
+        Modifier.fillMaxHeight()
+    ) {
+        LazyColumn {
+            items(petClinicList) { petClinic ->
+                PetClinicListItem(
+                    modifier =  Modifier.height(PetClinicAppointmentTheme.dimensions.grid_4 * 3),
+                    petClinic
+                )
             }
         }
     }
@@ -94,7 +90,7 @@ fun PetClinicListItem(
                         modifier = Modifier.size(PetClinicAppointmentTheme.dimensions.grid_2)
                     )
                     Text(
-                        "${petClinic.rating} (${petClinic.ratingCount})",
+                        "${petClinic.rating})",
                         style = PetClinicAppointmentTheme.typography.h3,
                         fontWeight = FontWeight.Light
                     )
