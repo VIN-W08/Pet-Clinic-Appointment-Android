@@ -1,6 +1,5 @@
 package com.example.vin.petclinicappointment.ui.components.petclinic
 
-import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
@@ -27,8 +26,6 @@ import com.example.vin.petclinicappointment.data.model.GeocodingApiResult
 import com.example.vin.petclinicappointment.ui.components.common.TextInput
 import com.example.vin.petclinicappointment.ui.theme.PetClinicAppointmentTheme
 import com.example.vin.petclinicappointment.ui.components.common.IconButton
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.launch
 
 @Composable
@@ -36,6 +33,7 @@ fun SearchPetClinicListPage(
     searchPetClinicListViewModel: SearchPetClinicListViewModel = hiltViewModel(),
     navigateToCurrentLocationMap: () -> Unit,
     navigateBack: () -> Unit,
+    navigateToDetail: (id: Int) -> Unit,
     selectedLocationState: MutableState<GeocodingApiResult?>,
 ) {
     val localFocusManager = LocalFocusManager.current
@@ -140,7 +138,10 @@ fun SearchPetClinicListPage(
                     }
                 ),
             )
-            PetClinicList(nearbyPetClinicList)
+            PetClinicList(
+                nearbyPetClinicList,
+                navigateToDetail
+            )
         }
     }
 }

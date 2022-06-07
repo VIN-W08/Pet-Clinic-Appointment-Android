@@ -13,10 +13,22 @@ class UserDataStore @Inject constructor (
     ) {
     companion object {
         private val Context.dataStore: DataStore<Preferences> by preferencesDataStore("user")
+        val userIdKey = intPreferencesKey("id")
         val userNameKey = stringPreferencesKey("username")
         val emailKey = stringPreferencesKey("email")
         val passwordKey = stringPreferencesKey("password")
         val addressKey = stringPreferencesKey("address")
+    }
+
+    suspend fun saveUserId(value: Int){
+        context.dataStore.edit { user ->
+            user[userIdKey] = value
+        }
+    }
+
+    suspend fun getUserId(): Int? {
+        val preferences = context.dataStore.data.first()
+        return preferences[userIdKey]
     }
 
     suspend fun saveUserName(value: String){

@@ -1,5 +1,6 @@
 package com.example.vin.petclinicappointment.ui.components.petclinic
 
+import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.example.vin.petclinicappointment.data.model.Call
 import com.example.vin.petclinicappointment.data.model.Coordinate

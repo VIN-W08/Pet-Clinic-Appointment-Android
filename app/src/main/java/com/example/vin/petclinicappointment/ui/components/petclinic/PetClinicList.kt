@@ -1,5 +1,6 @@
 package com.example.vin.petclinicappointment.ui.components.petclinic
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -23,7 +24,10 @@ import com.example.vin.petclinicappointment.ui.theme.PetClinicAppointmentTheme
 import com.example.vin.petclinicappointment.ui.theme.RipeMango
 
 @Composable
-fun PetClinicList(petClinicList: List<PetClinic>){
+fun PetClinicList(
+    petClinicList: List<PetClinic>,
+    navigateToDetail: (id: Int) -> Unit
+){
     Column(
         Modifier.fillMaxHeight()
     ) {
@@ -31,7 +35,8 @@ fun PetClinicList(petClinicList: List<PetClinic>){
             items(petClinicList) { petClinic ->
                 PetClinicListItem(
                     modifier =  Modifier.height(PetClinicAppointmentTheme.dimensions.grid_4 * 3),
-                    petClinic
+                    petClinic,
+                    navigateToDetail = navigateToDetail
                 )
             }
         }
@@ -41,12 +46,13 @@ fun PetClinicList(petClinicList: List<PetClinic>){
 @Composable
 fun PetClinicListItem(
     modifier: Modifier = Modifier,
-    petClinic: PetClinic
+    petClinic: PetClinic,
+    navigateToDetail: (id: Int) -> Unit
 ){
     Row (
         modifier
             .fillMaxWidth()
-            .clickable {}
+            .clickable { petClinic.id?.let { navigateToDetail(it) } }
             .padding(
                 start = PetClinicAppointmentTheme.dimensions.grid_2,
                 end = PetClinicAppointmentTheme.dimensions.grid_2
@@ -68,12 +74,14 @@ fun PetClinicListItem(
             Modifier.fillMaxHeight(),
             verticalArrangement = Arrangement.Center
         ) {
-            Text(
-                petClinic.name,
-                style = PetClinicAppointmentTheme.typography.h2,
-                fontWeight = FontWeight.SemiBold,
-                modifier = Modifier.padding(bottom = PetClinicAppointmentTheme.dimensions.grid_1)
-            )
+            petClinic.name?.let {
+                Text(
+                    it,
+                    style = PetClinicAppointmentTheme.typography.h2,
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.padding(bottom = PetClinicAppointmentTheme.dimensions.grid_1)
+                )
+            }
             Column {
                 Text(
                     petClinic.address,

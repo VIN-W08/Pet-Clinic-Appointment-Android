@@ -1,5 +1,6 @@
 package com.example.vin.petclinicappointment.ui.components.login
 
+import android.util.Log
 import android.util.Patterns
 import androidx.lifecycle.viewModelScope
 import com.example.vin.petclinicappointment.data.model.Call
@@ -55,7 +56,9 @@ class LoginViewModel @Inject constructor (
                     }
                     if(data.role == "customer") {
                         _customer.value = data.customer.let {
+                            Log.d("debug1", "user id in func:${it.id}")
                             Customer(
+                                id = it.id,
                                 name = it.name,
                                 email = it.email,
                                 password = it.password
@@ -73,6 +76,11 @@ class LoginViewModel @Inject constructor (
     }
 
     private suspend fun saveCustomerData() {
+        Log.d("debug1", "customer email:${customer.value?.email}")
+        Log.d("debug1", "customer password:${customer.value?.password}")
+        Log.d("debug1", "customer name:${customer.value?.name}")
+        Log.d("debug1", "customer id:${customer.value?.id}")
+        _customer.value?.let { userRepository.saveUserId(it.id ?: 0)}
         _customer.value?.let { userRepository.saveUserName(it.name?:"") }
         _customer.value?.let { userRepository.saveUserEmail(it.email) }
         _customer.value?.let { userRepository.saveUserPassword(it.password) }

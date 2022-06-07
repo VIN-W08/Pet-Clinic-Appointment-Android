@@ -33,6 +33,12 @@ class UserRepository @Inject constructor(
         return Call.Error(response)
     }
 
+    suspend fun saveUserId(value: Int) =
+        userDataStore.saveUserId(value)
+
+    suspend fun getUserId() =
+        userDataStore.getUserId()
+
     suspend fun saveUserName(value: String) =
         userDataStore.saveUserName(value)
 

@@ -2,6 +2,7 @@ package com.example.vin.petclinicappointment.di
 
 import android.content.Context
 import com.example.vin.petclinicappointment.data.UserDataStore
+import com.example.vin.petclinicappointment.data.repository.AppointmentRepository
 import com.example.vin.petclinicappointment.data.repository.LocationRepository
 import com.example.vin.petclinicappointment.data.repository.PetClinicRepository
 import com.example.vin.petclinicappointment.data.repository.UserRepository
@@ -16,6 +17,10 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object AppModule {
 
+    @Singleton
+    @Provides
+    fun provideAppointmentRepository(): AppointmentRepository
+            = AppointmentRepository()
 
     @Singleton
     @Provides

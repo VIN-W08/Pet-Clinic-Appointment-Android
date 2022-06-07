@@ -28,14 +28,12 @@ fun IconButton(
     val interactionSource = MutableInteractionSource()
     if(hasBorder) {
         Box(
-            containerModifier
-                .size(PetClinicAppointmentTheme.dimensions.grid_4)
-                .background(PetClinicAppointmentTheme.colors.primaryVariant, CircleShape),
+            containerModifier.size(PetClinicAppointmentTheme.dimensions.grid_4),
             contentAlignment = Alignment.Center
         ) {
             Icon(
                 modifier = modifier
-                    .size(PetClinicAppointmentTheme.dimensions.grid_2)
+                    .size(PetClinicAppointmentTheme.dimensions.grid_3)
                     .clickable(
                         indication = null,
                         interactionSource = interactionSource

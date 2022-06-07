@@ -34,7 +34,7 @@ enum class MainBottomNavTabs(
     val icon: ImageVector,
     val route: String
 ) {
-    Home(R.string.tab_home, Icons.Default.Home, "home"),
+    Home(R.string.tab_home, Icons.Default.Home, "home-customer"),
     History(R.string.tab_history, Icons.Default.History,"history"),
     Profile(R.string.tab_profile, Icons.Default.AccountCircle, "profile")
 }

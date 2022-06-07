@@ -17,9 +17,7 @@ import com.example.vin.petclinicappointment.ui.components.login.LoginOptionsPage
 import com.example.vin.petclinicappointment.ui.components.login.LoginPage
 import com.example.vin.petclinicappointment.ui.components.main.MainBottomNavBar
 import com.example.vin.petclinicappointment.ui.components.main.mainBottomNavGraph
-import com.example.vin.petclinicappointment.ui.components.petclinic.CurrentLocationMapPage
-import com.example.vin.petclinicappointment.ui.components.petclinic.PetClinicListPage
-import com.example.vin.petclinicappointment.ui.components.petclinic.SearchPetClinicListPage
+import com.example.vin.petclinicappointment.ui.components.petclinic.*
 import com.example.vin.petclinicappointment.ui.components.sign_up.CustomerSignUpPage
 
 @Composable
@@ -100,7 +98,8 @@ private fun NavGraphBuilder.appNavGraph (appState: MainAppState, scaffoldState: 
         SearchPetClinicListPage(
             navigateToCurrentLocationMap = { appState.navigateTo("current-location-map") },
             navigateBack = appState::navigateBack,
-            selectedLocationState = appState.selectedLocation
+            selectedLocationState = appState.selectedLocation,
+            navigateToDetail = { id -> appState.navigateTo("detail-pet-clinic/$id") }
         )
     }
     composable(route = "current-location-map"){
@@ -110,6 +109,31 @@ private fun NavGraphBuilder.appNavGraph (appState: MainAppState, scaffoldState: 
             selectedLocationState = appState.selectedLocation,
             deviceLocationState = appState.deviceLocation,
             getDeviceLocation = appState::getDeviceLocation
+        )
+    }
+    composable(route = "detail-pet-clinic/{id}"){ navBackStackEntry ->
+        PetClinicDetailPage(
+            id = navBackStackEntry.arguments?.getString("id")?.toInt() ?: 0,
+            navigateBack = appState::navigateBack,
+            navigateToInfo = {id -> appState.navigateTo("info-pet-clinic/$id") },
+            navigateToHome = { id -> appState.navigateTo("main", "detail-pet-clinic/$id")}
+        )
+    }
+
+    composable(route = "info-pet-clinic/{id}"){ navBackStackEntry ->
+        PetClinicInfoPage(
+            id = navBackStackEntry.arguments?.getString("id")?.toInt() ?: 0,
+            navigateBack = appState::navigateBack,
+            navigateToLocationMap = {name, lat, lon -> appState.navigateTo("location-map?name=$name&lat=$lat&lon=$lon")}
+        )
+    }
+
+    composable(route = "location-map?name={name}&lat={lat}&lon={lon}"){ navBackStackEntry ->
+        LocationMapPage(
+            lat = navBackStackEntry.arguments?.getString("lat")?.toDouble() ?: 0.0,
+            lon = navBackStackEntry.arguments?.getString("lon")?.toDouble() ?: 0.0,
+            markerTitle = navBackStackEntry.arguments?.getString("name").toString(),
+            navigateBack = appState::navigateBack
         )
     }
 }

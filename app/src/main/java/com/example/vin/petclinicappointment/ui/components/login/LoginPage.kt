@@ -68,7 +68,7 @@ fun LoginPage(
         }
         progressIndicatorVisible = true
         coroutineScope.launch {
-            loginViewModel.login(Customer(email, password))
+            loginViewModel.login(Customer(email = email, password = password))
             progressIndicatorVisible = false
             if (loginViewModel.isLoggedIn.value) {
                 if(userRole.value.equals("customer")) {

@@ -16,23 +16,33 @@ data class RegisterResponse(
 )
 
 data class AuthData(
-    val customer: CustomerData,
+    val customer: Customer,
     val status: Boolean,
     val role: String,
     val created_at: String
 )
 
-data class CustomerData (
-    val customer_id: Int,
-    val name: String,
-    val email: String,
-    val password: String,
-    val phone_num: String?,
-    val updated_at: String?,
-    val created_at: String
-    )
-
 data class PetClinicListResponse (
     val status: ResponseStatus,
     val data: List<PetClinic>
+)
+
+data class PetClinicDetailResponse (
+    val status: ResponseStatus,
+    val data: PetClinicDetail
+)
+
+data class ServiceDetailResponse (
+    val status: ResponseStatus,
+    val data: ServiceDetail
+    )
+
+data class ServiceScheduleListResponse (
+    val status: ResponseStatus,
+    val data: List<ServiceSchedule>
+        )
+
+data class CreateAppointmentResponse(
+    val status: ResponseStatus,
+    val data: Appointment
 )

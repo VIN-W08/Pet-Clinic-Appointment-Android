@@ -79,7 +79,7 @@ fun CustomerSignUpPage(
         }
         progressIndicatorVisible = true
         coroutineScope.launch {
-            registerViewModel.register(Customer(email, password, name))
+            registerViewModel.register(Customer(email = email, password = password, name = name))
             progressIndicatorVisible = false
             if (registerViewModel.isLoggedIn.value) {
                 navigateToHome()
