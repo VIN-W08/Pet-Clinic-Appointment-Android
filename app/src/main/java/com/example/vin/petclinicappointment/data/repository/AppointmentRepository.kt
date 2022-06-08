@@ -1,9 +1,6 @@
 package com.example.vin.petclinicappointment.data.repository
 
-import android.util.Log
-import com.example.vin.petclinicappointment.data.model.Call
-import com.example.vin.petclinicappointment.data.model.CreateAppointmentBody
-import com.example.vin.petclinicappointment.data.model.CreateAppointmentResponse
+import com.example.vin.petclinicappointment.data.model.*
 import com.example.vin.petclinicappointment.data.network.AppointmentApiService
 import retrofit2.Response
 import retrofit2.Retrofit
@@ -18,7 +15,32 @@ class AppointmentRepository {
 
     suspend fun createAppointment(body: CreateAppointmentBody): Call<Response<CreateAppointmentResponse>> {
         val response = apiService.createAppointment(body)
-        Log.d("debug1", "response:${response.body()}")
+        if(response.isSuccessful){
+            return Call.Success(response)
+        }
+        return Call.Error(response)
+    }
+
+    suspend fun getAppointmentList(
+        customerId: Int? = null,
+        clinicId: Int? = null,
+        status: Int? = null,
+        finished: Boolean? = null
+    ): Call<Response<GetAppointmentListResponse>>{
+        val response = apiService.getAppointmentList(
+            customerId = customerId,
+            clinicId = clinicId,
+            status = status,
+            finished = finished
+        )
+        if(response.isSuccessful){
+            return Call.Success(response)
+        }
+        return Call.Error(response)
+    }
+
+    suspend fun getAppointmentDetail(id: Int): Call<Response<GetAppointmentDetailResponse>>{
+        val response = apiService.getAppointmentDetail(id)
         if(response.isSuccessful){
             return Call.Success(response)
         }

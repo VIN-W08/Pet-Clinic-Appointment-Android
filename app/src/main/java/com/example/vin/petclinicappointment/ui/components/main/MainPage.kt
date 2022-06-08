@@ -12,6 +12,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import com.example.vin.petclinicappointment.MainAppState
 import com.example.vin.petclinicappointment.R
+import com.example.vin.petclinicappointment.ui.components.history.HistoryPage
 import com.example.vin.petclinicappointment.ui.components.home.CustomerHomePage
 
 fun NavGraphBuilder.mainBottomNavGraph (appState: MainAppState, scaffoldState: ScaffoldState){
@@ -25,7 +26,12 @@ fun NavGraphBuilder.mainBottomNavGraph (appState: MainAppState, scaffoldState: S
             getGpsEnabledStatus = appState::getGpsEnabledStatus,
         )
     }
-    composable(route = "history") {}
+    composable(route = "history") {
+        HistoryPage(
+            navigateToAppointmentDetail = { id -> appState.navigateTo("appointment-detail/$id") },
+            navigateBack = appState::navigateBack
+        )
+    }
     composable(route = "profile"){}
 }
 

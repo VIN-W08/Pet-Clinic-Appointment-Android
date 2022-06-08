@@ -2,6 +2,7 @@ package com.example.vin.petclinicappointment.ui.components.common
 
 import android.graphics.BitmapFactory
 import android.util.Base64
+import android.util.Log
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -30,7 +31,7 @@ fun Image(
             contentScale = contentScale,
             contentDescription = contentDescription
         )
-    } else {
+    } else if(painter !== null){
         Image(
             painter = painter,
             modifier = modifier,

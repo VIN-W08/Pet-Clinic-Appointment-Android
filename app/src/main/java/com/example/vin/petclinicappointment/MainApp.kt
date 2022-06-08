@@ -12,6 +12,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
+import com.example.vin.petclinicappointment.ui.components.appointment.AppointmentDetailPage
 import com.example.vin.petclinicappointment.ui.components.common.Snackbar
 import com.example.vin.petclinicappointment.ui.components.login.LoginOptionsPage
 import com.example.vin.petclinicappointment.ui.components.login.LoginPage
@@ -133,6 +134,13 @@ private fun NavGraphBuilder.appNavGraph (appState: MainAppState, scaffoldState: 
             lat = navBackStackEntry.arguments?.getString("lat")?.toDouble() ?: 0.0,
             lon = navBackStackEntry.arguments?.getString("lon")?.toDouble() ?: 0.0,
             markerTitle = navBackStackEntry.arguments?.getString("name").toString(),
+            navigateBack = appState::navigateBack
+        )
+    }
+
+    composable(route = "appointment-detail/{id}"){ navBackStackEntry ->
+        AppointmentDetailPage(
+            id = navBackStackEntry.arguments?.getString("id")?.toInt() ?: 0,
             navigateBack = appState::navigateBack
         )
     }

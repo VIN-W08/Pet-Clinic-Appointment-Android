@@ -46,3 +46,14 @@ data class CreateAppointmentResponse(
     val status: ResponseStatus,
     val data: Appointment
 )
+
+data class GetAppointmentListResponse(
+    val status: ResponseStatus,
+    val data: List<Appointment>
+)
+
+data class GetAppointmentDetailResponse(
+    val status: ResponseStatus,
+    val data: AppointmentDetail
+)
+
