@@ -5,16 +5,16 @@ import com.google.gson.annotations.SerializedName
 open class PetClinic(
     id: Int? = null,
     email: String,
-    password: String,
+    password: String? = null,
     name: String? = null,
     phoneNum: String? = null,
     image: String? = null,
-    val address: String,
+    val address: String? = null,
     @SerializedName("village_id")
-    val villageId: Long,
-    val rating: Int,
-    val latitude: Double,
-    val longitude: Double,
+    val villageId: Long? = null,
+    val rating: Float = 0f,
+    val latitude: Double? = null,
+    val longitude: Double? = null,
     updatedAt: String? = null,
     createdAt: String? = null
 ): User(
@@ -37,7 +37,7 @@ class PetClinicDetail(
     image: String,
     address: String,
     villageId: Long,
-    rating: Int,
+    rating: Float,
     latitude: Double,
     longitude: Double,
     @SerializedName("services")

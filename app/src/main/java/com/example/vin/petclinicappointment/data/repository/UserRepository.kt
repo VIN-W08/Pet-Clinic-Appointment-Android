@@ -3,6 +3,7 @@ package com.example.vin.petclinicappointment.data.repository
 import com.example.vin.petclinicappointment.data.UserDataStore
 import com.example.vin.petclinicappointment.data.model.*
 import com.example.vin.petclinicappointment.data.network.ApiService
+import com.example.vin.petclinicappointment.data.network.PetClinicApiService
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -17,6 +18,12 @@ class UserRepository @Inject constructor(
         .build()
         .create(ApiService::class.java)
 
+    val clinicApiService = Retrofit.Builder()
+        .baseUrl("http://10.0.2.2:7284/api/")
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
+        .create(PetClinicApiService::class.java)
+
     suspend fun login(body: LoginBody): Call<Response<LoginResponse>> {
         val response = apiService.loginCustomer(body)
         if(response.isSuccessful) {
@@ -27,6 +34,14 @@ class UserRepository @Inject constructor(
 
     suspend fun registerCustomer(body: RegisterBody): Call<Response<RegisterResponse>>{
         val response = apiService.registerCustomer(body)
+        if(response.isSuccessful) {
+            return Call.Success(response)
+        }
+        return Call.Error(response)
+    }
+
+    suspend fun loginClinic(body: LoginBody): Call<Response<LoginClinicResponse>> {
+        val response = clinicApiService.loginPetClinic(body)
         if(response.isSuccessful) {
             return Call.Success(response)
         }
@@ -56,4 +71,10 @@ class UserRepository @Inject constructor(
 
     suspend fun getUserPassword() =
         userDataStore.getUserPassword()
+
+    suspend fun saveUserRole(value: String) =
+        userDataStore.saveUserRole(value)
+
+    suspend fun getUserRole() =
+        userDataStore.getUserRole()
 }

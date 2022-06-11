@@ -1,12 +1,8 @@
 package com.example.vin.petclinicappointment.ui.components.login
 
-import android.util.Log
 import android.util.Patterns
 import androidx.lifecycle.viewModelScope
-import com.example.vin.petclinicappointment.data.model.Call
-import com.example.vin.petclinicappointment.data.model.Customer
-import com.example.vin.petclinicappointment.data.model.LoginBody
-import com.example.vin.petclinicappointment.data.model.User
+import com.example.vin.petclinicappointment.data.model.*
 import com.example.vin.petclinicappointment.data.repository.UserRepository
 import com.example.vin.petclinicappointment.ui.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -27,46 +23,65 @@ class LoginViewModel @Inject constructor (
     private val _customer = MutableStateFlow<User?>(null)
     val customer = _customer.asStateFlow()
 
+    private val _clinic = MutableStateFlow<User?>(null)
+    val clinic = _clinic.asStateFlow()
+
+    private val _email = MutableStateFlow("")
+    val email = _email.asStateFlow()
+
+    private val _password = MutableStateFlow("")
+    val password = _password.asStateFlow()
+
+    fun setEmail(value: String){
+        _email.value = value
+    }
+
+    fun setPassword(value: String){
+        _password.value = value
+    }
+
     private fun validateUser(user: User): Boolean {
         val passwordRegex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[a-zA-Z\\d]{8,}\$"
         val passwordPattern = Pattern.compile(passwordRegex)
-        if(user.email.isEmpty() && !Patterns.EMAIL_ADDRESS.matcher(user.email).matches()){
+        if(user.email.isEmpty() || !Patterns.EMAIL_ADDRESS.matcher(user.email).matches()){
             return false
         }
-        if(user.password.isEmpty() && !passwordPattern.matcher(user.password).matches()){
+        if(user.password == null || !passwordPattern.matcher(user.password).matches()){
             return false
         }
         return true
     }
 
-    suspend fun login(user: User) {
-        if(validateUser(user)) {
+    suspend fun login() {
+        if(validateUser(
+                Customer(
+                    email = email.value,
+                    password = password.value
+                )
+        )) {
             val response = viewModelScope.async(Dispatchers.IO) {
                 userRepository.login(LoginBody(
-                    email = user.email,
-                    password = user.password
+                    email = email.value,
+                    password = password.value
                 ))
             }.await()
             when (response) {
                 is Call.Success -> {
                     val data = response.data?.body()?.data
-                    if(data == null){
+                    if (data == null) {
                         setMessage(response.data?.body()?.status?.message as String)
                         return
                     }
-                    if(data.role == "customer") {
-                        _customer.value = data.customer.let {
-                            Log.d("debug1", "user id in func:${it.id}")
-                            Customer(
-                                id = it.id,
-                                name = it.name,
-                                email = it.email,
-                                password = it.password
-                            )
-                        }
-                        saveCustomerData()
+                    _customer.value = data.customer.let { customer ->
+                        Customer(
+                            id = customer.id,
+                            name = customer.name,
+                            email = customer.email
+                        )
                     }
-                    if(data.status) {
+                    userRepository.saveUserRole(data.role)
+                    saveUserData(data.role)
+                    if (data.status) {
                         _isLoggedIn.value = true
                     }
                 }
@@ -75,14 +90,65 @@ class LoginViewModel @Inject constructor (
         }
     }
 
-    private suspend fun saveCustomerData() {
-        Log.d("debug1", "customer email:${customer.value?.email}")
-        Log.d("debug1", "customer password:${customer.value?.password}")
-        Log.d("debug1", "customer name:${customer.value?.name}")
-        Log.d("debug1", "customer id:${customer.value?.id}")
-        _customer.value?.let { userRepository.saveUserId(it.id ?: 0)}
-        _customer.value?.let { userRepository.saveUserName(it.name?:"") }
-        _customer.value?.let { userRepository.saveUserEmail(it.email) }
-        _customer.value?.let { userRepository.saveUserPassword(it.password) }
+    suspend fun loginClinic() {
+        if(validateUser(PetClinic(
+                email = email.value,
+                password = password.value
+        ))) {
+            val response = viewModelScope.async(Dispatchers.IO) {
+                userRepository.loginClinic(LoginBody(
+                    email = email.value,
+                    password = password.value
+                ))
+            }.await()
+            when (response) {
+                is Call.Success -> {
+                    val data = response.data?.body()?.data
+                    if (data == null) {
+                        setMessage(response.data?.body()?.status?.message as String)
+                        return
+                    }
+                    _clinic.value = data.pet_clinic.let { clinic ->
+                        PetClinic(
+                            id = clinic.id,
+                            name = clinic.name,
+                            email = clinic.email,
+                            phoneNum = clinic.phoneNum,
+                            address = clinic.address,
+                            villageId = clinic.villageId,
+                            rating = clinic.rating,
+                            latitude = clinic.latitude,
+                            longitude = clinic.longitude
+                        )
+                    }
+                    userRepository.saveUserRole(data.role)
+                    saveUserData(data.role)
+                    if (data.status) {
+                        _isLoggedIn.value = true
+                    }
+                }
+                else -> setMessage(response.data?.message() as String)
+            }
+        }
+    }
+
+
+
+    private suspend fun saveUserData(role: String) {
+        if(role == "customer") {
+            _customer.value?.let {
+                userRepository.saveUserId(it.id ?: 0)
+                userRepository.saveUserName(it.name ?: "")
+                userRepository.saveUserEmail(it.email)
+            }
+            userRepository.saveUserPassword(password.value)
+        }else if(role == "clinic"){
+            _clinic.value?.let {
+                userRepository.saveUserId(it.id ?: 0)
+                userRepository.saveUserName(it.name ?: "")
+                userRepository.saveUserEmail(it.email)
+            }
+            userRepository.saveUserPassword(password.value)
+        }
     }
 }

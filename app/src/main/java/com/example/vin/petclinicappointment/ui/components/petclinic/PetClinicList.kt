@@ -49,6 +49,7 @@ fun PetClinicListItem(
     petClinic: PetClinic,
     navigateToDetail: (id: Int) -> Unit
 ){
+    val clinicAddress = petClinic.address
     Row (
         modifier
             .fillMaxWidth()
@@ -83,11 +84,13 @@ fun PetClinicListItem(
                 )
             }
             Column {
-                Text(
-                    petClinic.address,
-                    style = PetClinicAppointmentTheme.typography.h3,
-                    fontWeight = FontWeight.Light
-                )
+                if (clinicAddress != null) {
+                    Text(
+                        clinicAddress,
+                        style = PetClinicAppointmentTheme.typography.h3,
+                        fontWeight = FontWeight.Light
+                    )
+                }
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {

@@ -19,7 +19,6 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.vin.petclinicappointment.data.model.Customer
 import com.example.vin.petclinicappointment.ui.components.common.AppButton
 import com.example.vin.petclinicappointment.ui.components.common.TextInput
 import com.example.vin.petclinicappointment.ui.theme.*
@@ -34,11 +33,12 @@ fun LoginPage(
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
     scaffoldState: ScaffoldState,
     navigateToCustomerHome: () -> Unit,
-    navigateToCustomerCustomerSignUp: () -> Unit,
-    userRole: MutableState<String?>
+    navigateToAppointment: () -> Unit,
+    navigateToSignUp: () -> Unit,
+    userRole: MutableState<String?>,
 ){
-    var email by rememberSaveable { mutableStateOf("") }
-    var password by rememberSaveable { mutableStateOf("")}
+    val email by loginViewModel.email.collectAsState()
+    val password by loginViewModel.password.collectAsState()
     var showEmailError by rememberSaveable { mutableStateOf( false )}
     var emailErrorMessage by rememberSaveable { mutableStateOf<String?>( null)}
     var showPasswordError by rememberSaveable { mutableStateOf( false )}
@@ -68,21 +68,23 @@ fun LoginPage(
         }
         progressIndicatorVisible = true
         coroutineScope.launch {
-            loginViewModel.login(Customer(email = email, password = password))
+            when(userRole.value) {
+                "customer" -> loginViewModel.login()
+                "clinic" -> loginViewModel.loginClinic()
+                else -> return@launch
+            }
             progressIndicatorVisible = false
             if (loginViewModel.isLoggedIn.value) {
                 if(userRole.value.equals("customer")) {
                     navigateToCustomerHome()
+                }else if(userRole.value.equals("clinic")){
+                    navigateToAppointment()
                 }
             }
         }
     }
 
-    fun onClickSignUp(){
-        if(userRole.value.equals("customer")){
-            navigateToCustomerCustomerSignUp()
-        }
-    }
+    fun onClickSignUp() = navigateToSignUp()
 
     Surface(
         Modifier
@@ -131,7 +133,7 @@ fun LoginPage(
                 )
                 TextInput(
                     value = email,
-                    onValueChange = { email = it },
+                    onValueChange = { loginViewModel.setEmail(it) },
                     placeholder = "Email",
                     containerModifier = Modifier
                         .padding(bottom = PetClinicAppointmentTheme.dimensions.grid_2),
@@ -147,7 +149,7 @@ fun LoginPage(
                 )
                 TextInput(
                     value = password,
-                    onValueChange = { password = it },
+                    onValueChange = { loginViewModel.setPassword(it) },
                     placeholder = "Kata Sandi",
                     containerModifier = Modifier
                         .padding(bottom = PetClinicAppointmentTheme.dimensions.grid_4_5),
@@ -165,7 +167,7 @@ fun LoginPage(
                 AppButton(
                     onClick = { onClickLogin() },
                     modifier = Modifier
-                        .width(PetClinicAppointmentTheme.dimensions.grid_9 * 4)
+                        .width(PetClinicAppointmentTheme.dimensions.grid_3 * 11)
                         .height(PetClinicAppointmentTheme.dimensions.grid_5_5),
                     colors = buttonColors(PetClinicAppointmentTheme.colors.primary),
                     shape = RoundedCornerShape(PetClinicAppointmentTheme.dimensions.grid_5)

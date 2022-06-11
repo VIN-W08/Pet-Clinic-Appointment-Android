@@ -18,6 +18,7 @@ class UserDataStore @Inject constructor (
         val emailKey = stringPreferencesKey("email")
         val passwordKey = stringPreferencesKey("password")
         val addressKey = stringPreferencesKey("address")
+        val roleKey = stringPreferencesKey("role")
     }
 
     suspend fun saveUserId(value: Int){
@@ -62,6 +63,17 @@ class UserDataStore @Inject constructor (
     suspend fun getUserPassword(): String? {
         val preferences = context.dataStore.data.first()
         return preferences[passwordKey]
+    }
+
+    suspend fun saveUserRole(value: String){
+        context.dataStore.edit { user ->
+            user[roleKey] = value
+        }
+    }
+
+    suspend fun getUserRole(): String? {
+        val preferences = context.dataStore.data.first()
+        return preferences[roleKey]
     }
 
     suspend fun saveUserAddress(value: String){

@@ -1,5 +1,6 @@
 package com.example.vin.petclinicappointment
 
+import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -17,15 +18,29 @@ import com.example.vin.petclinicappointment.ui.components.common.Snackbar
 import com.example.vin.petclinicappointment.ui.components.login.LoginOptionsPage
 import com.example.vin.petclinicappointment.ui.components.login.LoginPage
 import com.example.vin.petclinicappointment.ui.components.main.MainBottomNavBar
-import com.example.vin.petclinicappointment.ui.components.main.mainBottomNavGraph
+import com.example.vin.petclinicappointment.ui.components.main.clinicMainBottomNavGraph
+import com.example.vin.petclinicappointment.ui.components.main.customerMainBottomNavGraph
 import com.example.vin.petclinicappointment.ui.components.petclinic.*
-import com.example.vin.petclinicappointment.ui.components.sign_up.CustomerSignUpPage
+import com.example.vin.petclinicappointment.ui.components.sign_up.SignUpPage
 
 @Composable
 fun MainApp() {
     val appState = rememberMainAppState()
-    val startDestination = if(appState.getUserAuthStatus()) "main" else "login-option"
+    val startDestination = if(appState.getUserAuthStatus()) {
+        when(appState.getUserRole()) {
+           "customer" -> "main/customer"
+            "clinic" -> "main/clinic"
+            else -> throw IllegalArgumentException()
+        }
+    } else "login-option"
     val scaffoldState = appState.scaffoldState
+    val mainBottomNavBarTabs by appState.mainBottomNavBarTabs.collectAsState()
+
+    LaunchedEffect(Unit){
+        if(startDestination == "main/customer" || startDestination == "main/clinic") {
+            appState.setMainBottomNav()
+        }
+    }
 
     Scaffold (
         scaffoldState = scaffoldState,
@@ -33,7 +48,7 @@ fun MainApp() {
         bottomBar = {
             if(appState.showBottomNavBar) {
                 MainBottomNavBar(
-                    appState.mainBottomNavBarTabs,
+                    mainBottomNavBarTabs,
                     appState.currentRoute,
                     appState::navigateMainBottomNavBarTo
                 )
@@ -47,7 +62,7 @@ fun MainApp() {
                 ){
             NavHost(
                 navController = appState.navController,
-                startDestination = startDestination
+                startDestination = startDestination.toString()
             ) {
                 appNavGraph(appState, scaffoldState)
             }
@@ -62,11 +77,19 @@ fun MainApp() {
 
 private fun NavGraphBuilder.appNavGraph (appState: MainAppState, scaffoldState: ScaffoldState){
     navigation(
-        route = "main",
+        route = "main/customer",
         startDestination = "home-customer"
     ){
-        mainBottomNavGraph(appState, scaffoldState)
+        customerMainBottomNavGraph(appState, scaffoldState)
     }
+
+    navigation(
+        route = "main/clinic",
+        startDestination = "appointment"
+    ){
+        clinicMainBottomNavGraph(appState, scaffoldState)
+    }
+
     composable(route = "login-option"){
         LoginOptionsPage (
             navigateToLogin = {appState.navigateTo("login", "sign-up")},
@@ -75,17 +98,27 @@ private fun NavGraphBuilder.appNavGraph (appState: MainAppState, scaffoldState: 
     }
     composable(route = "login") {
         LoginPage(
-            navigateToCustomerHome = { appState.navigateTo("main", "login") },
-            navigateToCustomerCustomerSignUp = { appState.navigateTo("sign-up-customer", "login")},
+            navigateToCustomerHome = {
+                Log.d("debug1", "role:${appState.userRole.value}")
+                appState.setMainBottomNav()
+                appState.navigateTo("main/customer", "login")
+                                     },
+            navigateToSignUp = { appState.navigateTo("sign-up", "login") },
             userRole = appState.userRole,
-            scaffoldState = appState.scaffoldState
+            scaffoldState = appState.scaffoldState,
+            navigateToAppointment = {
+                Log.d("debug1", "role:${appState.userRole.value}")
+                appState.setMainBottomNav()
+                appState.navigateTo("main/clinic", "login")
+            }
         )
     }
-    composable(route = "sign-up-customer") {
-        CustomerSignUpPage(
-            navigateToLogin = { appState.navigateTo("login", "sign-up-customer")},
+    composable(route = "sign-up") {
+        SignUpPage(
+            navigateToLogin = { appState.navigateTo("login", "sign-up")},
             navigateToHome = { appState.navigateTo("main", "login") },
-            scaffoldState = appState.scaffoldState
+            scaffoldState = appState.scaffoldState,
+            userRole = appState.userRole.value ?: ""
         )
     }
     composable(route = "pet-clinic-list/{title}/{type}"){ navBackStackEntry ->

@@ -1,5 +1,7 @@
 package com.example.vin.petclinicappointment.data.model
 
+import com.google.gson.annotations.SerializedName
+
 data class ResponseStatus (
     val code: Int,
     val message: String
@@ -17,6 +19,23 @@ data class RegisterResponse(
 
 data class AuthData(
     val customer: Customer,
+    val status: Boolean,
+    val role: String,
+    val created_at: String
+)
+
+data class RegisterClinicResponse(
+    val status: ResponseStatus,
+    val data: ClinicAuthData?
+)
+
+data class LoginClinicResponse(
+    val status: ResponseStatus,
+    val data: ClinicAuthData?
+)
+
+data class ClinicAuthData(
+    val pet_clinic: PetClinic,
     val status: Boolean,
     val role: String,
     val created_at: String
@@ -57,3 +76,22 @@ data class GetAppointmentDetailResponse(
     val data: AppointmentDetail
 )
 
+data class GetVillageListResponse (
+    @SerializedName("kelurahan")
+    val villageList: List<Village>
+    )
+
+data class GetDistrictListResponse (
+    @SerializedName("kecamatan")
+    val districtList: List<District>
+)
+
+data class GetCityListResponse (
+    @SerializedName("kota_kabupaten")
+    val cityList: List<City>
+)
+
+data class GetProvinceListResponse (
+    @SerializedName("provinsi")
+    val provinceList: List<Province>
+)

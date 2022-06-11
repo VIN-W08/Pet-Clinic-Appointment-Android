@@ -23,6 +23,8 @@ import com.google.android.gms.location.*
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.tasks.CancellationTokenSource
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 @Composable
 fun rememberMainAppState(
@@ -46,6 +48,7 @@ class MainAppState(
     val coroutineScope: CoroutineScope
 ){
     var userRole: MutableState<String?> = mutableStateOf(null)
+
     val locationRequest = LocationRequest.create().apply {
         interval = 10000
         fastestInterval = 5000
@@ -55,11 +58,14 @@ class MainAppState(
     val deviceCoordinate: MutableState<LatLng?> = mutableStateOf(null)
     val deviceLocation: MutableState<GeocodingApiResult?> = mutableStateOf(null)
 
-    val mainBottomNavBarTabs = MainBottomNavTabs.values()
-    private val mainBottomNavBarRoutes = mainBottomNavBarTabs.map { it.route }
+    private val _mainBottomNavBarTabs = MutableStateFlow<Array<MainBottomNavTabs>>(arrayOf())
+    val mainBottomNavBarTabs = _mainBottomNavBarTabs.asStateFlow()
+
+    private val _mainBottomNavBarRoutes = MutableStateFlow(listOf<String>())
+    val mainBottomNavBarRoutes = _mainBottomNavBarRoutes.asStateFlow()
 
     val showBottomNavBar: Boolean
-       @Composable get() = navController.currentBackStackEntryAsState().value?.destination?.route in mainBottomNavBarRoutes
+       @Composable get() = navController.currentBackStackEntryAsState().value?.destination?.route in mainBottomNavBarRoutes.value
 
     val currentRoute: String?
             get() = navController.currentDestination?.route
@@ -73,6 +79,22 @@ class MainAppState(
                 }
             }
         }
+    }
+
+    fun setMainBottomNav(){
+        coroutineScope.launch {
+            val role = userRepository.getUserRole()
+            _mainBottomNavBarTabs.value = MainBottomNavTabs.create(role ?: "")
+            _mainBottomNavBarRoutes.value = mainBottomNavBarTabs.value.map { it.route }
+        }
+    }
+
+    fun getUserRole(): String {
+        val role = runBlocking {
+            val userRole = async { userRepository.getUserRole() }
+            userRole.await()
+        }
+        return role ?: ""
     }
 
     private fun getUpdatingDeviceCoordinate(context: Context, onLocationResult: (locationResult: LocationResult) -> Unit){

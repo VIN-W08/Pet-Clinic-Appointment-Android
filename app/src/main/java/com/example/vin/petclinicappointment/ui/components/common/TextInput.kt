@@ -99,12 +99,18 @@ fun TextInput(
                     Modifier
                         .weight(1f)
                         .fillMaxHeight(),
-                    verticalArrangement = if (hasOutline) Arrangement.Center else Arrangement.SpaceBetween,
+                    verticalArrangement =
+                    if (hasOutline) { if(singleLine) Arrangement.Center else Arrangement.Top }
+                    else Arrangement.SpaceBetween,
                 ) {
                     BasicTextField(
                         value = value,
                         onValueChange = onValueChange,
                         modifier = Modifier
+                            .padding(
+                                top = if(!singleLine) PetClinicAppointmentTheme.dimensions.grid_1_5
+                                else 0.dp
+                            )
                             .fillMaxWidth()
                             .onFocusChanged {
                                 isFocused = it.isFocused
