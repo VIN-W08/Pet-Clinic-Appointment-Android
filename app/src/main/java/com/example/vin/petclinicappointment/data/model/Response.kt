@@ -95,3 +95,8 @@ data class GetProvinceListResponse (
     @SerializedName("provinsi")
     val provinceList: List<Province>
 )
+
+data class UpdateAppointmentStatusResponse (
+    val status: ResponseStatus,
+    val data: AppointmentDetail
+        )

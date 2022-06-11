@@ -5,8 +5,8 @@ import com.google.gson.annotations.SerializedName
 open class Appointment (
         @SerializedName("appointment_id")
         val id: Int,
-        @SerializedName("customer_id")
-        val customerId: Int,
+        @SerializedName("customer")
+        val customer: Customer,
         @SerializedName("pet_clinic")
         val petClinic: PetClinic,
         @SerializedName("total_payable")
@@ -34,7 +34,7 @@ class AppointmentDetail(
         createdAt: String
 ): Appointment(
         id = id,
-        customerId = customerId,
+        customer = customer,
         petClinic = petClinic,
         totalPayable = totalPayable,
         paymentStatus = paymentStatus,

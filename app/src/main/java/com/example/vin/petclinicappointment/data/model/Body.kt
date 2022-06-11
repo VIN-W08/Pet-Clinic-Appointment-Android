@@ -25,3 +25,7 @@ data class CreateAppointmentBody (
     @SerializedName("total_payable")
     val totalPayable: Float
         )
+
+data class UpdateAppointmentStatusBody(
+    val status: Int
+)

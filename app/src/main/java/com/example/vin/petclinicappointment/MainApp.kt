@@ -14,6 +14,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import com.example.vin.petclinicappointment.ui.components.appointment.AppointmentDetailPage
+import com.example.vin.petclinicappointment.ui.components.appointment.ClinicAppointmentHistoryPage
 import com.example.vin.petclinicappointment.ui.components.common.Snackbar
 import com.example.vin.petclinicappointment.ui.components.login.LoginOptionsPage
 import com.example.vin.petclinicappointment.ui.components.login.LoginPage
@@ -150,7 +151,7 @@ private fun NavGraphBuilder.appNavGraph (appState: MainAppState, scaffoldState: 
             id = navBackStackEntry.arguments?.getString("id")?.toInt() ?: 0,
             navigateBack = appState::navigateBack,
             navigateToInfo = {id -> appState.navigateTo("info-pet-clinic/$id") },
-            navigateToHome = { id -> appState.navigateTo("main", "detail-pet-clinic/$id")}
+            navigateToHome = { id -> appState.navigateTo("main/customer", "detail-pet-clinic/$id")}
         )
     }
 
@@ -174,6 +175,13 @@ private fun NavGraphBuilder.appNavGraph (appState: MainAppState, scaffoldState: 
     composable(route = "appointment-detail/{id}"){ navBackStackEntry ->
         AppointmentDetailPage(
             id = navBackStackEntry.arguments?.getString("id")?.toInt() ?: 0,
+            navigateBack = appState::navigateBack
+        )
+    }
+
+    composable(route = "appointment-history-clinic"){
+        ClinicAppointmentHistoryPage(
+           navigateToAppointmentDetail = { id-> appState.navigateTo("appointment-detail/$id")} ,
             navigateBack = appState::navigateBack
         )
     }

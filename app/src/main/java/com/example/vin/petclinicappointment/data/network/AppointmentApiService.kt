@@ -1,9 +1,6 @@
 package com.example.vin.petclinicappointment.data.network
 
-import com.example.vin.petclinicappointment.data.model.CreateAppointmentBody
-import com.example.vin.petclinicappointment.data.model.CreateAppointmentResponse
-import com.example.vin.petclinicappointment.data.model.GetAppointmentDetailResponse
-import com.example.vin.petclinicappointment.data.model.GetAppointmentListResponse
+import com.example.vin.petclinicappointment.data.model.*
 import retrofit2.Response
 import retrofit2.http.*
 
@@ -25,4 +22,10 @@ interface AppointmentApiService {
     suspend fun getAppointmentDetail(
         @Path("id") appointmentId: Int
     ): Response<GetAppointmentDetailResponse>
+
+    @PATCH("appointment/{id}")
+    suspend fun updateAppointmentStatus(
+        @Path("id") appoinmentId: Int,
+        @Body body: UpdateAppointmentStatusBody
+    ): Response<UpdateAppointmentStatusResponse>
 }

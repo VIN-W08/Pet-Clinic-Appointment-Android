@@ -11,7 +11,7 @@ import androidx.navigation.compose.composable
 import com.example.vin.petclinicappointment.MainAppState
 import com.example.vin.petclinicappointment.R
 import com.example.vin.petclinicappointment.ui.components.history.HistoryPage
-import com.example.vin.petclinicappointment.ui.components.home.AppointmentPage
+import com.example.vin.petclinicappointment.ui.components.appointment.AppointmentPage
 import com.example.vin.petclinicappointment.ui.components.home.CustomerHomePage
 
 fun NavGraphBuilder.customerMainBottomNavGraph (appState: MainAppState, scaffoldState: ScaffoldState){
@@ -36,7 +36,10 @@ fun NavGraphBuilder.customerMainBottomNavGraph (appState: MainAppState, scaffold
 
 fun NavGraphBuilder.clinicMainBottomNavGraph (appState: MainAppState, scaffoldState: ScaffoldState){
     composable(route = "appointment") {
-        AppointmentPage()
+        AppointmentPage(
+            navigateToAppointmentDetail = { id -> appState.navigateTo("appointment-detail/$id") },
+            navigateToClinicAppointmentHistory = { appState.navigateTo("appointment-history-clinic")}
+        )
     }
     composable(route = "service") {}
     composable(route = "profile"){}

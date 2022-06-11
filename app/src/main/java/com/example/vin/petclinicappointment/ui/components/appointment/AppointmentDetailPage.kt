@@ -1,9 +1,14 @@
 package com.example.vin.petclinicappointment.ui.components.appointment
 
+import android.util.Log
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.ButtonDefaults.buttonColors
 import androidx.compose.material.Divider
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
@@ -14,30 +19,33 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.capitalize
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.vin.petclinicappointment.ui.components.common.CircularProgressIndicator
-import com.example.vin.petclinicappointment.ui.components.common.IconButton
-import com.example.vin.petclinicappointment.ui.components.common.Image
 import com.example.vin.petclinicappointment.ui.theme.PetClinicAppointmentTheme
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import com.example.vin.petclinicappointment.R
-import com.example.vin.petclinicappointment.ui.components.common.StatusLabel
+import com.example.vin.petclinicappointment.ui.components.common.*
+import kotlinx.coroutines.launch
 
 @Composable
 fun AppointmentDetailPage(
     appointmentDetailViewModel: AppointmentDetailViewModel = hiltViewModel(),
     id : Int,
-    navigateBack: () -> Unit,
+    navigateBack: () -> Unit
 ){
     val appointmentDetail by appointmentDetailViewModel.appointmentDetail.collectAsState()
+    val userRole by appointmentDetailViewModel.userRole.collectAsState()
     var progressIndicatorVisible by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(Unit){
         progressIndicatorVisible = true
         appointmentDetailViewModel.getAppointmentDetail(id)
+        appointmentDetailViewModel.getUserRole()
         progressIndicatorVisible = false
     }
 
@@ -51,12 +59,15 @@ fun AppointmentDetailPage(
     val appointmentCreatedAt = appointmentDetail?.createdAt
     val appointmentStatusCode = appointmentDetail?.status
     val appointmentNote = appointmentDetail?.note
+    val appointmentStatus = appointmentDetailViewModel.appointmentCodeToTextStatusMap[appointmentStatusCode]
 
     Surface (
         color = PetClinicAppointmentTheme.colors.background
     ) {
         Column(
-            Modifier.fillMaxSize()
+            Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
         ) {
             Row (
                 Modifier
@@ -235,6 +246,12 @@ fun AppointmentDetailPage(
                     Divider(Modifier.fillMaxWidth())
                 }
             }
+            if(!userRole.isNullOrEmpty() && !appointmentStatus.isNullOrEmpty()) {
+                Divider(Modifier.fillMaxWidth())
+                AppointmentAction(
+                    appointmentDetailViewModel = appointmentDetailViewModel
+                )
+            }
         }
         Box(
             Modifier.fillMaxSize(),
@@ -279,5 +296,53 @@ fun TableValue(
         horizontalArrangement = Arrangement.Center
     ) {
         content()
+    }
+}
+
+@Composable
+fun AppointmentAction(
+    appointmentDetailViewModel: AppointmentDetailViewModel
+){
+    val appointmentActionList by appointmentDetailViewModel.appointmentActionList.collectAsState()
+    val coroutineScope = rememberCoroutineScope()
+
+    LaunchedEffect(Unit){
+        appointmentDetailViewModel.getAppointmentActionList()
+    }
+
+    Row (
+        Modifier.fillMaxWidth()
+    ) {
+        appointmentActionList.map {
+            val statusText = appointmentDetailViewModel.appointmentCodeToTextStatusMap[it]
+            if(statusText !== null) {
+                AppButton(
+                    onClick = {
+                        coroutineScope.launch {
+                            appointmentDetailViewModel.setSelectedAppointmentStatusId(it)
+                            appointmentDetailViewModel.updateAppointmentStatus()
+                        }
+                    },
+                    colors = buttonColors(
+                        PetClinicAppointmentTheme.colors.surface
+                    ),
+                    shape = RectangleShape,
+                    modifier = Modifier
+                        .padding(PetClinicAppointmentTheme.dimensions.grid_2)
+                        .weight(1f)
+                        .height(PetClinicAppointmentTheme.dimensions.grid_4_5)
+                        .border(
+                            PetClinicAppointmentTheme.dimensions.grid_0_125,
+                            PetClinicAppointmentTheme.colors.onSurface
+                        )
+                ) {
+                    Text(
+                        statusText
+                            .trim()
+                            .replaceFirstChar { it.uppercase() }
+                    )
+                }
+            }
+        }
     }
 }

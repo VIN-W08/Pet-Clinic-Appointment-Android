@@ -46,4 +46,12 @@ class AppointmentRepository {
         }
         return Call.Error(response)
     }
+
+    suspend fun updateAppointmentStatus(id: Int, body: UpdateAppointmentStatusBody): Call<Response<UpdateAppointmentStatusResponse>>{
+        val response = apiService.updateAppointmentStatus(id, body)
+        if(response.isSuccessful){
+            return Call.Success(response)
+        }
+        return Call.Error(response)
+    }
 }
