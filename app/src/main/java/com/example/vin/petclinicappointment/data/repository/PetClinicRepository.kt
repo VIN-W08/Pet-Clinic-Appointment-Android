@@ -1,9 +1,7 @@
 package com.example.vin.petclinicappointment.data.repository
 
-import android.util.Log
 import com.example.vin.petclinicappointment.data.model.*
 import com.example.vin.petclinicappointment.data.network.PetClinicApiService
-import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Response
 import retrofit2.Retrofit
@@ -33,45 +31,29 @@ class PetClinicRepository {
         return Call.Error(response)
     }
 
-    suspend fun getServiceDetail(id: Int): Call<Response<ServiceDetailResponse>>{
-        val response = apiService.getServiceDetail(id)
+    suspend fun createPetClinic(
+        name: RequestBody,
+        email: RequestBody,
+        password: RequestBody,
+        phoneNum: RequestBody,
+        address: RequestBody,
+        villageId: RequestBody,
+        latitude: RequestBody,
+        longitude: RequestBody
+    ): Call<Response<RegisterClinicResponse>>{
+        val response = apiService.createPetClinic(
+            name,
+            email,
+            password,
+            phoneNum,
+            address,
+            villageId,
+            latitude,
+            longitude
+        )
         if(response.isSuccessful){
             return Call.Success(response)
         }
         return Call.Error(response)
     }
-
-    suspend fun getServiceScheduleList(serviceId: Int, startSchedule: String): Call<Response<ServiceScheduleListResponse>>{
-        val response = apiService.getServiceScheduleList(serviceId, startSchedule)
-        if(response.isSuccessful){
-            return Call.Success(response)
-        }
-        return Call.Error(response)
-    }
-
-suspend fun createPetClinic(
-    name: RequestBody,
-    email: RequestBody,
-    password: RequestBody,
-    phoneNum: RequestBody,
-    address: RequestBody,
-    villageId: RequestBody,
-    latitude: RequestBody,
-    longitude: RequestBody
-): Call<Response<RegisterClinicResponse>>{
-    val response = apiService.createPetClinic(
-        name,
-        email,
-        password,
-        phoneNum,
-        address,
-        villageId,
-        latitude,
-        longitude
-    )
-    if(response.isSuccessful){
-        return Call.Success(response)
-    }
-    return Call.Error(response)
-}
 }

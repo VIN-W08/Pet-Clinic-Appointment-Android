@@ -1,5 +1,6 @@
 package com.example.vin.petclinicappointment.ui.components.common
 
+import android.util.Log
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -42,6 +43,7 @@ fun TextInput(
     outlineColor: Color = Color.Gray,
     visualTransformation: VisualTransformation = VisualTransformation.None,
     inputType: String = "text",
+    readOnly: Boolean = false,
     keyBoardOptions: KeyboardOptions = KeyboardOptions.Default,
     keyBoardActions: KeyboardActions = KeyboardActions.Default,
     showError: Boolean = false,
@@ -105,7 +107,12 @@ fun TextInput(
                 ) {
                     BasicTextField(
                         value = value,
-                        onValueChange = onValueChange,
+                        onValueChange = {
+                            if(inputType == "number") {
+                                if ("[^0-9]".toRegex().containsMatchIn(it)) return@BasicTextField
+                            }
+                            onValueChange(it)
+                        },
                         modifier = Modifier
                             .padding(
                                 top = if(!singleLine) PetClinicAppointmentTheme.dimensions.grid_1_5
@@ -141,7 +148,8 @@ fun TextInput(
                         textStyle = MaterialTheme.typography.body1,
                         visualTransformation = if (inputType === "password") PasswordVisualTransformation() else visualTransformation,
                         keyboardOptions = keyBoardOptions,
-                        keyboardActions = keyBoardActions
+                        keyboardActions = keyBoardActions,
+                        readOnly = readOnly
                     )
                 }
                 if (trailingIcon !== null) {

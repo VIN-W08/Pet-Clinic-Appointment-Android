@@ -2,9 +2,7 @@ package com.example.vin.petclinicappointment.ui.components.petclinic
 
 import androidx.lifecycle.viewModelScope
 import com.example.vin.petclinicappointment.data.model.*
-import com.example.vin.petclinicappointment.data.repository.AppointmentRepository
-import com.example.vin.petclinicappointment.data.repository.PetClinicRepository
-import com.example.vin.petclinicappointment.data.repository.UserRepository
+import com.example.vin.petclinicappointment.data.repository.*
 import com.example.vin.petclinicappointment.ui.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -17,7 +15,9 @@ import javax.inject.Inject
 @HiltViewModel
 class PetClinicDetailViewModel @Inject constructor(
     private val petClinicRepository: PetClinicRepository,
+    private val serviceRepository: ServiceRepository,
     private val appointmentRepository: AppointmentRepository,
+    private val serviceScheduleRepository: ServiceScheduleRepository,
     private val userRepository: UserRepository
 ): BaseViewModel() {
     private val _clinicDetail = MutableStateFlow<PetClinicDetail?>(null)
@@ -68,7 +68,7 @@ class PetClinicDetailViewModel @Inject constructor(
 
     suspend fun getServiceDetail(id: Int){
         val response = viewModelScope.async(Dispatchers.IO) {
-            petClinicRepository.getServiceDetail(id)
+            serviceRepository.getServiceDetail(id)
         }.await()
         when(response){
             is Call.Success -> {
@@ -84,7 +84,7 @@ class PetClinicDetailViewModel @Inject constructor(
         val selectedDate = selectedDate.value
         if(selectedServiceId !== null) {
             val response = viewModelScope.async(Dispatchers.IO) {
-                petClinicRepository.getServiceScheduleList(
+                serviceScheduleRepository.getServiceScheduleList(
                     selectedServiceId,
                     "${selectedDate}T00:00:00"
                 )

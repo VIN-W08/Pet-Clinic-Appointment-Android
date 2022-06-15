@@ -78,7 +78,6 @@ class LocationRepository {
     suspend fun getVillageList(districtId: Long): Call<Response<GetVillageListResponse>>{
         val response = indonesiaLocationApiService.getVillageList(districtId)
         if(response.isSuccessful){
-            Log.d("debug1", "response:$response")
             return Call.Success(response)
         }
         return Call.Error(response)
@@ -87,7 +86,6 @@ class LocationRepository {
     suspend fun getDistrictList(cityId: Long): Call<Response<GetDistrictListResponse>>{
         val response = indonesiaLocationApiService.getDistrictList(cityId)
         if(response.isSuccessful){
-            Log.d("debug1", "response:$response")
             return Call.Success(response)
         }
         return Call.Error(response)
@@ -96,7 +94,6 @@ class LocationRepository {
     suspend fun getCityList(provinceId: Long): Call<Response<GetCityListResponse>>{
         val response = indonesiaLocationApiService.getCityList(provinceId)
         if(response.isSuccessful){
-            Log.d("debug1", "response:$response")
             return Call.Success(response)
         }
         return Call.Error(response)
@@ -105,7 +102,6 @@ class LocationRepository {
     suspend fun getProvinceList(): Call<Response<GetProvinceListResponse>>{
         val response = indonesiaLocationApiService.getProvinceLIst()
         if(response.isSuccessful){
-            Log.d("debug1", "response:$response")
             return Call.Success(response)
         }
         return Call.Error(response)

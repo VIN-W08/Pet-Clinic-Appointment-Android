@@ -18,17 +18,6 @@ interface PetClinicApiService {
         @Path("id") id: Int
     ): Response<PetClinicDetailResponse>
 
-    @GET("service/{id}")
-    suspend fun getServiceDetail(
-        @Path("id") id: Int
-    ): Response<ServiceDetailResponse>
-
-    @GET("service/schedule/list")
-    suspend fun getServiceScheduleList(
-        @Query("service_id") serviceId: Int,
-        @Query("start_schedule") startSchedule: String
-    ): Response<ServiceScheduleListResponse>
-
     @Multipart
     @POST("petclinic")
     suspend fun createPetClinic(

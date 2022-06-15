@@ -100,3 +100,43 @@ data class UpdateAppointmentStatusResponse (
     val status: ResponseStatus,
     val data: AppointmentDetail
         )
+
+data class GetServiceListResponse(
+    val status: ResponseStatus,
+    val data: List<Service>
+)
+
+data class CreateServiceResponse(
+    val status: ResponseStatus,
+    val data: Service
+)
+
+data class UpdateServiceResponse(
+    val status: ResponseStatus,
+    val data: Service
+)
+
+data class CreateServiceScheduleResponse(
+    val status: ResponseStatus,
+    val data: ServiceSchedule
+)
+
+data class GetServiceScheduleDetailResponse(
+    val status: ResponseStatus,
+    val data: ServiceSchedule
+)
+
+data class UpdateServiceScheduleResponse(
+    val status: ResponseStatus,
+    val data: ServiceSchedule
+)
+
+data class DeleteServiceResponse(
+    val status: ResponseStatus,
+    val data: Service
+)
+
+data class DeleteServiceScheduleResponse(
+    val status: ResponseStatus,
+    val data: ServiceSchedule
+)

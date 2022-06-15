@@ -6,7 +6,7 @@ open class Service(
     @SerializedName("service_id")
     val id: Int,
     val name: String,
-    val price: Float,
+    var price: Float,
     val status: Boolean,
     @SerializedName("updated_at")
     val updatedAt: String,
@@ -41,6 +41,7 @@ data class ServiceSchedule(
     val startSchedule: String,
     @SerializedName("end_schedule")
     val endSchedule: String,
+    val quota: Int,
     val status: Boolean,
     @SerializedName("updated_at")
     val updatedAt: String,

@@ -29,3 +29,35 @@ data class CreateAppointmentBody (
 data class UpdateAppointmentStatusBody(
     val status: Int
 )
+
+data class CreateServiceBody(
+    @SerializedName("pet_clinic_id")
+    val petClinicId: Int,
+    val name: String,
+    val price: Float
+)
+
+data class UpdateServiceBody(
+    val name: String,
+    val price: Float,
+    val status: Boolean
+)
+
+data class CreateServiceScheduleBody(
+    @SerializedName("service_id")
+    val serviceId: Int,
+    @SerializedName("start_schedule")
+    val startSchedule: String,
+    @SerializedName("end_schedule")
+    val endSchedule: String,
+    val quota: Int
+)
+
+data class UpdateServiceScheduleBody(
+    @SerializedName("start_schedule")
+    val startSchedule: String,
+    @SerializedName("end_schedule")
+    val endSchedule: String,
+    val quota: Int,
+    val status: Boolean
+)
