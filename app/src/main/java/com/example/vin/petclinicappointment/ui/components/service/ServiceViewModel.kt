@@ -43,12 +43,11 @@ class ServiceViewModel @Inject constructor(
                             it
                         }
                         _serviceList.value = data
+                    }else{
+                        setMessage(response.data?.body()?.status?.message as String)
                     }
                 }
-                else -> {
-                    val errorJson = JSONObject((response.data as Response<ResponseStatus>).errorBody()?.string())
-                    setMessage(errorJson.getJSONObject("status").getString("message"))
-                }
+                else ->  setMessage(response.data?.message() as String)
             }
         }
     }

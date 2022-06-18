@@ -33,7 +33,6 @@ fun ServiceScheduleInputPage(
     serviceScheduleInputViewModel: ServiceScheduleInputViewModel = hiltViewModel(),
     scaffoldState: ScaffoldState
 ){
-    val context = LocalContext.current
     val localFocusManager = LocalFocusManager.current
     val startDate by serviceScheduleInputViewModel.startDate.collectAsState()
     val startTime by serviceScheduleInputViewModel.startTime.collectAsState()
@@ -173,7 +172,7 @@ fun ServiceScheduleInputPage(
                     value = quota,
                     onValueChange = { serviceScheduleInputViewModel.setQuota(it) },
                     required = pageType == "add",
-                    inputType = "number",
+                    numberOnly = true,
                     modifier = Modifier
                         .padding(
                             start = PetClinicAppointmentTheme.dimensions.grid_2,

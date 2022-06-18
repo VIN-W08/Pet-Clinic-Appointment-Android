@@ -36,19 +36,12 @@ class ServiceDetailViewModel @Inject constructor(
     private val _serviceScheduleList = MutableStateFlow(listOf<ServiceSchedule>())
     val serviceScheduleList = _serviceScheduleList.asStateFlow()
 
-    private val _selectedServiceScheduleId = MutableStateFlow<Int?>(null)
-    val selectedServiceScheduleId = _selectedServiceScheduleId.asStateFlow()
-
     fun setServiceId(value: Int){
         _serviceId.value = value
     }
 
     fun setSelectedServiceStartDate(date: LocalDate){
         _selectedServiceStartDate.value = date
-    }
-
-    fun setSelectedServiceScheduleId(value: Int?){
-        _selectedServiceScheduleId.value = value
     }
 
     suspend fun getServiceDetail(){
@@ -62,11 +55,12 @@ class ServiceDetailViewModel @Inject constructor(
                     val data = response.data?.body()?.data
                     if (data !== null) {
                         _serviceDetail.value = data
+                    }else{
+                        setMessage(response.data?.body()?.status?.message as String)
                     }
                 }
                 else -> {
-                    val errorJson = JSONObject((response.data as Response<ResponseStatus>).errorBody()?.string())
-                    setMessage(errorJson.getJSONObject("status").getString("message"))
+                    setMessage(response.data?.message() as String)
                 }
             }
         }
@@ -86,11 +80,12 @@ class ServiceDetailViewModel @Inject constructor(
                     val data = response.data?.body()?.data
                     if (data != null) {
                         _serviceScheduleList.value = data
+                    }else{
+                        setMessage(response.data?.body()?.status?.message as String)
                     }
                 }
                 else -> {
-                    val errorJson = JSONObject((response.data as Response<ResponseStatus>).errorBody()?.string())
-                    setMessage(errorJson.getJSONObject("status").getString("message"))
+                    setMessage(response.data?.message() as String)
                 }
             }
         }

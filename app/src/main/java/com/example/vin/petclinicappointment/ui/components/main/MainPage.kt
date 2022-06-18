@@ -115,7 +115,8 @@ fun NavGraphBuilder.clinicMainNavGraph (appState: MainAppState, scaffoldState: S
     composable(route = "service") {
         ServicePage(
             navigateToServiceDetail = { id -> appState.navigateTo("service/detail/$id")},
-            navigateToAddService = { appState.navigateTo("service/add") }
+            navigateToAddService = { appState.navigateTo("service/add") },
+            scaffoldState = appState.scaffoldState
         )
     }
 
@@ -125,7 +126,8 @@ fun NavGraphBuilder.clinicMainNavGraph (appState: MainAppState, scaffoldState: S
             navigateToUpdateService = { id -> appState.navigateTo("service/update/$id")  },
             navigateToAddServiceSchedule = { id -> appState.navigateTo("service/schedule/add/$id") },
             navigateToServiceScheduleUpdate = { id -> appState.navigateTo("service/schedule/update/$id") },
-            navigateBack = appState::navigateBack
+            navigateBack = appState::navigateBack,
+            scaffoldState = appState.scaffoldState
         )
     }
 

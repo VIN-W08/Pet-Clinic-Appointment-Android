@@ -18,6 +18,7 @@ import com.example.vin.petclinicappointment.data.model.Service
 import com.example.vin.petclinicappointment.ui.components.common.AppButton
 import com.example.vin.petclinicappointment.ui.components.common.CircularProgressIndicator
 import com.example.vin.petclinicappointment.ui.theme.PetClinicAppointmentTheme
+import kotlinx.coroutines.flow.collectLatest
 import java.text.DecimalFormat
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -25,10 +26,19 @@ import java.text.DecimalFormat
 fun ServicePage(
     serviceViewModel: ServiceViewModel = hiltViewModel(),
     navigateToServiceDetail: (id: Int) -> Unit,
-    navigateToAddService: () -> Unit
+    navigateToAddService: () -> Unit,
+    scaffoldState: ScaffoldState
 ) {
     val serviceList by serviceViewModel.serviceList.collectAsState()
     var progressIndicatorVisible by rememberSaveable { mutableStateOf(false) }
+
+    LaunchedEffect(Unit){
+        serviceViewModel.message.collectLatest {
+            if(it.isNotEmpty()) {
+                scaffoldState.snackbarHostState.showSnackbar(it)
+            }
+        }
+    }
 
     LaunchedEffect(Unit) {
         progressIndicatorVisible = true

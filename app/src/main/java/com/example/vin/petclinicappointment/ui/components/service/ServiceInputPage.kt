@@ -141,7 +141,7 @@ fun ServiceInputPage(
                     value = servicePrice,
                     onValueChange = { serviceInputViewModel.setServicePrice(it) },
                     required = pageType == "add",
-                    inputType = "number",
+                    numberOnly = true,
                     modifier = Modifier
                         .padding(
                             start = PetClinicAppointmentTheme.dimensions.grid_2,

@@ -23,6 +23,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.vin.petclinicappointment.data.model.ServiceSchedule
 import com.example.vin.petclinicappointment.ui.components.common.*
 import com.example.vin.petclinicappointment.ui.theme.PetClinicAppointmentTheme
+import kotlinx.coroutines.flow.collectLatest
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -36,13 +37,22 @@ fun ServiceDetailPage(
     navigateToUpdateService: (id: Int) -> Unit,
     navigateToAddServiceSchedule: (serviceId: Int) -> Unit,
     navigateToServiceScheduleUpdate: (serviceScheduleId: Int) -> Unit,
-    navigateBack: () -> Unit
+    navigateBack: () -> Unit,
+    scaffoldState: ScaffoldState
 ){
     var progressIndicatorVisible by rememberSaveable { mutableStateOf(false) }
     val serviceDetail by serviceDetailViewModel.serviceDetail.collectAsState()
     val serviceName = serviceDetail?.name
     val servicePrice = serviceDetail?.price
     val serviceStatus = serviceDetail?.status
+
+    LaunchedEffect(Unit){
+        serviceDetailViewModel.message.collectLatest {
+            if(it.isNotEmpty()) {
+                scaffoldState.snackbarHostState.showSnackbar(it)
+            }
+        }
+    }
 
     LaunchedEffect(Unit){
         progressIndicatorVisible = true

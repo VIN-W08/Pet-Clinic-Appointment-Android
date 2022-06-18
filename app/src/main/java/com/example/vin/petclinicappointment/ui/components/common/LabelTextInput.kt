@@ -15,7 +15,8 @@ fun LabelTextInput(
     onValueChange: (value: String) -> Unit,
     modifier: Modifier = Modifier,
     required: Boolean = true,
-    inputType: String = "text",
+    numberOnly: Boolean = false,
+    numberWithDotAndHyphenOnly: Boolean = false,
     readOnly: Boolean = false
 ){
     Row (
@@ -49,10 +50,10 @@ fun LabelTextInput(
             TextInput(
                 value = value,
                 onValueChange = onValueChange,
-                inputType = inputType,
                 readOnly = readOnly,
-                containerModifier = Modifier
-                    .fillMaxWidth(),
+                numberOnly = numberOnly,
+                numberWithDotAndHyphenOnly = numberWithDotAndHyphenOnly,
+                containerModifier = Modifier.fillMaxWidth(),
                 modifier = Modifier.fillMaxWidth()
             )
         }

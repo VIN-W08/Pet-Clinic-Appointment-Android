@@ -84,12 +84,11 @@ class ServiceInputViewModel @Inject constructor(
                     val data = response.data?.body()?.data
                     if (data !== null) {
                         _serviceDetail.value = data
+                    }else{
+                        setMessage(response.data?.body()?.status?.message as String)
                     }
                 }
-                else -> {
-                    val errorJson = JSONObject((response.data as Response<ResponseStatus>).errorBody()?.string())
-                    setMessage(errorJson.getJSONObject("status").getString("message"))
-                }
+                else -> setMessage(response.data?.message() as String)
             }
         }
     }
@@ -112,11 +111,13 @@ class ServiceInputViewModel @Inject constructor(
                 return when (response) {
                     is Call.Success -> {
                         val data = response.data?.body()?.data
+                        if(data == null){
+                            setMessage(response.data?.body()?.status?.message as String)
+                        }
                         data !== null
                     }
                     else -> {
-                        val errorJson = JSONObject((response.data as Response<ResponseStatus>).errorBody()?.string())
-                        setMessage(errorJson.getJSONObject("status").getString("message"))
+                        setMessage(response.data?.message() as String)
                         false
                     }
                 }
@@ -142,11 +143,13 @@ class ServiceInputViewModel @Inject constructor(
                 return when (response) {
                     is Call.Success -> {
                         val data = response.data?.body()?.data
+                        if(data == null){
+                            setMessage(response.data?.body()?.status?.message as String)
+                        }
                         data !== null
                     }
                     else -> {
-                        val errorJson = JSONObject((response.data as Response<ResponseStatus>).errorBody()?.string())
-                        setMessage(errorJson.getJSONObject("status").getString("message"))
+                        setMessage(response.data?.message() as String)
                         false
                     }
                 }
@@ -165,11 +168,13 @@ class ServiceInputViewModel @Inject constructor(
             return when (response) {
                 is Call.Success -> {
                     val data = response.data?.body()?.data
+                    if(data == null){
+                        setMessage(response.data?.body()?.status?.message as String)
+                    }
                     data !== null
                 }
                 else -> {
-                    val errorJson = JSONObject((response.data as Response<ResponseStatus>).errorBody()?.string())
-                    setMessage(errorJson.getJSONObject("status").getString("message"))
+                    setMessage(response.data?.message() as String)
                     false
                 }
             }
