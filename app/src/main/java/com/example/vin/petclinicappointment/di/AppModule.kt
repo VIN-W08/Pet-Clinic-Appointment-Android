@@ -16,6 +16,11 @@ object AppModule {
 
     @Singleton
     @Provides
+    fun provideClinicScheduleRepository(): ClinicScheduleRepository
+            = ClinicScheduleRepository()
+
+    @Singleton
+    @Provides
     fun provideServiceScheduleRepository(): ServiceScheduleRepository
             = ServiceScheduleRepository()
 

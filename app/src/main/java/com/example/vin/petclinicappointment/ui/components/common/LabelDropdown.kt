@@ -1,6 +1,6 @@
 package com.example.vin.petclinicappointment.ui.components.common
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Row
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -9,30 +9,27 @@ import androidx.compose.ui.graphics.Color
 import com.example.vin.petclinicappointment.ui.theme.PetClinicAppointmentTheme
 
 @Composable
-fun LabelTextInput(
+fun LabelDropdown(
     label: String,
-    value: String,
+    option: DropdownOption,
     onValueChange: (value: String) -> Unit,
-    modifier: Modifier = Modifier,
+    optionList: List<DropdownOption>,
+    onClickOption: (option: DropdownOption) -> Unit,
     required: Boolean = true,
-    inputType: String = "text",
-    readOnly: Boolean = false
+    modifier: Modifier = Modifier
 ){
-    Row (
+    Row(
         modifier = modifier,
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ){
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
         Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .weight(0.4f),
+            Modifier.weight(0.4f)
         ) {
             Text(
                 label,
                 style = PetClinicAppointmentTheme.typography.h3
             )
-            if(required){
+            if (required) {
                 Text(
                     "*",
                     style = PetClinicAppointmentTheme.typography.h3,
@@ -41,19 +38,14 @@ fun LabelTextInput(
             }
         }
         Row(
-            Modifier
-                .weight(0.6f),
-            horizontalArrangement = Arrangement.Start,
-            verticalAlignment = Alignment.CenterVertically
+            Modifier.weight(0.6f)
         ) {
-            TextInput(
-                value = value,
+            DropdownTextInput(
+                option = option,
                 onValueChange = onValueChange,
-                inputType = inputType,
-                readOnly = readOnly,
-                containerModifier = Modifier
-                    .fillMaxWidth(),
-                modifier = Modifier.fillMaxWidth()
+                optionList = optionList,
+                onClickOption = onClickOption,
+                readOnly = true
             )
         }
     }

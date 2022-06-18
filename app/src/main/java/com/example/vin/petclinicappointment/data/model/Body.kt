@@ -61,3 +61,22 @@ data class UpdateServiceScheduleBody(
     val quota: Int,
     val status: Boolean
 )
+
+data class CreateClinicScheduleBody(
+    @SerializedName("pet_clinic_id")
+    val petClinicId: Int,
+    val day: Int,
+    @SerializedName("start_time")
+    val startTime: String,
+    @SerializedName("end_time")
+    val endTime: String
+)
+
+data class UpdateClinicScheduleBody(
+    val day: Int?,
+    val shift: Int?,
+    @SerializedName("start_time")
+    val startTime: String?,
+    @SerializedName("end_time")
+    val endTime: String?
+)

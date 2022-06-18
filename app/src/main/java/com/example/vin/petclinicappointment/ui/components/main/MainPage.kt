@@ -17,7 +17,9 @@ import com.example.vin.petclinicappointment.ui.components.appointment.ClinicAppo
 import com.example.vin.petclinicappointment.ui.components.home.CustomerHomePage
 import com.example.vin.petclinicappointment.ui.components.petclinic.*
 import com.example.vin.petclinicappointment.ui.components.profile.ClinicProfilePage
+import com.example.vin.petclinicappointment.ui.components.profile.ClinicSchedulePage
 import com.example.vin.petclinicappointment.ui.components.profile.EditClinicProfilePage
+import com.example.vin.petclinicappointment.ui.components.profile.EditClinicSchedulePage
 import com.example.vin.petclinicappointment.ui.components.service.*
 
 fun NavGraphBuilder.customerMainNavGraph (appState: MainAppState, scaffoldState: ScaffoldState){
@@ -162,7 +164,8 @@ fun NavGraphBuilder.clinicMainNavGraph (appState: MainAppState, scaffoldState: S
     composable(route = "profile/clinic"){
         ClinicProfilePage(
             navigateToEditClinicProfile = { appState.navigateTo("profile/clinic/update") },
-            navigateToLoginOption = { appState.navigateTo("login-option", "profile/clinic/update") }
+            navigateToLoginOption = { appState.navigateTo("login-option", "profile/clinic/update") },
+            navigateToClinicSchedule = { appState.navigateTo("clinic/schedule") }
         )
     }
     composable(route = "profile/clinic/update"){
@@ -170,6 +173,32 @@ fun NavGraphBuilder.clinicMainNavGraph (appState: MainAppState, scaffoldState: S
             navigateToProfile = { appState.navigateTo("profile/clinic", "profile/clinic/update") },
             navigateBack = appState::navigateBack,
             scaffoldState = appState.scaffoldState
+        )
+    }
+    composable(route = "clinic/schedule"){
+        ClinicSchedulePage(
+            navigateBack = appState::navigateBack,
+            navigateToClinicScheduleAdd = { appState.navigateTo("clinic/schedule/add")},
+            navigateToClinicScheduleUpdate = { id -> appState.navigateTo("clinic/schedule/update/$id")}
+        )
+    }
+
+    composable(route = "clinic/schedule/update/{id}"){
+        EditClinicSchedulePage(
+            id = it.arguments?.getString("id")?.toInt() ?: 0,
+            pageType = "update",
+            navigateToClinicSchedule = { appState.navigateTo("clinic/schedule") },
+            navigateBack = appState::navigateBack,
+            scaffoldState = scaffoldState
+        )
+    }
+
+    composable(route = "clinic/schedule/add"){
+        EditClinicSchedulePage(
+            pageType = "add",
+            navigateToClinicSchedule = { appState.navigateTo("clinic/schedule") },
+            navigateBack = appState::navigateBack,
+            scaffoldState = scaffoldState
         )
     }
 }

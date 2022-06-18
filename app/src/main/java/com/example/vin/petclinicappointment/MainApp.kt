@@ -117,6 +117,7 @@ private fun NavGraphBuilder.appNavGraph (appState: MainAppState, scaffoldState: 
         SignUpPage(
             navigateToLogin = { appState.navigateTo("login", "sign-up") },
             navigateToHome = {
+                appState.setMainBottomNav()
                 when(appState.getUserRole()) {
                     "customer" -> appState.navigateTo("main/customer", "login")
                     "clinic" -> appState.navigateTo("main/clinic", "login")

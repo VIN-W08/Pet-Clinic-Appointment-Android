@@ -2,7 +2,6 @@ package com.example.vin.petclinicappointment.ui.components.common
 
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
-import android.content.Context
 import android.widget.DatePicker
 import android.widget.TimePicker
 import androidx.compose.foundation.layout.*
@@ -15,13 +14,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import com.example.vin.petclinicappointment.ui.theme.PetClinicAppointmentTheme
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
-import java.util.*
 
 @Composable
 fun LabelScheduleInput(
@@ -66,19 +63,13 @@ fun LabelScheduleInput(
     )
 
     Row (
-        modifier = modifier
-            .padding(
-                bottom = PetClinicAppointmentTheme.dimensions.grid_4
-            )
-            .fillMaxWidth(),
+        modifier = modifier,
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ){
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .padding(horizontal = PetClinicAppointmentTheme.dimensions.grid_2)
-                .weight(0.4f)
+            modifier = Modifier.weight(0.4f)
         ) {
             Text(
                 label,
@@ -93,9 +84,7 @@ fun LabelScheduleInput(
             }
         }
         Row(
-            Modifier
-                .padding(end = PetClinicAppointmentTheme.dimensions.grid_2)
-                .weight(0.6f),
+            Modifier.weight(0.6f),
             horizontalArrangement = Arrangement.Start,
             verticalAlignment = Alignment.CenterVertically,
         ) {

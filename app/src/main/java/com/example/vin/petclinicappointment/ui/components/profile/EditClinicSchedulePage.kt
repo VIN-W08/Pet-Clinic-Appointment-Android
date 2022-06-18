@@ -1,6 +1,5 @@
-package com.example.vin.petclinicappointment.ui.components.service
+package com.example.vin.petclinicappointment.ui.components.profile
 
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -12,67 +11,66 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.vin.petclinicappointment.ui.components.common.*
 import com.example.vin.petclinicappointment.ui.theme.PetClinicAppointmentTheme
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.runBlocking
-import java.lang.IllegalArgumentException
 
 @Composable
-fun ServiceInputPage(
-    serviceInputViewModel: ServiceInputViewModel = hiltViewModel(),
-    serviceId: Int? = null,
+fun EditClinicSchedulePage(
+    id: Int? = null,
     pageType: String,
+    navigateToClinicSchedule: () -> Unit,
     navigateBack: () -> Unit,
-    navigateToService: ((serviceId: Int) -> Unit)? = null,
+    editClinicScheduleViewModel: EditClinicScheduleViewModel = hiltViewModel(),
     scaffoldState: ScaffoldState
 ){
-    val localFocusManager = LocalFocusManager.current
-    val serviceName by serviceInputViewModel.serviceName.collectAsState()
-    val servicePrice by serviceInputViewModel.servicePrice.collectAsState()
-    val serviceStatus by serviceInputViewModel.serviceStatus.collectAsState()
     var progressIndicatorVisible by rememberSaveable { mutableStateOf(false) }
+    val day by editClinicScheduleViewModel.day.collectAsState()
+    val startTime by editClinicScheduleViewModel.startTime.collectAsState()
+    val endTime by editClinicScheduleViewModel.endTime.collectAsState()
 
-    fun onClickAddService(){
-        runBlocking {
-            progressIndicatorVisible = true
-            val isSuccess = serviceInputViewModel.addService()
-            progressIndicatorVisible = false
-            if(isSuccess) {
-                navigateBack()
-            }
-        }
-    }
-
-    fun onClickUpdateService(){
-        runBlocking {
-            progressIndicatorVisible = true
-            val isSuccess = serviceInputViewModel.updateService()
-            progressIndicatorVisible = false
-            if(isSuccess) {
-                navigateBack()
-            }
-        }
-    }
-
-    fun onClickDeleteSchedule(){
-        runBlocking {
-            progressIndicatorVisible = true
-            val isSuccess = serviceInputViewModel.deleteService()
-            progressIndicatorVisible = false
-            if(isSuccess) {
-                if (navigateToService !== null && serviceId !== null) {
-                    navigateToService(serviceId)
+    fun onDeleteClinicSchedule(){
+        if(id !==null) {
+            runBlocking {
+                progressIndicatorVisible = true
+                val isSuccess = editClinicScheduleViewModel.deleteClinicSchedule(id)
+                if (isSuccess) {
+                    navigateToClinicSchedule()
                 }
+                progressIndicatorVisible = false
             }
+        }
+    }
+
+    fun onUpdateClinicSchedule(){
+        if(id !==null) {
+            runBlocking {
+                progressIndicatorVisible = true
+                val isSuccess = editClinicScheduleViewModel.updateClinicSchedule(id)
+                if (isSuccess) {
+                    navigateToClinicSchedule()
+                }
+                progressIndicatorVisible = false
+            }
+        }
+    }
+
+    fun onAddClinicSchedule(){
+        runBlocking {
+            progressIndicatorVisible = true
+            val isSuccess = editClinicScheduleViewModel.addClinicSchedule()
+            if (isSuccess) {
+                navigateToClinicSchedule()
+            }
+            progressIndicatorVisible = false
         }
     }
 
     LaunchedEffect(Unit){
-        serviceInputViewModel.message.collectLatest {
+        editClinicScheduleViewModel.message.collectLatest {
             if(it.isNotEmpty()) {
                 scaffoldState.snackbarHostState.showSnackbar(it)
             }
@@ -80,19 +78,12 @@ fun ServiceInputPage(
     }
 
     LaunchedEffect(Unit){
-        if(serviceId!==null && pageType == "update") {
-            serviceInputViewModel.setServiceId(serviceId)
-            serviceInputViewModel.getServiceDetail()
-            serviceInputViewModel.populateServiceData()
+        if(id !==null) {
+            editClinicScheduleViewModel.getClinicScheduleDetail(id)
         }
     }
 
     Surface(
-        Modifier.pointerInput(Unit) {
-            detectTapGestures(onTap = {
-                localFocusManager.clearFocus()
-            })
-        },
         color = PetClinicAppointmentTheme.colors.background
     ){
         Column {
@@ -109,67 +100,81 @@ fun ServiceInputPage(
                 horizontalArrangement = Arrangement.Center
             ) {
                 Text(
-                    when(pageType){
-                        "add" -> "Tambah Layanan"
-                        "update" -> "Ubah Layanan"
-                        else -> throw IllegalArgumentException()
-                    },
+                    if(pageType == "add")
+                        "Tambah Jadwal Operasi Klinik"
+                    else "Ubah Jadwal Operasi Klinik",
                     style = PetClinicAppointmentTheme.typography.h1
                 )
             }
             Column(
                 Modifier
-                    .fillMaxWidth()
                     .weight(1f)
                     .verticalScroll(rememberScrollState())
             ) {
-                LabelTextInput(
-                    label = "Nama Layanan",
-                    value = serviceName,
-                    onValueChange = { serviceInputViewModel.setServiceName(it) },
-                    required = pageType == "add",
-                    modifier = Modifier
-                        .padding(
-                            start = PetClinicAppointmentTheme.dimensions.grid_2,
-                            end = PetClinicAppointmentTheme.dimensions.grid_2,
-                            bottom = PetClinicAppointmentTheme.dimensions.grid_4
-                        )
-                        .fillMaxWidth()
-                )
-                LabelTextInput(
-                    label = "Harga Layanan",
-                    value = servicePrice,
-                    onValueChange = { serviceInputViewModel.setServicePrice(it) },
-                    required = pageType == "add",
-                    inputType = "number",
-                    modifier = Modifier
-                        .padding(
-                            start = PetClinicAppointmentTheme.dimensions.grid_2,
-                            end = PetClinicAppointmentTheme.dimensions.grid_2,
-                            bottom = PetClinicAppointmentTheme.dimensions.grid_4
-                        )
-                        .fillMaxWidth()
-                )
-                if(pageType == "update") {
-                    LabelSwitchInput(
-                        label = "Status Aktivasi",
-                        value = serviceStatus,
-                        onSwitchChange = { serviceInputViewModel.setServiceStatus(it) },
+                if(pageType == "add"){
+                    LabelDropdown(
+                        label = "Hari",
+                        option = day ?: DropdownOption("0", ""),
+                        onValueChange = {},
+                        optionList = editClinicScheduleViewModel.dayCodeToDayNameMap.toList()
+                            .map {
+                                DropdownOption(
+                                    it.first.toString(),
+                                    it.second.replaceFirstChar { it.uppercase() },
+                                )
+                            },
+                        onClickOption = { editClinicScheduleViewModel.setDay(it) },
                         modifier = Modifier
                             .padding(
                                 start = PetClinicAppointmentTheme.dimensions.grid_2,
                                 end = PetClinicAppointmentTheme.dimensions.grid_2,
-                                bottom = PetClinicAppointmentTheme.dimensions.grid_4
+                                bottom = PetClinicAppointmentTheme.dimensions.grid_2
                             )
                             .fillMaxWidth()
                     )
                 }
+                if(pageType == "update"){
+                    LabelTextInput(
+                        label = "Hari",
+                        value = if(day!==null) day?.value ?: "" else "",
+                        onValueChange = {},
+                        readOnly = true,
+                        modifier = Modifier
+                            .padding(
+                                bottom = PetClinicAppointmentTheme.dimensions.grid_2
+                            )
+                            .fillMaxWidth()
+                    )
+                }
+                LabelTimeInput(
+                    label = "Waktu Mulai",
+                    value = if(startTime !== null) startTime.toString() else "",
+                    onTimeValueChange = { editClinicScheduleViewModel.setStartTime(it) },
+                    modifier = Modifier
+                        .padding(
+                            start = PetClinicAppointmentTheme.dimensions.grid_2,
+                            end = PetClinicAppointmentTheme.dimensions.grid_2,
+                            bottom = PetClinicAppointmentTheme.dimensions.grid_2
+                        )
+                        .fillMaxWidth()
+                )
+                LabelTimeInput(
+                    label = "Waktu Berakhir",
+                    value = if(endTime !== null) endTime.toString() else "",
+                    onTimeValueChange = {editClinicScheduleViewModel.setEndTime(it)},
+                    modifier = Modifier
+                        .padding(
+                            start = PetClinicAppointmentTheme.dimensions.grid_2,
+                            end = PetClinicAppointmentTheme.dimensions.grid_2,
+                            bottom = PetClinicAppointmentTheme.dimensions.grid_2
+                        )
+                        .fillMaxWidth()
+                )
             }
             Column {
                 Divider(Modifier.fillMaxWidth())
                 if(pageType !== "add") {
                     AppButton(
-                        onClick = { onClickDeleteSchedule() },
                         modifier = Modifier
                             .padding(
                                 start = PetClinicAppointmentTheme.dimensions.grid_2,
@@ -179,40 +184,34 @@ fun ServiceInputPage(
                             )
                             .fillMaxWidth()
                             .height(PetClinicAppointmentTheme.dimensions.grid_5_5),
+                        onClick = { onDeleteClinicSchedule() },
                         colors = ButtonDefaults.buttonColors(PetClinicAppointmentTheme.colors.error),
                         shape = RoundedCornerShape(PetClinicAppointmentTheme.dimensions.grid_5)
                     ) {
                         Text(
-                            "Hapus Layanan",
+                            "Hapus Jadwal",
                             color = PetClinicAppointmentTheme.colors.onError
                         )
                     }
                 }
                 AppButton(
-                    onClick = {
-                              when(pageType){
-                                  "add" -> onClickAddService()
-                                  "update" -> onClickUpdateService()
-                                  else -> throw IllegalArgumentException()
-                              }
-                    },
                     modifier = Modifier
                         .padding(
                             start = PetClinicAppointmentTheme.dimensions.grid_2,
                             end = PetClinicAppointmentTheme.dimensions.grid_2,
-                            bottom = PetClinicAppointmentTheme.dimensions.grid_2
+                            bottom = PetClinicAppointmentTheme.dimensions.grid_2,
+                            top = if (pageType == "add") PetClinicAppointmentTheme.dimensions.grid_2
+                            else 0.dp
                         )
                         .fillMaxWidth()
                         .height(PetClinicAppointmentTheme.dimensions.grid_5_5),
+                    onClick = { if(pageType == "add") onAddClinicSchedule() else onUpdateClinicSchedule() },
                     colors = ButtonDefaults.buttonColors(PetClinicAppointmentTheme.colors.primary),
                     shape = RoundedCornerShape(PetClinicAppointmentTheme.dimensions.grid_5)
                 ) {
                     Text(
-                        when(pageType){
-                            "add" -> "Tambah Layanan"
-                            "update" -> "Ubah Layanan"
-                            else -> throw IllegalArgumentException()
-                        }
+                        if(pageType == "add")
+                            "Tambah Jadwal" else "Ubah Jadwal"
                     )
                 }
             }
@@ -227,7 +226,7 @@ fun ServiceInputPage(
             Row (
                 Modifier.height(PetClinicAppointmentTheme.dimensions.grid_7_5),
                 verticalAlignment = Alignment.CenterVertically
-                    ){
+            ){
                 IconButton(
                     icon = Icons.Rounded.ArrowBackIos,
                     contentDescription = "arrow_back",

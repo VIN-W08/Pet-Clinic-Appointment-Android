@@ -48,7 +48,7 @@ class ServiceScheduleRepository {
 
     suspend fun deleteServiceSchedule(serviceScheduleId: Int): Call<Response<DeleteServiceScheduleResponse>> {
         val response = serviceScheduleApiService.deleteServiceSchedule(serviceScheduleId)
-        if(response.isSuccessful){
+        if (response.isSuccessful) {
             return Call.Success(response)
         }
         return Call.Error(response)

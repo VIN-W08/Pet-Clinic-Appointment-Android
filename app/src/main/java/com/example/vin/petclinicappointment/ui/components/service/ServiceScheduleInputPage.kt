@@ -140,7 +140,14 @@ fun ServiceScheduleInputPage(
                     onTimeValueChange = { serviceScheduleInputViewModel.setStartTime(it) },
                     minDate = System.currentTimeMillis(),
                     maxDate = System.currentTimeMillis() + (6 * 24 * 60 * 60 * 1000),
-                    required = pageType == "add"
+                    required = pageType == "add",
+                    modifier = Modifier
+                        .padding(
+                            start = PetClinicAppointmentTheme.dimensions.grid_2,
+                            end = PetClinicAppointmentTheme.dimensions.grid_2,
+                            bottom = PetClinicAppointmentTheme.dimensions.grid_4
+                        )
+                        .fillMaxWidth()
                 )
                 LabelScheduleInput(
                     label = "Jadwal Berakhir",
@@ -152,20 +159,41 @@ fun ServiceScheduleInputPage(
                     onTimeValueChange = { serviceScheduleInputViewModel.setEndTime(it) },
                     minDate = System.currentTimeMillis(),
                     maxDate = System.currentTimeMillis() + (6 * 24 * 60 * 60 * 1000),
-                    required = pageType == "add"
+                    required = pageType == "add",
+                    modifier = Modifier
+                        .padding(
+                            start = PetClinicAppointmentTheme.dimensions.grid_2,
+                            end = PetClinicAppointmentTheme.dimensions.grid_2,
+                            bottom = PetClinicAppointmentTheme.dimensions.grid_4
+                        )
+                        .fillMaxWidth()
                 )
                 LabelTextInput(
                     label = "Kuota",
                     value = quota,
                     onValueChange = { serviceScheduleInputViewModel.setQuota(it) },
                     required = pageType == "add",
-                    inputType = "number"
+                    inputType = "number",
+                    modifier = Modifier
+                        .padding(
+                            start = PetClinicAppointmentTheme.dimensions.grid_2,
+                            end = PetClinicAppointmentTheme.dimensions.grid_2,
+                            bottom = PetClinicAppointmentTheme.dimensions.grid_4
+                        )
+                        .fillMaxWidth()
                 )
                 if(pageType == "update") {
                     LabelSwitchInput(
                         label = "Status",
                         value = status,
-                        onSwitchChange = { serviceScheduleInputViewModel.setStatus(it) }
+                        onSwitchChange = { serviceScheduleInputViewModel.setStatus(it) },
+                        modifier = Modifier
+                            .padding(
+                                start = PetClinicAppointmentTheme.dimensions.grid_2,
+                                end = PetClinicAppointmentTheme.dimensions.grid_2,
+                                bottom = PetClinicAppointmentTheme.dimensions.grid_4
+                            )
+                            .fillMaxWidth()
                     )
                 }
             }

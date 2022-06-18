@@ -1,14 +1,14 @@
 package com.example.vin.petclinicappointment.ui.components.profile
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Divider
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.NavigateNext
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -30,7 +30,8 @@ import kotlinx.coroutines.runBlocking
 fun ClinicProfilePage(
     clinicProfileViewModel: ClinicProfileViewModel = hiltViewModel(),
     navigateToEditClinicProfile: () -> Unit,
-    navigateToLoginOption: () -> Unit
+    navigateToLoginOption: () -> Unit,
+    navigateToClinicSchedule: () -> Unit
 ){
     var progressIndicatorVisible by rememberSaveable { mutableStateOf(false) }
     val clinicName by clinicProfileViewModel.clinicName.collectAsState()
@@ -149,6 +150,8 @@ fun ClinicProfilePage(
                     ) {
                         Text("Ubah Profil")
                     }
+                    Divider(Modifier.fillMaxWidth())
+                    ManageClinicScheduleView(navigateToClinicSchedule)
                     AppButton(
                         onClick = { logout() },
                         modifier = Modifier
@@ -177,6 +180,31 @@ fun ClinicProfilePage(
         ) {
             CircularProgressIndicator(visible = progressIndicatorVisible)
         }
+    }
+}
+
+@Composable
+fun ManageClinicScheduleView(
+    navigateToClinicSchedule: () -> Unit
+){
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .clickable { navigateToClinicSchedule() }
+    ) {
+        Row(
+            Modifier
+                .padding(PetClinicAppointmentTheme.dimensions.grid_2)
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text("Jadwal Operasi Klinik")
+            Icon(
+                imageVector = Icons.Rounded.NavigateNext,
+                contentDescription = "navigate next icon"
+            )
+        }
+        Divider(Modifier.fillMaxWidth())
     }
 }
 

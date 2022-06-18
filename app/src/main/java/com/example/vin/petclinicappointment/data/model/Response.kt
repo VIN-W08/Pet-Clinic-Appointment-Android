@@ -150,3 +150,28 @@ data class DeleteServiceScheduleResponse(
     val status: ResponseStatus,
     val data: ServiceSchedule
 )
+
+data class GetClinicScheduleListResponse(
+    val status: ResponseStatus,
+    val data: List<ClinicSchedule>
+)
+
+data class GetClinicScheduleDetailResponse(
+    val status: ResponseStatus,
+    val data: ClinicSchedule
+)
+
+data class CreateClinicScheduleResponse(
+    val status: ResponseStatus,
+    val data: ClinicSchedule
+)
+
+data class UpdateClinicScheduleResponse(
+    val status: ResponseStatus,
+    val data: ClinicSchedule
+)
+
+data class DeleteClinicScheduleResponse(
+    val status: ResponseStatus,
+    val data: ClinicSchedule
+)
