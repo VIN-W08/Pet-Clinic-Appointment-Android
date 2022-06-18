@@ -167,7 +167,8 @@ fun NavGraphBuilder.clinicMainNavGraph (appState: MainAppState, scaffoldState: S
         ClinicProfilePage(
             navigateToEditClinicProfile = { appState.navigateTo("profile/clinic/update") },
             navigateToLoginOption = { appState.navigateTo("login-option", "profile/clinic/update") },
-            navigateToClinicSchedule = { appState.navigateTo("clinic/schedule") }
+            navigateToClinicSchedule = { appState.navigateTo("clinic/schedule") },
+            scaffoldState = appState.scaffoldState
         )
     }
     composable(route = "profile/clinic/update"){
@@ -181,7 +182,8 @@ fun NavGraphBuilder.clinicMainNavGraph (appState: MainAppState, scaffoldState: S
         ClinicSchedulePage(
             navigateBack = appState::navigateBack,
             navigateToClinicScheduleAdd = { appState.navigateTo("clinic/schedule/add")},
-            navigateToClinicScheduleUpdate = { id -> appState.navigateTo("clinic/schedule/update/$id")}
+            navigateToClinicScheduleUpdate = { id -> appState.navigateTo("clinic/schedule/update/$id")},
+            scaffoldState = appState.scaffoldState
         )
     }
 

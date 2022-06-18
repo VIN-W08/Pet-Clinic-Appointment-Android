@@ -82,9 +82,7 @@ class ClinicProfileViewModel @Inject constructor(
                         _clinicLocationName.value = data.name
                     }
                 }
-                else -> {
-                    setMessage(response.data?.message() as String)
-                }
+                else -> setMessage(response.data?.message() as String)
             }
         }
     }
@@ -103,9 +101,7 @@ class ClinicProfileViewModel @Inject constructor(
                         _clinicLocationName.value = "${clinicLocationName.value}, ${data.name}"
                     }
                 }
-                else -> {
-                    setMessage(response.data?.message() as String)
-                }
+                else -> setMessage(response.data?.message() as String)
             }
         }
     }
@@ -124,9 +120,7 @@ class ClinicProfileViewModel @Inject constructor(
                         _clinicLocationName.value = "${clinicLocationName.value}, ${data.name}"
                     }
                 }
-                else -> {
-                    setMessage(response.data?.message() as String)
-                }
+                else -> setMessage(response.data?.message() as String)
             }
         }
     }
@@ -144,9 +138,7 @@ class ClinicProfileViewModel @Inject constructor(
                         _clinicLocationName.value = "${clinicLocationName.value}, ${data.name}"
                     }
                 }
-                else -> {
-                    setMessage(response.data?.message() as String)
-                }
+                else -> setMessage(response.data?.message() as String)
             }
         }
     }

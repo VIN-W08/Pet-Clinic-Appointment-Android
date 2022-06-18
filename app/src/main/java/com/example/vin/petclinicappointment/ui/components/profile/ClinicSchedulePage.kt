@@ -20,16 +20,26 @@ import com.example.vin.petclinicappointment.ui.components.common.AppButton
 import com.example.vin.petclinicappointment.ui.components.common.CircularProgressIndicator
 import com.example.vin.petclinicappointment.ui.components.common.IconButton
 import com.example.vin.petclinicappointment.ui.theme.PetClinicAppointmentTheme
+import kotlinx.coroutines.flow.collectLatest
 
 @Composable
 fun ClinicSchedulePage(
     clinicScheduleViewModel: ClinicScheduleViewModel = hiltViewModel(),
     navigateToClinicScheduleAdd: () -> Unit,
     navigateToClinicScheduleUpdate: (clinicScheduleId: Int) -> Unit,
-    navigateBack: () -> Unit
+    navigateBack: () -> Unit,
+    scaffoldState: ScaffoldState
 ){
     val clinicScheduleList by clinicScheduleViewModel.clinicScheduleList.collectAsState()
     var progressIndicatorVisible by rememberSaveable { mutableStateOf(false) }
+
+    LaunchedEffect(Unit){
+        clinicScheduleViewModel.message.collectLatest {
+            if(it.isNotEmpty()) {
+                scaffoldState.snackbarHostState.showSnackbar(it)
+            }
+        }
+    }
 
     LaunchedEffect(Unit){
         progressIndicatorVisible = true

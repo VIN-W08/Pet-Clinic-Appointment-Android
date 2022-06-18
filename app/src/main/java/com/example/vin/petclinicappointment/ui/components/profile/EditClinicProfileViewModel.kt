@@ -403,8 +403,7 @@ class EditClinicProfileViewModel @Inject constructor(
                                 data !== null
                             }
                             else -> {
-                                val errorJson = JSONObject((response.data as Response<ResponseStatus>).errorBody()?.string())
-                                setMessage(errorJson.getJSONObject("status").getString("message"))
+                                setMessage(response.data?.message() as String)
                                 false
                             }
                         }
@@ -428,11 +427,7 @@ class EditClinicProfileViewModel @Inject constructor(
                                         }
                                     }
                                     else -> {
-                                        val errorJson =
-                                            JSONObject((deleteImageResponse.data as Response<ResponseStatus>).errorBody()
-                                                ?.string())
-                                        setMessage(errorJson.getJSONObject("status")
-                                            .getString("message"))
+                                        setMessage(deleteImageResponse.data?.message() as String)
                                         return false
                                     }
                                 }
@@ -475,8 +470,7 @@ class EditClinicProfileViewModel @Inject constructor(
                             data !== null
                         }
                         else -> {
-                            val errorJson = JSONObject((response.data as Response<ResponseStatus>).errorBody()?.string())
-                            setMessage(errorJson.getJSONObject("status").getString("message"))
+                            setMessage(response.data?.message() as String)
                             false
                         }
                     }

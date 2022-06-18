@@ -24,6 +24,7 @@ import com.example.vin.petclinicappointment.ui.theme.PetClinicAppointmentTheme
 import com.example.vin.petclinicappointment.ui.components.common.AppButton
 import com.example.vin.petclinicappointment.ui.components.common.CircularProgressIndicator
 import com.example.vin.petclinicappointment.ui.components.common.View
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.runBlocking
 
 @Composable
@@ -31,7 +32,8 @@ fun ClinicProfilePage(
     clinicProfileViewModel: ClinicProfileViewModel = hiltViewModel(),
     navigateToEditClinicProfile: () -> Unit,
     navigateToLoginOption: () -> Unit,
-    navigateToClinicSchedule: () -> Unit
+    navigateToClinicSchedule: () -> Unit,
+    scaffoldState: ScaffoldState
 ){
     var progressIndicatorVisible by rememberSaveable { mutableStateOf(false) }
     val clinicName by clinicProfileViewModel.clinicName.collectAsState()
@@ -49,6 +51,14 @@ fun ClinicProfilePage(
             clinicProfileViewModel.logoutClinic()
             progressIndicatorVisible = false
             navigateToLoginOption()
+        }
+    }
+
+    LaunchedEffect(Unit){
+        clinicProfileViewModel.message.collectLatest {
+            if(it.isNotEmpty()) {
+                scaffoldState.snackbarHostState.showSnackbar(it)
+            }
         }
     }
 
@@ -89,7 +99,11 @@ fun ClinicProfilePage(
                         .weight(1f)
                         .verticalScroll(rememberScrollState())
                 ) {
-                    Column {
+                    Column(
+                        Modifier.padding(
+                            bottom = PetClinicAppointmentTheme.dimensions.grid_4
+                        )
+                    ) {
                         View(
                             Modifier
                                 .padding(
@@ -133,13 +147,13 @@ fun ClinicProfilePage(
                             value = if (clinicLatitude !== null) clinicLatitude.toString() else "")
                         PrefTextView(title = "Bujur",
                             value = if (clinicLongitude !== null) clinicLongitude.toString() else "")
+                        ManageClinicScheduleView(navigateToClinicSchedule)
                     }
                     AppButton(
                         onClick = navigateToEditClinicProfile,
                         modifier = Modifier
                             .padding(
                                 start = PetClinicAppointmentTheme.dimensions.grid_2,
-                                top = PetClinicAppointmentTheme.dimensions.grid_4,
                                 end = PetClinicAppointmentTheme.dimensions.grid_2,
                                 bottom = PetClinicAppointmentTheme.dimensions.grid_2
                             )
@@ -150,14 +164,11 @@ fun ClinicProfilePage(
                     ) {
                         Text("Ubah Profil")
                     }
-                    Divider(Modifier.fillMaxWidth())
-                    ManageClinicScheduleView(navigateToClinicSchedule)
                     AppButton(
                         onClick = { logout() },
                         modifier = Modifier
                             .padding(
                                 start = PetClinicAppointmentTheme.dimensions.grid_2,
-                                top = PetClinicAppointmentTheme.dimensions.grid_4,
                                 end = PetClinicAppointmentTheme.dimensions.grid_2,
                                 bottom = PetClinicAppointmentTheme.dimensions.grid_2
                             )
@@ -198,7 +209,11 @@ fun ManageClinicScheduleView(
                 .fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text("Jadwal Operasi Klinik")
+            Text(
+                "Jadwal Operasi Klinik",
+                style = PetClinicAppointmentTheme.typography.h2,
+                fontWeight = FontWeight.Normal
+            )
             Icon(
                 imageVector = Icons.Rounded.NavigateNext,
                 contentDescription = "navigate next icon"
@@ -223,13 +238,19 @@ fun PrefTextView(
             title,
             style = PetClinicAppointmentTheme.typography.h2,
             fontWeight = FontWeight.SemiBold,
-            modifier = Modifier.padding(PetClinicAppointmentTheme.dimensions.grid_1)
+            modifier = Modifier.padding(
+                horizontal = PetClinicAppointmentTheme.dimensions.grid_2,
+                vertical = PetClinicAppointmentTheme.dimensions.grid_1
+            )
         )
         Text(
             if(value.isNotEmpty()) value else "-",
             style = PetClinicAppointmentTheme.typography.h2,
             fontWeight = FontWeight.Normal,
-            modifier = Modifier.padding(PetClinicAppointmentTheme.dimensions.grid_1)
+            modifier = Modifier.padding(
+                horizontal = PetClinicAppointmentTheme.dimensions.grid_2,
+                vertical = PetClinicAppointmentTheme.dimensions.grid_1
+            )
         )
         Divider(Modifier.fillMaxWidth())
     }
