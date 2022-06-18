@@ -48,6 +48,19 @@ class UserRepository @Inject constructor(
         return Call.Error(response)
     }
 
+    suspend fun logoutClinic(){
+        userDataStore.saveUserId(0)
+        userDataStore.saveUserEmail("")
+        userDataStore.saveUserName("")
+        userDataStore.saveUserImage("")
+        userDataStore.saveUserPhoneNum("")
+        userDataStore.saveUserAddress("")
+        userDataStore.saveUserVillageId(0)
+        userDataStore.saveUserLatitude(0.0)
+        userDataStore.saveUserLongitude(0.0)
+        userDataStore.saveUserRole("")
+    }
+
     suspend fun saveUserId(value: Int) =
         userDataStore.saveUserId(value)
 
@@ -77,4 +90,40 @@ class UserRepository @Inject constructor(
 
     suspend fun getUserRole() =
         userDataStore.getUserRole()
+
+    suspend fun saveUserImage(value: String) =
+        userDataStore.saveUserImage(value)
+
+    suspend fun getUserImage() =
+        userDataStore.getUserImage()
+
+    suspend fun saveUserAddress(value: String) =
+        userDataStore.saveUserAddress(value)
+
+    suspend fun getUserAddress() =
+        userDataStore.getUserAddress()
+
+    suspend fun saveUserPhoneNum(value: String) =
+        userDataStore.saveUserPhoneNum(value)
+
+    suspend fun getUserPhoneNum() =
+        userDataStore.getUserPhoneNum()
+
+    suspend fun saveUserVillageId(value: Long) =
+        userDataStore.saveUserVillageId(value)
+
+    suspend fun getUserVillageId() =
+        userDataStore.getUserVillageId()
+
+    suspend fun saveUserLatitude(value: Double) =
+        userDataStore.saveUserLatitude(value)
+
+    suspend fun getUserLatitude() =
+        userDataStore.getUserLatitude()
+
+    suspend fun saveUserLongitude(value: Double) =
+        userDataStore.saveUserLongitude(value)
+
+    suspend fun getUserLongitude() =
+        userDataStore.getUserLongitude()
 }

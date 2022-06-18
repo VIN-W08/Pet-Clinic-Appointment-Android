@@ -19,6 +19,11 @@ class UserDataStore @Inject constructor (
         val passwordKey = stringPreferencesKey("password")
         val addressKey = stringPreferencesKey("address")
         val roleKey = stringPreferencesKey("role")
+        val imageKey = stringPreferencesKey("image")
+        val phoneNumKey = stringPreferencesKey("phoneNum")
+        val villageIdKey = longPreferencesKey("villageId")
+        val latitudeKey = doublePreferencesKey("latitude")
+        val longitudeKey = doublePreferencesKey("longitude")
     }
 
     suspend fun saveUserId(value: Int){
@@ -85,5 +90,60 @@ class UserDataStore @Inject constructor (
     suspend fun getUserAddress(): String? {
         val preferences = context.dataStore.data.first()
         return preferences[addressKey]
+    }
+
+    suspend fun saveUserImage(value: String){
+        context.dataStore.edit { user ->
+            user[imageKey] = value
+        }
+    }
+
+    suspend fun getUserImage(): String? {
+        val preferences = context.dataStore.data.first()
+        return preferences[imageKey]
+    }
+
+    suspend fun saveUserPhoneNum(value: String){
+        context.dataStore.edit { user ->
+            user[phoneNumKey] = value
+        }
+    }
+
+    suspend fun getUserPhoneNum(): String? {
+        val preferences = context.dataStore.data.first()
+        return preferences[phoneNumKey]
+    }
+
+    suspend fun saveUserVillageId(value: Long){
+        context.dataStore.edit { user ->
+            user[villageIdKey] = value
+        }
+    }
+
+    suspend fun getUserVillageId(): Long? {
+        val preferences = context.dataStore.data.first()
+        return preferences[villageIdKey]
+    }
+
+    suspend fun saveUserLatitude(value: Double){
+        context.dataStore.edit { user ->
+            user[latitudeKey] = value
+        }
+    }
+
+    suspend fun getUserLatitude(): Double? {
+        val preferences = context.dataStore.data.first()
+        return preferences[latitudeKey]
+    }
+
+    suspend fun saveUserLongitude(value: Double){
+        context.dataStore.edit { user ->
+            user[longitudeKey] = value
+        }
+    }
+
+    suspend fun getUserLongitude(): Double? {
+        val preferences = context.dataStore.data.first()
+        return preferences[longitudeKey]
     }
 }

@@ -21,6 +21,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.vin.petclinicappointment.data.model.Customer
 import com.example.vin.petclinicappointment.ui.components.common.*
+import com.example.vin.petclinicappointment.ui.components.profile.EditClinicProfileViewModel
 import com.example.vin.petclinicappointment.ui.theme.PetClinicAppointmentTheme
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch

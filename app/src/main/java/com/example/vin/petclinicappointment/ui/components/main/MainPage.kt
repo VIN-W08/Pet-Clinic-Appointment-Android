@@ -16,6 +16,8 @@ import com.example.vin.petclinicappointment.ui.components.appointment.Appointmen
 import com.example.vin.petclinicappointment.ui.components.appointment.ClinicAppointmentHistoryPage
 import com.example.vin.petclinicappointment.ui.components.home.CustomerHomePage
 import com.example.vin.petclinicappointment.ui.components.petclinic.*
+import com.example.vin.petclinicappointment.ui.components.profile.ClinicProfilePage
+import com.example.vin.petclinicappointment.ui.components.profile.EditClinicProfilePage
 import com.example.vin.petclinicappointment.ui.components.service.*
 
 fun NavGraphBuilder.customerMainNavGraph (appState: MainAppState, scaffoldState: ScaffoldState){
@@ -157,7 +159,19 @@ fun NavGraphBuilder.clinicMainNavGraph (appState: MainAppState, scaffoldState: S
             scaffoldState = appState.scaffoldState
         )
     }
-    composable(route = "profile"){}
+    composable(route = "profile/clinic"){
+        ClinicProfilePage(
+            navigateToEditClinicProfile = { appState.navigateTo("profile/clinic/update") },
+            navigateToLoginOption = { appState.navigateTo("login-option", "profile/clinic/update") }
+        )
+    }
+    composable(route = "profile/clinic/update"){
+        EditClinicProfilePage(
+            navigateToProfile = { appState.navigateTo("profile/clinic", "profile/clinic/update") },
+            navigateBack = appState::navigateBack,
+            scaffoldState = appState.scaffoldState
+        )
+    }
 }
 
 enum class MainBottomNavTabs(
@@ -169,13 +183,14 @@ enum class MainBottomNavTabs(
     History(R.string.tab_history, Icons.Rounded.History,"history"),
     Appointment(R.string.tab_appointment, Icons.Rounded.BookOnline, "appointment"),
     Service(R.string.tab_service, Icons.Rounded.LocalHospital, "service"),
-    Profile(R.string.tab_profile, Icons.Rounded.AccountCircle, "profile");
+    Profile(R.string.tab_profile, Icons.Rounded.AccountCircle, "profile"),
+    ClinicProfile(R.string.tab_profile, Icons.Rounded.AccountCircle, "profile/clinic");
 
     companion object {
         fun create(role: String): Array<MainBottomNavTabs> {
             return when (role) {
                 "customer" -> arrayOf(Home, History, Profile)
-                "clinic" -> arrayOf(Appointment, Service, Profile)
+                "clinic" -> arrayOf(Appointment, Service, ClinicProfile)
                 else -> arrayOf()
             }
         }

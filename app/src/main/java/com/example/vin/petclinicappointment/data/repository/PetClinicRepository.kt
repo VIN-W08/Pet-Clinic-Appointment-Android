@@ -2,6 +2,7 @@ package com.example.vin.petclinicappointment.data.repository
 
 import com.example.vin.petclinicappointment.data.model.*
 import com.example.vin.petclinicappointment.data.network.PetClinicApiService
+import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Response
 import retrofit2.Retrofit
@@ -51,6 +52,42 @@ class PetClinicRepository {
             latitude,
             longitude
         )
+        if(response.isSuccessful){
+            return Call.Success(response)
+        }
+        return Call.Error(response)
+    }
+
+    suspend fun updatePetClinic(
+        clinicId: Int,
+        name: RequestBody,
+        email: RequestBody,
+        phoneNum: RequestBody,
+        address: RequestBody,
+        villageId: RequestBody,
+        latitude: RequestBody,
+        longitude: RequestBody,
+        image: MultipartBody.Part?
+    ):  Call<Response<UpdateClinicResponse>> {
+        val response = apiService.updatePetClinic(
+            clinicId,
+            name,
+            email,
+            phoneNum,
+            address,
+            villageId,
+            latitude,
+            longitude,
+            image
+        )
+        if(response.isSuccessful){
+            return Call.Success(response)
+        }
+        return Call.Error(response)
+    }
+
+    suspend fun deletePetClinicImage(clinicId: Int):  Call<Response<DeletePetClinicImageResponse>> {
+        val response = apiService.deletePetClinicImage(clinicId)
         if(response.isSuccessful){
             return Call.Success(response)
         }

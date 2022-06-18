@@ -116,7 +116,13 @@ private fun NavGraphBuilder.appNavGraph (appState: MainAppState, scaffoldState: 
     composable(route = "sign-up") {
         SignUpPage(
             navigateToLogin = { appState.navigateTo("login", "sign-up") },
-            navigateToHome = { appState.navigateTo("main", "login") },
+            navigateToHome = {
+                when(appState.getUserRole()) {
+                    "customer" -> appState.navigateTo("main/customer", "login")
+                    "clinic" -> appState.navigateTo("main/clinic", "login")
+                    else -> throw IllegalArgumentException()
+                }
+            },
             scaffoldState = appState.scaffoldState,
             userRole = appState.userRole.value ?: ""
         )

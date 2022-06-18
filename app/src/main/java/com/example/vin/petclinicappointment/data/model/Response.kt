@@ -29,6 +29,16 @@ data class RegisterClinicResponse(
     val data: ClinicAuthData?
 )
 
+data class UpdateClinicResponse(
+    val status: ResponseStatus,
+    val data: PetClinic
+)
+
+data class DeletePetClinicImageResponse(
+    val status: ResponseStatus,
+    val data: PetClinic
+)
+
 data class LoginClinicResponse(
     val status: ResponseStatus,
     val data: ClinicAuthData?

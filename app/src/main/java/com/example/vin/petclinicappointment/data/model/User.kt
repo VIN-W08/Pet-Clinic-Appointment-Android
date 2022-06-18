@@ -8,6 +8,7 @@ abstract class User(
     val email: String,
     val password: String? = null,
     val name: String? = null,
+    @SerializedName("phone_num")
     val phoneNum: String? = null,
     val image: String? = null,
     @SerializedName("updated_at")

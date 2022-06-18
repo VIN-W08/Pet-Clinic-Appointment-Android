@@ -1,5 +1,6 @@
 package com.example.vin.petclinicappointment.ui.components.login
 
+import android.util.Log
 import android.util.Patterns
 import androidx.lifecycle.viewModelScope
 import com.example.vin.petclinicappointment.data.model.*
@@ -23,7 +24,7 @@ class LoginViewModel @Inject constructor (
     private val _customer = MutableStateFlow<User?>(null)
     val customer = _customer.asStateFlow()
 
-    private val _clinic = MutableStateFlow<User?>(null)
+    private val _clinic = MutableStateFlow<PetClinic?>(null)
     val clinic = _clinic.asStateFlow()
 
     private val _email = MutableStateFlow("")
@@ -147,6 +148,12 @@ class LoginViewModel @Inject constructor (
                 userRepository.saveUserId(it.id ?: 0)
                 userRepository.saveUserName(it.name ?: "")
                 userRepository.saveUserEmail(it.email)
+                userRepository.saveUserImage(it.image ?: "")
+                userRepository.saveUserPhoneNum(it.phoneNum ?: "")
+                userRepository.saveUserAddress(it.address ?: "")
+                userRepository.saveUserVillageId(it.villageId ?: 0)
+                userRepository.saveUserLatitude(it.latitude ?: 0.0)
+                userRepository.saveUserLongitude(it.longitude ?: 0.0)
             }
             userRepository.saveUserPassword(password.value)
         }

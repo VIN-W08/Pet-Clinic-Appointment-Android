@@ -205,7 +205,7 @@ class MainAppState(
         val auth = runBlocking {
             val userEmail = async { userRepository.getUserEmail() }
             val userPassword = async { userRepository.getUserPassword() }
-            userEmail.await()!==null && userPassword.await()!==null
+            !userEmail.await().isNullOrEmpty() && !userPassword.await().isNullOrEmpty()
         }
         return auth
     }

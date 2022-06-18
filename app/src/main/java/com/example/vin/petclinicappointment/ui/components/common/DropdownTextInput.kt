@@ -35,6 +35,7 @@ fun DropdownTextInput(
     autoCollapseMenuEnabled: Boolean = true,
     onCancel: (() -> Unit)? = null,
     showEmptyListError: Boolean = true,
+    readOnly: Boolean = false,
     containerModifier: Modifier = Modifier,
     modifier: Modifier = Modifier
 ){
@@ -55,6 +56,7 @@ fun DropdownTextInput(
             value = option.value,
             onValueChange = onValueChange,
             placeholder = placeholder,
+            readOnly = readOnly,
             containerModifier = Modifier
                 .width(with(LocalDensity.current) { dropdownTextInputWidth.toDp() })
                 .height(with(LocalDensity.current) { dropdownTextInputHeight.toDp() }),
@@ -62,7 +64,7 @@ fun DropdownTextInput(
                 .width(with(LocalDensity.current) { dropdownTextInputWidth.toDp() })
                 .height(with(LocalDensity.current) { dropdownTextInputHeight.toDp() }),
             trailingIcon = {
-                if (expandedDropdown && onCancel !== null) {
+                if (option.value.isNotEmpty() && onCancel !== null) {
                     IconButton(
                         icon = Icons.Rounded.Cancel,
                         contentDescription = "cancel",
