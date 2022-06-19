@@ -35,11 +35,11 @@ class ClinicAppointmentHistoryViewModel @Inject constructor(
                     val data = response.data?.body()?.data
                     if(data !== null) {
                         _clinicFinishedAppointmentList.value = data
+                    }else{
+                        setMessage(response.data?.body()?.status?.message as String)
                     }
                 }
-                else -> {
-                    setMessage(response.data?.message() as String)
-                }
+                else -> setMessage(response.data?.message() as String)
             }
         }
     }

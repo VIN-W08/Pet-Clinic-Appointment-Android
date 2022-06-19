@@ -95,20 +95,23 @@ fun NavGraphBuilder.clinicMainNavGraph (appState: MainAppState, scaffoldState: S
     composable(route = "appointment") {
         AppointmentPage(
             navigateToAppointmentDetail = { id -> appState.navigateTo("appointment-detail/$id") },
-            navigateToClinicAppointmentHistory = { appState.navigateTo("appointment-history-clinic")}
+            navigateToClinicAppointmentHistory = { appState.navigateTo("appointment-history-clinic")},
+            scaffoldState = appState.scaffoldState
         )
     }
     composable(route = "appointment-detail/{id}"){ navBackStackEntry ->
         AppointmentDetailPage(
             id = navBackStackEntry.arguments?.getString("id")?.toInt() ?: 0,
-            navigateBack = appState::navigateBack
+            navigateBack = appState::navigateBack,
+            scaffoldState = appState.scaffoldState
         )
     }
 
     composable(route = "appointment-history-clinic"){
         ClinicAppointmentHistoryPage(
             navigateToAppointmentDetail = { id-> appState.navigateTo("appointment-detail/$id")} ,
-            navigateBack = appState::navigateBack
+            navigateBack = appState::navigateBack,
+            scaffoldState = appState.scaffoldState
         )
     }
 

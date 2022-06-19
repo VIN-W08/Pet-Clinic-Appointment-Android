@@ -18,6 +18,7 @@ val TrueBlue = Color(0xFF649fd9)
 val SilverSand = Color(0xFFC4C4C4)
 val RipeMango = Color(0xFFFFCA28)
 val AntiFlashWhite = Color(0xFFF3F3F3)
+val Gray = Color(0xFF7E7E7E)
 val Cultured_50 = Color(0x80f7f7f7)
 val Black_50 = Color(0x80000000)
 

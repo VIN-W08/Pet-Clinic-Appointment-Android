@@ -1,6 +1,5 @@
 package com.example.vin.petclinicappointment.ui.components.appointment
 
-import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.example.vin.petclinicappointment.data.model.Appointment
 import com.example.vin.petclinicappointment.data.model.Call
@@ -12,7 +11,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -38,11 +36,11 @@ class AppointmentViewModel @Inject constructor(
                     val data = response.data?.body()?.data
                     if(data !== null) {
                         _clinicUnfinishedAppointmentList.value = data
+                    } else {
+                        setMessage(response.data?.body()?.status?.message as String)
                     }
                 }
-                else -> {
-                    setMessage(response.data?.message() as String)
-                }
+                else -> setMessage(response.data?.message() as String)
             }
         }
     }

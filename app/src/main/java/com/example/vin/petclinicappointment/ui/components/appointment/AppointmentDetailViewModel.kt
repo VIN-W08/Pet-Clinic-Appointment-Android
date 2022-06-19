@@ -31,12 +31,20 @@ class AppointmentDetailViewModel @Inject constructor(
     private val _selectedAppointmentStatusId = MutableStateFlow<Int?>(null)
     val selectedAppointmentStatusId = _selectedAppointmentStatusId.asStateFlow()
 
-    val appointmentCodeToTextStatusMap = mapOf(
-        0 to "requesting",
-        1 to "approved",
-        2 to "disapproved",
-        3 to "canceled",
-        4 to "completed"
+    val appointmentCodeToTextMap = mapOf(
+        0 to "mengajukan",
+        1 to "disetujui",
+        2 to "tidak disetujui",
+        3 to "dibatalkan",
+        4 to "selesai"
+    )
+
+    val appointmentStatusCodeToStatusActionMap = mapOf(
+        0 to "mengaju",
+        1 to "setuju",
+        2 to "tidak setuju",
+        3 to "batal",
+        4 to "menyelesaikan"
     )
 
     fun setSelectedAppointmentStatusId(value: Int){
@@ -52,11 +60,12 @@ class AppointmentDetailViewModel @Inject constructor(
                 val data = response.data?.body()?.data
                 if(data !== null) {
                     _appointmentDetail.value = data
+                }else{
+                    setMessage(response.data?.body()?.status?.message as String)
                 }
             }
-            else -> {
-                setMessage(response.data?.message() as String)
-            }
+            else -> setMessage(response.data?.message() as String)
+
         }
     }
 
@@ -79,7 +88,7 @@ class AppointmentDetailViewModel @Inject constructor(
         }
     }
 
-    suspend fun updateAppointmentStatus(){
+    suspend fun updateAppointmentStatus(): Boolean {
         val appointmentId = appointmentDetail.value?.id
         val selectedAppointmentStatusId = selectedAppointmentStatusId.value
         if(appointmentId !== null && selectedAppointmentStatusId!==null) {
@@ -89,18 +98,23 @@ class AppointmentDetailViewModel @Inject constructor(
                     UpdateAppointmentStatusBody(status = selectedAppointmentStatusId)
                 )
             }.await()
-            when (response) {
+            return when (response) {
                 is Call.Success -> {
                     val data = response.data?.body()?.data
                     if (data !== null) {
                         _appointmentDetail.value = data
+                    }else{
+                        setMessage(response.data?.body()?.status?.message as String)
                     }
+                    data !== null
                 }
                 else -> {
                     setMessage(response.data?.message() as String)
+                    return false
                 }
             }
         }
+        return false
     }
 
     suspend fun getUserRole(){

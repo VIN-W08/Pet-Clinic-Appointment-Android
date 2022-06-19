@@ -1,6 +1,5 @@
 package com.example.vin.petclinicappointment.ui.components.appointment
 
-import android.util.Log
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -10,6 +9,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ButtonDefaults.buttonColors
 import androidx.compose.material.Divider
+import androidx.compose.material.ScaffoldState
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
@@ -23,30 +23,54 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.capitalize
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.vin.petclinicappointment.ui.theme.PetClinicAppointmentTheme
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import com.example.vin.petclinicappointment.R
 import com.example.vin.petclinicappointment.ui.components.common.*
-import kotlinx.coroutines.launch
+import com.example.vin.petclinicappointment.ui.theme.Cultured_50
+import com.example.vin.petclinicappointment.ui.theme.Gray
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.runBlocking
+import java.text.DecimalFormat
+import java.time.format.FormatStyle
 
 @Composable
 fun AppointmentDetailPage(
     appointmentDetailViewModel: AppointmentDetailViewModel = hiltViewModel(),
     id : Int,
-    navigateBack: () -> Unit
+    navigateBack: () -> Unit,
+    scaffoldState: ScaffoldState
 ){
     val appointmentDetail by appointmentDetailViewModel.appointmentDetail.collectAsState()
     val userRole by appointmentDetailViewModel.userRole.collectAsState()
     var progressIndicatorVisible by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(Unit){
+        appointmentDetailViewModel.message.collectLatest {
+            if(it.isNotEmpty()) {
+                scaffoldState.snackbarHostState.showSnackbar(it)
+            }
+        }
+    }
+
+    LaunchedEffect(Unit){
         progressIndicatorVisible = true
         appointmentDetailViewModel.getAppointmentDetail(id)
         appointmentDetailViewModel.getUserRole()
         progressIndicatorVisible = false
+    }
+
+    fun onClickAppointmentAction(statusId: Int){
+        runBlocking {
+            progressIndicatorVisible = true
+            appointmentDetailViewModel.setSelectedAppointmentStatusId(statusId)
+            appointmentDetailViewModel.updateAppointmentStatus()
+            progressIndicatorVisible = false
+        }
     }
 
     val appointmentId = appointmentDetail?.id
@@ -58,8 +82,9 @@ fun AppointmentDetailPage(
     val serviceEndSchedule = appointmentDetail?.serviceSchedule?.endSchedule
     val appointmentCreatedAt = appointmentDetail?.createdAt
     val appointmentStatusCode = appointmentDetail?.status
-    val appointmentNote = appointmentDetail?.note
-    val appointmentStatus = appointmentDetailViewModel.appointmentCodeToTextStatusMap[appointmentStatusCode]
+    val customerName = appointmentDetail?.customer?.name
+    val customerEmail = appointmentDetail?.customer?.email
+    val appointmentStatus = appointmentDetailViewModel.appointmentCodeToTextMap[appointmentStatusCode]
 
     Surface (
         color = PetClinicAppointmentTheme.colors.background
@@ -73,17 +98,19 @@ fun AppointmentDetailPage(
                 Modifier
                     .fillMaxWidth()
                     .padding(
+                        start = PetClinicAppointmentTheme.dimensions.grid_2,
+                        end = PetClinicAppointmentTheme.dimensions.grid_2,
                         top = PetClinicAppointmentTheme.dimensions.grid_2,
-                        bottom = PetClinicAppointmentTheme.dimensions.grid_8
+                        bottom = PetClinicAppointmentTheme.dimensions.grid_4
                     ),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
             ){
-                if (clinicName != null) {
+                if(clinicName !== null) {
                     Text(
                         LocalDateTime.parse(appointmentCreatedAt)
                             .format(DateTimeFormatter.ofPattern("dd-MM-YYYY HH:mm")),
-                        style = PetClinicAppointmentTheme.typography.h2
+                        style = PetClinicAppointmentTheme.typography.h1
                     )
                 }
             }
@@ -120,7 +147,7 @@ fun AppointmentDetailPage(
                         Row(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            if (clinicImage !== null) {
+                            if (userRole == "customer" && clinicImage !== null) {
                                 Image(
                                     base64 = clinicImage,
                                     contentScale = ContentScale.Crop,
@@ -130,21 +157,43 @@ fun AppointmentDetailPage(
                                         .size(PetClinicAppointmentTheme.dimensions.grid_6)
                                         .clip(CircleShape)
                                 )
-                            } else {
-                                Image(
-                                    painter = painterResource(id = R.drawable.default_clinic_image),
-                                    contentScale = ContentScale.Fit,
-                                    contentDescription = "default clinic image",
-                                    modifier = Modifier
-                                        .padding(PetClinicAppointmentTheme.dimensions.grid_2)
-                                        .size(PetClinicAppointmentTheme.dimensions.grid_6)
-                                        .clip(CircleShape)
-                                )
                             }
-                            Text(
-                                "$clinicName",
-                                style = PetClinicAppointmentTheme.typography.h2,
-                            )
+                            if(userRole == "customer") {
+                                Text(
+                                    "$clinicName",
+                                    style = PetClinicAppointmentTheme.typography.h3,
+                                )
+                            }else if(userRole == "clinic"){
+                                    Column(
+                                        modifier = Modifier
+                                            .padding(
+                                                horizontal = PetClinicAppointmentTheme.dimensions.grid_2,
+                                                vertical = PetClinicAppointmentTheme.dimensions.grid_2
+                                            ),
+                                        verticalArrangement = Arrangement.SpaceBetween
+                                    ) {
+                                        Text(
+                                            "Pelanggan:",
+                                            style = PetClinicAppointmentTheme.typography.body2,
+                                            modifier = Modifier.padding(
+                                                bottom = PetClinicAppointmentTheme.dimensions.grid_2
+                                            )
+                                        )
+                                        Column(
+                                            verticalArrangement = Arrangement.SpaceBetween
+                                        ) {
+                                            Text(
+                                                "$customerName",
+                                                style = PetClinicAppointmentTheme.typography.h3,
+                                            )
+                                            Text(
+                                                "$customerEmail",
+                                                style = PetClinicAppointmentTheme.typography.body1,
+                                                color = Gray
+                                            )
+                                        }
+                                    }
+                            }
                         }
                         if (appointmentStatusCode != null) {
                             StatusLabel(
@@ -169,35 +218,36 @@ fun AppointmentDetailPage(
                     ) {
                         Divider(Modifier.fillMaxWidth())
                         LazyColumn(
-                            Modifier.padding(
-                                top = PetClinicAppointmentTheme.dimensions.grid_2,
-                                bottom = PetClinicAppointmentTheme.dimensions.grid_2
-                            )
+                            Modifier.padding(PetClinicAppointmentTheme.dimensions.grid_2)
                         ) {
                             item {
                                 Row (
-                                    Modifier.padding(
-                                        bottom = PetClinicAppointmentTheme.dimensions.grid_2
+                                    Modifier
+                                        .padding(
+                                        bottom = PetClinicAppointmentTheme.dimensions.grid_1
                                     )
-                                        ){
+                                ){
                                     TableHeader(title = "Layanan", modifier = Modifier.weight(0.25f))
                                     TableHeader(title = "Jadwal Mulai", modifier = Modifier.weight(0.25f))
                                     TableHeader(title = "Jadwal Berakhir", modifier = Modifier.weight(0.25f))
-                                    TableHeader(title = "Harga",
-                                        modifier = Modifier.weight(0.25f))
+                                    TableHeader(title = "Harga", modifier = Modifier.weight(0.25f))
                                 }
                             }
                             items(listOf(appointmentDetail)) {
                                 Row {
                                     TableValue(modifier = Modifier.weight(0.25f)){
-                                        Text("$serviceName")
+                                        Text(
+                                            "$serviceName",
+                                            textAlign = TextAlign.Center
+                                        )
                                     }
                                     TableValue(modifier = Modifier.weight(0.25f)){
                                         Column (
                                             Modifier.fillMaxWidth(),
                                             horizontalAlignment = Alignment.CenterHorizontally
-                                                ){
-                                            Text(LocalDateTime.parse(serviceStartSchedule).format(DateTimeFormatter.ofPattern("dd-MM-YYYY")))
+                                        ){
+                                            Text(LocalDateTime.parse(serviceStartSchedule).format(
+                                                DateTimeFormatter.ofPattern("dd MMM YYYY")))
                                             Text(LocalDateTime.parse(appointmentDetail?.serviceSchedule?.startSchedule).format(DateTimeFormatter.ofPattern("HH:mm")))
                                         }
                                     }
@@ -206,12 +256,15 @@ fun AppointmentDetailPage(
                                             Modifier.fillMaxWidth(),
                                             horizontalAlignment = Alignment.CenterHorizontally
                                         ){
-                                            Text(LocalDateTime.parse(serviceEndSchedule).format(DateTimeFormatter.ofPattern("dd-MM-YYYY")))
+                                            Text(LocalDateTime.parse(serviceEndSchedule).format(DateTimeFormatter.ofPattern("dd MMM YYYY")))
                                             Text(LocalDateTime.parse(appointmentDetail?.serviceSchedule?.endSchedule).format(DateTimeFormatter.ofPattern("HH:mm")))
                                         }
                                     }
                                     TableValue(modifier = Modifier.weight(0.25f)){
-                                        Text("$servicePrice")
+                                        Text(
+                                            DecimalFormat("0.#").format(servicePrice),
+                                            textAlign = TextAlign.Center
+                                        )
                                     }
                                 }
                             }
@@ -219,37 +272,12 @@ fun AppointmentDetailPage(
                         Divider(Modifier.fillMaxWidth())
                     }
                 }
-
-                Column(
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = PetClinicAppointmentTheme.dimensions.grid_6),
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Divider(Modifier.fillMaxWidth())
-                    Column(
-                        Modifier.padding(PetClinicAppointmentTheme.dimensions.grid_2)
-                    ) {
-                        Text(
-                            "Note",
-                            style = PetClinicAppointmentTheme.typography.h3,
-                            modifier = Modifier.padding(bottom = PetClinicAppointmentTheme.dimensions.grid_2)
-                        )
-                        if(appointmentNote !== null){
-                            if(appointmentNote.isNotEmpty()) {
-                                Text(appointmentNote)
-                            }else{
-                                Text("-")
-                            }
-                        }
-                    }
-                    Divider(Modifier.fillMaxWidth())
-                }
             }
             if(!userRole.isNullOrEmpty() && !appointmentStatus.isNullOrEmpty()) {
                 Divider(Modifier.fillMaxWidth())
                 AppointmentAction(
-                    appointmentDetailViewModel = appointmentDetailViewModel
+                    appointmentDetailViewModel = appointmentDetailViewModel,
+                    onClickAppointmentAction = { statusId -> onClickAppointmentAction(statusId) }
                 )
             }
         }
@@ -260,12 +288,19 @@ fun AppointmentDetailPage(
             CircularProgressIndicator(visible = progressIndicatorVisible)
         }
         Box {
-            IconButton(
-                icon = Icons.Rounded.ArrowBackIos,
-                contentDescription = "arrow_back",
-                onClick = { navigateBack() },
-                modifier = Modifier.padding(PetClinicAppointmentTheme.dimensions.grid_2)
-            )
+            Row (
+                Modifier.height(PetClinicAppointmentTheme.dimensions.grid_7_5),
+                verticalAlignment = Alignment.CenterVertically
+            ){
+                IconButton(
+                    icon = Icons.Rounded.ArrowBackIos,
+                    contentDescription = "arrow_back",
+                    onClick = { navigateBack() },
+                    modifier = Modifier
+                        .padding(start = PetClinicAppointmentTheme.dimensions.grid_2)
+                        .size(PetClinicAppointmentTheme.dimensions.grid_2_5)
+                )
+            }
         }
     }
 }
@@ -281,7 +316,8 @@ fun TableHeader(
     ) {
         Text(
             title,
-            style = PetClinicAppointmentTheme.typography.h3
+            style = PetClinicAppointmentTheme.typography.h3,
+            textAlign = TextAlign.Center
         )
     }
 }
@@ -293,7 +329,7 @@ fun TableValue(
 ){
     Row(
         modifier = modifier,
-        horizontalArrangement = Arrangement.Center
+        horizontalArrangement = Arrangement.Center,
     ) {
         content()
     }
@@ -301,7 +337,8 @@ fun TableValue(
 
 @Composable
 fun AppointmentAction(
-    appointmentDetailViewModel: AppointmentDetailViewModel
+    appointmentDetailViewModel: AppointmentDetailViewModel,
+    onClickAppointmentAction: (statusId: Int) -> Unit
 ){
     val appointmentActionList by appointmentDetailViewModel.appointmentActionList.collectAsState()
     val coroutineScope = rememberCoroutineScope()
@@ -314,15 +351,10 @@ fun AppointmentAction(
         Modifier.fillMaxWidth()
     ) {
         appointmentActionList.map {
-            val statusText = appointmentDetailViewModel.appointmentCodeToTextStatusMap[it]
+            val statusText = appointmentDetailViewModel.appointmentStatusCodeToStatusActionMap[it]
             if(statusText !== null) {
                 AppButton(
-                    onClick = {
-                        coroutineScope.launch {
-                            appointmentDetailViewModel.setSelectedAppointmentStatusId(it)
-                            appointmentDetailViewModel.updateAppointmentStatus()
-                        }
-                    },
+                    onClick = { onClickAppointmentAction(it) },
                     colors = buttonColors(
                         PetClinicAppointmentTheme.colors.surface
                     ),

@@ -5,10 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.Divider
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -21,6 +18,7 @@ import com.example.vin.petclinicappointment.R
 import com.example.vin.petclinicappointment.data.model.Appointment
 import com.example.vin.petclinicappointment.ui.components.common.*
 import com.example.vin.petclinicappointment.ui.theme.PetClinicAppointmentTheme
+import kotlinx.coroutines.flow.collectLatest
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -28,10 +26,19 @@ import java.time.format.DateTimeFormatter
 fun AppointmentPage(
     appointmentViewModel: AppointmentViewModel = hiltViewModel(),
     navigateToAppointmentDetail: (id: Int) -> Unit,
-    navigateToClinicAppointmentHistory: () -> Unit
+    navigateToClinicAppointmentHistory: () -> Unit,
+    scaffoldState: ScaffoldState
 ){
     val clinicUnfinishedAppointmentList by appointmentViewModel.clinicUnfinishedAppointmentList.collectAsState()
     var progressIndicatorVisible by rememberSaveable { mutableStateOf(false) }
+
+    LaunchedEffect(Unit){
+        appointmentViewModel.message.collectLatest {
+            if(it.isNotEmpty()) {
+                scaffoldState.snackbarHostState.showSnackbar(it)
+            }
+        }
+    }
 
     LaunchedEffect(Unit){
         progressIndicatorVisible = true
@@ -80,13 +87,18 @@ fun AppointmentPage(
                     .fillMaxWidth()
                     .weight(1f)
             ) {
-                if(clinicUnfinishedAppointmentList.isNotEmpty() && !progressIndicatorVisible) {
+                if(clinicUnfinishedAppointmentList.isEmpty() && !progressIndicatorVisible) {
+                    MessageView(
+                        message = "Janji temu saat ini tidak tersedia",
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }else {
                     AppointmentList(
                         title = "Janji Temu Saat Ini",
                         appointmentList = clinicUnfinishedAppointmentList,
                         navigateToAppointmentDetail = navigateToAppointmentDetail
                     )
-                }else NoAppointmentContent(modifier = Modifier.fillMaxSize())
+                }
             }
         }
         Box(
@@ -135,68 +147,47 @@ fun AppointmentItem(
     appointment: Appointment,
     navigateToAppointmentDetail: (id: Int) -> Unit
 ){
-    View (
+    Column(
         Modifier
             .fillMaxWidth()
-            .height(PetClinicAppointmentTheme.dimensions.grid_6 * 2),
-        onClick = { navigateToAppointmentDetail(appointment.id) }
-    ){
-        Column {
+            .height(PetClinicAppointmentTheme.dimensions.grid_6 * 2)
+            .clickable { navigateToAppointmentDetail(appointment.id) }
+    ) {
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .weight(1f),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             Row(
                 Modifier
-                    .fillMaxWidth()
-                    .weight(1f),
+                    .padding(
+                        horizontal = PetClinicAppointmentTheme.dimensions.grid_2,
+                    )
+                    .weight(1f)
+                    .fillMaxHeight(),
+                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                if (appointment.customer.image !== null) {
-                    Image(
-                        base64 = appointment.customer.image,
-                        contentScale = ContentScale.Crop,
-                        contentDescription = "customer image",
-                        modifier = Modifier
-                            .padding(PetClinicAppointmentTheme.dimensions.grid_2)
-                            .size(PetClinicAppointmentTheme.dimensions.grid_6)
-                            .clip(CircleShape)
-                    )
-                }else {
-                    Image(
-                        painter = painterResource(id = R.drawable.default_clinic_image),
-                        contentScale = ContentScale.Fit,
-                        contentDescription = "default customer image",
-                        modifier = Modifier
-                            .padding(PetClinicAppointmentTheme.dimensions.grid_2)
-                            .size(PetClinicAppointmentTheme.dimensions.grid_6)
-                            .clip(CircleShape)
-                    )
-                }
-                Row(
-                    Modifier
-                        .weight(1f)
-                        .fillMaxHeight(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                Column(
+                    Modifier.fillMaxHeight(0.6f),
+                    verticalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Column(
-                        Modifier.fillMaxHeight(0.6f),
-                        verticalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(
-                            "${appointment.customer.name}",
-                            style = PetClinicAppointmentTheme.typography.h2,
-                        )
-                        Text(
-                            LocalDateTime.parse(appointment.createdAt)
-                                .format(DateTimeFormatter.ofPattern("dd-MM-YYYY HH:mm")),
-                        )
-                    }
-                    StatusLabel(
-                        statusCode = appointment.status,
-                        hasBackground = true,
-                        containerModifier = Modifier.padding(end = PetClinicAppointmentTheme.dimensions.grid_2)
+                    Text(
+                        "${appointment.customer.name}",
+                        style = PetClinicAppointmentTheme.typography.h2,
+                    )
+                    Text(
+                        LocalDateTime.parse(appointment.createdAt)
+                            .format(DateTimeFormatter.ofPattern("dd-MM-YYYY HH:mm")),
                     )
                 }
+                StatusLabel(
+                    statusCode = appointment.status,
+                    hasBackground = true
+                )
             }
-            Divider(Modifier.fillMaxWidth())
         }
+        Divider(Modifier.fillMaxWidth())
     }
 }

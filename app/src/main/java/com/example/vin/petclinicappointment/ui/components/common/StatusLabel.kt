@@ -27,7 +27,7 @@ fun StatusLabel(
         4 to MagicMint
     )
 
-    val apppointmentStatusTextColorMap = mapOf(
+    val appointmentStatusCodeToColorMap = mapOf(
         0 to SafetyYellow,
         1 to VividMalachite,
         2 to DeepCarminePink,
@@ -35,20 +35,20 @@ fun StatusLabel(
         4 to VividMalachite
     )
 
-    val appointmentStatusMap = mapOf(
-        0 to "requesting",
-        1 to "approved",
-        2 to "disapproved",
-        3 to "canceled",
-        4 to "completed"
+    val appointmentStatusCodeToMap = mapOf(
+        0 to "mengajukan",
+        1 to "disetujui",
+        2 to "tidak disetujui",
+        3 to "dibatalkan",
+        4 to "selesai"
     )
 
-    var statusText = appointmentStatusMap[statusCode]
+    var statusText = appointmentStatusCodeToMap[statusCode]
     if(statusText !== null) {
         statusText = "${statusText[0].uppercase()}${statusText.substring(1)}"
     }
     val statusBackgroundColor = apppointmentStatusBackgroundColorMap[statusCode]
-    val statusTextColor = apppointmentStatusTextColorMap[statusCode]
+    val statusTextColor = appointmentStatusCodeToColorMap[statusCode]
 
     if(statusText !== null) {
         if (hasBackground &&
