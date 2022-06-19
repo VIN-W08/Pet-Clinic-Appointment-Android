@@ -186,7 +186,7 @@ fun CustomerSignUpContent(
                 )
                 TextInput(
                     value = password,
-                    onValueChange = { registerViewModel.setPhoneNum(it) },
+                    onValueChange = { registerViewModel.setPassword(it) },
                     placeholder = "Kata Sandi",
                     containerModifier = Modifier
                         .padding(bottom = PetClinicAppointmentTheme.dimensions.grid_4),
