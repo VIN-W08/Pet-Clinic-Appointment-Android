@@ -1,6 +1,5 @@
 package com.example.vin.petclinicappointment.ui.components.petclinic
 
-import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.example.vin.petclinicappointment.data.model.Call
 import com.example.vin.petclinicappointment.data.model.Coordinate
@@ -13,9 +12,6 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -47,8 +43,8 @@ class SearchPetClinicListViewModel @Inject constructor(
                 val data = response.data?.body()?.data
                 if (!data.isNullOrEmpty()) {
                     _nearbyPetClinicList.value = data
-                } else {
-                    _nearbyPetClinicList.value = listOf()
+                } else{
+                    setMessage(response.data?.body()?.status?.message as String)
                 }
             }
             else -> setMessage(response.data?.message() as String)

@@ -4,14 +4,15 @@ import android.content.Context
 import android.content.res.Resources
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowForwardIos
 import androidx.compose.material.icons.filled.MyLocation
-import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material.icons.filled.NavigateNext
+import androidx.compose.material.icons.rounded.NavigateBefore
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -28,7 +29,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.vin.petclinicappointment.R
 import com.example.vin.petclinicappointment.data.model.GeocodingApiResult
 import com.example.vin.petclinicappointment.ui.components.common.TextInput
-import com.example.vin.petclinicappointment.ui.theme.Cultured_50
 import com.example.vin.petclinicappointment.ui.theme.PetClinicAppointmentTheme
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
@@ -41,6 +41,8 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import com.example.vin.petclinicappointment.ui.components.common.IconButton
+import com.example.vin.petclinicappointment.ui.components.common.CircularProgressIndicator
+import com.example.vin.petclinicappointment.ui.theme.Black_50
 
 @Composable
 fun CurrentLocationMapPage(
@@ -53,6 +55,7 @@ fun CurrentLocationMapPage(
 ) {
     val context = LocalContext.current
     val localFocusManager = LocalFocusManager.current
+    var progressIndicatorVisible by rememberSaveable { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
     val searchLocationValue by currentLocationMapViewModel.searchLocationValue.collectAsState()
     val selectedLocation by currentLocationMapViewModel.selectedLocation.collectAsState()
@@ -69,17 +72,24 @@ fun CurrentLocationMapPage(
         }
     }
 
+    fun onClickNext(){
+        selectedLocationState.value = selectedLocation
+        navigateBack()
+    }
+
     LaunchedEffect(Unit) {
+        progressIndicatorVisible = true
         selectedLocationState.value?.let { selectedLocation ->
             currentLocationMapViewModel.setSearchLocationValue(selectedLocation.formatted)
             currentLocationMapViewModel.setSelectedLocation(selectedLocation)
         }
+        progressIndicatorVisible = false
     }
     Surface(
         Modifier.fillMaxSize()
     ) {
         selectedLocation.let {
-            if (it != null) {
+            if (it != null && !progressIndicatorVisible) {
                 Box {
                     val cameraPositionState = rememberCameraPositionState {
                         position = CameraPosition.fromLatLngZoom(LatLng(it.lat, it.lon), 15f)
@@ -100,21 +110,11 @@ fun CurrentLocationMapPage(
                             .height(PetClinicAppointmentTheme.dimensions.grid_8)
                             .padding(
                                 start = PetClinicAppointmentTheme.dimensions.grid_2,
-                                end = PetClinicAppointmentTheme.dimensions.grid_2,
-                                top = PetClinicAppointmentTheme.dimensions.grid_2
+                                end = PetClinicAppointmentTheme.dimensions.grid_2
                             ),
-                        horizontalArrangement = Arrangement.SpaceBetween,
+                        horizontalArrangement = Arrangement.End,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        IconButton(
-                            buttonModifier = Modifier
-                                .background(
-                                    Cultured_50,
-                                    RoundedCornerShape(50)
-                                ),
-                            icon = Icons.Rounded.Close,
-                            contentDescription = "close"
-                        ) { navigateBack() }
                         Column {
                             TextInput(
                                 value = searchLocationValue,
@@ -132,13 +132,18 @@ fun CurrentLocationMapPage(
                                         textFieldDropDownExpanded = true
                                     }
                                 },
+                                containerModifier = Modifier
+                                    .width(PetClinicAppointmentTheme.dimensions.grid_5 * 7)
+                                    .onSizeChanged { size ->
+                                        searchLocationTextFieldWidth = size.width
+                                    },
                                 modifier = Modifier
-                                    .width(PetClinicAppointmentTheme.dimensions.grid_7 * 5)
+                                    .width(PetClinicAppointmentTheme.dimensions.grid_5 * 7)
                                     .background(Color.White)
                                     .onSizeChanged { size ->
                                         searchLocationTextFieldWidth = size.width
                                     },
-                                shape = RoundedCornerShape(20),
+                                shape = RoundedCornerShape(10),
                                 onFocus = { textFieldDropDownExpanded = true },
                                 keyBoardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                                 keyBoardActions = KeyboardActions(onSearch = {
@@ -184,21 +189,73 @@ fun CurrentLocationMapPage(
                                 }
                             }
                         }
+                    }
+                }
+                Box (
+                    contentAlignment = Alignment.BottomEnd
+                ){
+                    FloatingActionButton(
+                        onClick = { onClickNext() },
+                        modifier = Modifier.padding(
+                            horizontal = PetClinicAppointmentTheme.dimensions.grid_2,
+                            vertical = PetClinicAppointmentTheme.dimensions.grid_5 * 3
+                        )
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.NavigateNext,
+                            contentDescription = "set location",
+                            tint = PetClinicAppointmentTheme.colors.onPrimary,
+                            modifier = Modifier.size(PetClinicAppointmentTheme.dimensions.grid_4)
+                        )
+                    }
+                }
+                Box {
+                    Row(
+                        Modifier.height(PetClinicAppointmentTheme.dimensions.grid_7_5),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
                         IconButton(
-                            buttonModifier = Modifier
-                                .background(
-                                    PetClinicAppointmentTheme.colors.primary,
-                                    RoundedCornerShape(50)
-                                ),
-                            icon = Icons.Default.ArrowForwardIos,
-                            contentDescription = "set location"
-                        ) {
-                            selectedLocationState.value = selectedLocation
-                            navigateBack()
-                        }
+                            icon = Icons.Rounded.NavigateBefore,
+                            contentDescription = "arrow_back",
+                            hasBorder = true,
+                            onClick = { navigateBack() },
+                            containerModifier = Modifier
+                                .padding(
+                                    horizontal = PetClinicAppointmentTheme.dimensions.grid_2
+                                )
+                                .background(Black_50, CircleShape),
+                            modifier = Modifier.padding(end = PetClinicAppointmentTheme.dimensions.grid_0_25),
+                            tint = Color.White
+                        )
+                    }
+                }
+                Box {
+                    Row(
+                        Modifier.height(PetClinicAppointmentTheme.dimensions.grid_7_5),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        IconButton(
+                            icon = Icons.Rounded.NavigateBefore,
+                            contentDescription = "arrow_back",
+                            hasBorder = true,
+                            onClick = { navigateBack() },
+                            containerModifier = Modifier
+                                .padding(
+                                    horizontal = PetClinicAppointmentTheme.dimensions.grid_2
+                                )
+                                .background(Black_50, CircleShape),
+                            modifier = Modifier.padding(end = PetClinicAppointmentTheme.dimensions.grid_0_25),
+                            tint = Color.White
+                        )
                     }
                 }
             }
+        }
+        Box(
+            Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator(visible = progressIndicatorVisible)
         }
     }
 }

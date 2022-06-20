@@ -10,6 +10,7 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -26,7 +27,9 @@ import com.example.vin.petclinicappointment.data.model.GeocodingApiResult
 import com.example.vin.petclinicappointment.ui.components.common.TextInput
 import com.example.vin.petclinicappointment.ui.theme.PetClinicAppointmentTheme
 import com.example.vin.petclinicappointment.ui.components.common.IconButton
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 @Composable
 fun SearchPetClinicListPage(
@@ -35,20 +38,30 @@ fun SearchPetClinicListPage(
     navigateBack: () -> Unit,
     navigateToDetail: (id: Int) -> Unit,
     selectedLocationState: MutableState<GeocodingApiResult?>,
+    scaffoldState: ScaffoldState
 ) {
+    var progressIndicatorVisible by rememberSaveable { mutableStateOf(false) }
     val localFocusManager = LocalFocusManager.current
     val searchPetClinicListInputValue by searchPetClinicListViewModel.searchPetClinicListInputValue.collectAsState()
     val nearbyPetClinicList by searchPetClinicListViewModel.nearbyPetClinicList.collectAsState()
     val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(Unit){
-        coroutineScope.launch {
-            searchPetClinicListViewModel.getNearbyPetClinicList(
-                selectedLocationState.value?.let {
-                    Coordinate(it.lat, it.lon)
-                }
-            )
+        searchPetClinicListViewModel.message.collectLatest {
+            if(it.isNotEmpty()) {
+                scaffoldState.snackbarHostState.showSnackbar(it)
+            }
         }
+    }
+
+    LaunchedEffect(Unit){
+        progressIndicatorVisible = true
+        searchPetClinicListViewModel.getNearbyPetClinicList(
+            selectedLocationState.value?.let {
+                Coordinate(it.lat, it.lon)
+            }
+        )
+        progressIndicatorVisible = false
     }
 
     Surface (
@@ -59,89 +72,100 @@ fun SearchPetClinicListPage(
         },
         color = PetClinicAppointmentTheme.colors.background
             ) {
-        Column {
-            Row (
-                Modifier
-                    .padding(
-                        start = PetClinicAppointmentTheme.dimensions.grid_2,
-                        end = PetClinicAppointmentTheme.dimensions.grid_2,
-                        top = PetClinicAppointmentTheme.dimensions.grid_2,
-                    )
-                    .height(PetClinicAppointmentTheme.dimensions.grid_7),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                IconButton(
-                    icon = Icons.Default.ArrowBackIos,
-                    contentDescription = "arrow_back"
-                ) { navigateBack() }
-                selectedLocationState.value?.let {
-                    Row(
-                        Modifier.clickable { navigateToCurrentLocationMap() },
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.LocationOn,
-                            contentDescription = "location on",
-                            tint = Color.Red,
-                            modifier = Modifier
-                                .padding(end = PetClinicAppointmentTheme.dimensions.grid_0_5)
-                                .size(PetClinicAppointmentTheme.dimensions.grid_2_5)
+        if(!progressIndicatorVisible) {
+            Column {
+                Row(
+                    Modifier
+                        .padding(
+                            start = PetClinicAppointmentTheme.dimensions.grid_2,
+                            end = PetClinicAppointmentTheme.dimensions.grid_2,
+                            top = PetClinicAppointmentTheme.dimensions.grid_2,
                         )
-                        Text(
-                            it.formatted,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            style = PetClinicAppointmentTheme.typography.h3
-                        )
+                        .height(PetClinicAppointmentTheme.dimensions.grid_7),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    IconButton(
+                        icon = Icons.Default.ArrowBackIos,
+                        contentDescription = "arrow_back"
+                    ) { navigateBack() }
+                    selectedLocationState.value?.let {
+                        Row(
+                            Modifier.clickable { navigateToCurrentLocationMap() },
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.LocationOn,
+                                contentDescription = "location on",
+                                tint = Color.Red,
+                                modifier = Modifier
+                                    .padding(end = PetClinicAppointmentTheme.dimensions.grid_0_5)
+                                    .size(PetClinicAppointmentTheme.dimensions.grid_2_5)
+                            )
+                            Text(
+                                it.formatted,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                style = PetClinicAppointmentTheme.typography.h3
+                            )
+                        }
                     }
                 }
+                TextInput(
+                    modifier = Modifier
+                        .padding(
+                            start = PetClinicAppointmentTheme.dimensions.grid_2,
+                            end = PetClinicAppointmentTheme.dimensions.grid_2,
+                            top = 0.dp,
+                            bottom = PetClinicAppointmentTheme.dimensions.grid_2
+                        )
+                        .fillMaxWidth(),
+                    containerModifier = Modifier.fillMaxWidth(),
+                    value = searchPetClinicListInputValue,
+                    onValueChange = { value ->
+                        searchPetClinicListViewModel.setSearchPetClinicListInputValue(value)
+                    },
+                    placeholder = stringResource(R.string.search),
+                    shape = RoundedCornerShape(30),
+                    leadingIcon = {
+                        IconButton(
+                            icon = Icons.Default.Search,
+                            contentDescription = "search"
+                        ) {
+                            coroutineScope.launch {
+                                searchPetClinicListViewModel.getNearbyPetClinicList(
+                                    selectedLocationState.value?.let {
+                                        Coordinate(it.lat, it.lon)
+                                    }
+                                )
+                            }
+                        }
+                    },
+                    keyBoardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                    keyBoardActions = KeyboardActions(
+                        onSearch = {
+                            coroutineScope.launch {
+                                searchPetClinicListViewModel.getNearbyPetClinicList(
+                                    selectedLocationState.value?.let {
+                                        Coordinate(it.lat, it.lon)
+                                    }
+                                )
+                            }
+                            localFocusManager.clearFocus()
+                        }
+                    ),
+                )
+                PetClinicList(
+                    nearbyPetClinicList,
+                    navigateToDetail
+                )
             }
-            TextInput(
-                modifier = Modifier
-                    .padding(
-                        start = PetClinicAppointmentTheme.dimensions.grid_2,
-                        end = PetClinicAppointmentTheme.dimensions.grid_2,
-                        top = 0.dp,
-                        bottom = PetClinicAppointmentTheme.dimensions.grid_2
-                    )
-                    .fillMaxWidth(),
-                containerModifier = Modifier.fillMaxWidth(),
-                value = searchPetClinicListInputValue,
-                onValueChange = { value -> searchPetClinicListViewModel.setSearchPetClinicListInputValue(value) },
-                placeholder = stringResource(R.string.search),
-                shape = RoundedCornerShape(30),
-                leadingIcon = {
-                    IconButton(
-                        icon = Icons.Default.Search,
-                        contentDescription = "search"
-                    ){
-                        coroutineScope.launch {
-                            searchPetClinicListViewModel.getNearbyPetClinicList(
-                                selectedLocationState.value?.let {
-                                    Coordinate(it.lat, it.lon)
-                                }
-                            )
-                        }
-                    }
-                },
-                keyBoardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-                keyBoardActions = KeyboardActions(
-                    onSearch = {
-                        coroutineScope.launch {
-                            searchPetClinicListViewModel.getNearbyPetClinicList(
-                                selectedLocationState.value?.let {
-                                    Coordinate(it.lat, it.lon)
-                                }
-                            )
-                        }
-                        localFocusManager.clearFocus()
-                    }
-                ),
-            )
-            PetClinicList(
-                nearbyPetClinicList,
-                navigateToDetail
-            )
+        }
+        Box(
+            Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            com.example.vin.petclinicappointment.ui.components.common.CircularProgressIndicator(
+                visible = progressIndicatorVisible)
         }
     }
 }

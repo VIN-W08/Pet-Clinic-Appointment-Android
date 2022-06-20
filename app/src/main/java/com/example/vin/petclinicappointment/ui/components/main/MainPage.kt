@@ -43,7 +43,8 @@ fun NavGraphBuilder.customerMainNavGraph (appState: MainAppState, scaffoldState:
             navigateToCurrentLocationMap = { appState.navigateTo("current-location-map") },
             navigateBack = appState::navigateBack,
             selectedLocationState = appState.selectedLocation,
-            navigateToDetail = { id -> appState.navigateTo("detail-pet-clinic/$id") }
+            navigateToDetail = { id -> appState.navigateTo("detail-pet-clinic/$id") },
+            scaffoldState = appState.scaffoldState
         )
     }
     composable(route = "current-location-map"){
