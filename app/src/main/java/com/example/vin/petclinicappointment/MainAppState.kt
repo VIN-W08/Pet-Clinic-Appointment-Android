@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Looper
+import android.util.Log
 import androidx.compose.material.ScaffoldState
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.*
@@ -217,6 +218,7 @@ class MainAppState(
     ){
         navController.navigate(route) {
             if(!popUpToRoute.isNullOrEmpty()) {
+                Log.d("debug1", "pop route:${popUpToRoute}")
                 popUpTo(popUpToRoute) { inclusive = inclusiveCurrent }
                 launchSingleTop = true
             }

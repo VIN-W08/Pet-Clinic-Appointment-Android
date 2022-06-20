@@ -16,6 +16,11 @@ object AppModule {
 
     @Singleton
     @Provides
+    fun provideCustomerRepository(): CustomerRepository
+            = CustomerRepository()
+
+    @Singleton
+    @Provides
     fun provideClinicScheduleRepository(): ClinicScheduleRepository
             = ClinicScheduleRepository()
 

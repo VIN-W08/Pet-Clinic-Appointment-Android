@@ -30,7 +30,7 @@ fun MainApp() {
         when(appState.getUserRole()) {
            "customer" -> "main/customer"
             "clinic" -> "main/clinic"
-            else -> throw IllegalArgumentException()
+            else -> "login-option"
         }
     } else "login-option"
     val scaffoldState = appState.scaffoldState
@@ -82,7 +82,7 @@ fun MainApp() {
 private fun NavGraphBuilder.appNavGraph (appState: MainAppState, scaffoldState: ScaffoldState){
     navigation(
         route = "main/customer",
-        startDestination = "home-customer"
+        startDestination = "home/customer"
     ){ customerMainNavGraph(appState, scaffoldState) }
 
     navigation(
@@ -92,7 +92,7 @@ private fun NavGraphBuilder.appNavGraph (appState: MainAppState, scaffoldState: 
 
     composable(route = "login-option"){
         LoginOptionsPage (
-            navigateToLogin = {appState.navigateTo("login", "sign-up")},
+            navigateToLogin = {appState.navigateTo("login")},
             userRole = appState.userRole
         )
     }
@@ -101,14 +101,14 @@ private fun NavGraphBuilder.appNavGraph (appState: MainAppState, scaffoldState: 
         LoginPage(
             navigateToCustomerHome = {
                 appState.setMainBottomNav()
-                appState.navigateTo("main/customer", "login")
+                appState.navigateTo("main/customer", "login-option")
                                      },
             navigateToSignUp = { appState.navigateTo("sign-up", "login") },
             userRole = appState.userRole,
             scaffoldState = appState.scaffoldState,
             navigateToAppointment = {
                 appState.setMainBottomNav()
-                appState.navigateTo("main/clinic", "login")
+                appState.navigateTo("main/clinic", "login-option")
             }
         )
     }
@@ -119,9 +119,9 @@ private fun NavGraphBuilder.appNavGraph (appState: MainAppState, scaffoldState: 
             navigateToHome = {
                 appState.setMainBottomNav()
                 when(appState.getUserRole()) {
-                    "customer" -> appState.navigateTo("main/customer", "login")
-                    "clinic" -> appState.navigateTo("main/clinic", "login")
-                    else -> throw IllegalArgumentException()
+                    "customer" -> appState.navigateTo("main/customer", "login-option")
+                    "clinic" -> appState.navigateTo("main/clinic", "login-option")
+                    else -> appState.navigateTo("login-option", "login-option")
                 }
             },
             scaffoldState = appState.scaffoldState,

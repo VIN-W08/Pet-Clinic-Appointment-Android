@@ -1,5 +1,6 @@
 package com.example.vin.petclinicappointment.ui.components.appointment
 
+import android.util.Log
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn

@@ -13,6 +13,7 @@ import com.example.vin.petclinicappointment.ui.theme.PetClinicAppointmentTheme
 import androidx.compose.material.ButtonDefaults.buttonColors
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.RectangleShape
 
 @Composable
 fun LoginOptionsPage(

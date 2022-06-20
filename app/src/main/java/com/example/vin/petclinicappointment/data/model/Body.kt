@@ -80,3 +80,8 @@ data class UpdateClinicScheduleBody(
     @SerializedName("end_time")
     val endTime: String?
 )
+
+data class UpdateCustomerBody(
+    val name: String,
+    val email: String
+)

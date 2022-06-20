@@ -175,3 +175,8 @@ data class DeleteClinicScheduleResponse(
     val status: ResponseStatus,
     val data: ClinicSchedule
 )
+
+data class UpdateCustomerResponse(
+    val status: ResponseStatus,
+    val data: Customer
+)

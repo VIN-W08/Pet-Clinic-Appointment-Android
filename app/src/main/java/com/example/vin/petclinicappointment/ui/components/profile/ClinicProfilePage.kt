@@ -19,11 +19,8 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.vin.petclinicappointment.ui.components.common.Image
+import com.example.vin.petclinicappointment.ui.components.common.*
 import com.example.vin.petclinicappointment.ui.theme.PetClinicAppointmentTheme
-import com.example.vin.petclinicappointment.ui.components.common.AppButton
-import com.example.vin.petclinicappointment.ui.components.common.CircularProgressIndicator
-import com.example.vin.petclinicappointment.ui.components.common.View
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.runBlocking
 
@@ -48,7 +45,7 @@ fun ClinicProfilePage(
     fun logout(){
         runBlocking {
             progressIndicatorVisible = true
-            clinicProfileViewModel.logoutClinic()
+            clinicProfileViewModel.logout()
             progressIndicatorVisible = false
             navigateToLoginOption()
         }
@@ -219,39 +216,6 @@ fun ManageClinicScheduleView(
                 contentDescription = "navigate next icon"
             )
         }
-        Divider(Modifier.fillMaxWidth())
-    }
-}
-
-@Composable
-fun PrefTextView(
-    title: String,
-    value: String,
-    modifier: Modifier = Modifier
-){
-    Column(
-        modifier
-            .fillMaxWidth(),
-        verticalArrangement = Arrangement.SpaceBetween
-    ) {
-        Text(
-            title,
-            style = PetClinicAppointmentTheme.typography.h2,
-            fontWeight = FontWeight.SemiBold,
-            modifier = Modifier.padding(
-                horizontal = PetClinicAppointmentTheme.dimensions.grid_2,
-                vertical = PetClinicAppointmentTheme.dimensions.grid_1
-            )
-        )
-        Text(
-            if(value.isNotEmpty()) value else "-",
-            style = PetClinicAppointmentTheme.typography.h2,
-            fontWeight = FontWeight.Normal,
-            modifier = Modifier.padding(
-                horizontal = PetClinicAppointmentTheme.dimensions.grid_2,
-                vertical = PetClinicAppointmentTheme.dimensions.grid_1
-            )
-        )
         Divider(Modifier.fillMaxWidth())
     }
 }

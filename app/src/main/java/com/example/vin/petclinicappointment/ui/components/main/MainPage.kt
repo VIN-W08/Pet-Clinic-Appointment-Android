@@ -6,6 +6,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import com.example.vin.petclinicappointment.MainAppState
@@ -16,14 +17,11 @@ import com.example.vin.petclinicappointment.ui.components.appointment.Appointmen
 import com.example.vin.petclinicappointment.ui.components.appointment.ClinicAppointmentHistoryPage
 import com.example.vin.petclinicappointment.ui.components.home.CustomerHomePage
 import com.example.vin.petclinicappointment.ui.components.petclinic.*
-import com.example.vin.petclinicappointment.ui.components.profile.ClinicProfilePage
-import com.example.vin.petclinicappointment.ui.components.profile.ClinicSchedulePage
-import com.example.vin.petclinicappointment.ui.components.profile.EditClinicProfilePage
-import com.example.vin.petclinicappointment.ui.components.profile.EditClinicSchedulePage
+import com.example.vin.petclinicappointment.ui.components.profile.*
 import com.example.vin.petclinicappointment.ui.components.service.*
 
 fun NavGraphBuilder.customerMainNavGraph (appState: MainAppState, scaffoldState: ScaffoldState){
-    composable(route = "home-customer") {
+    composable(route = "home/customer") {
         CustomerHomePage(
             scaffoldState = scaffoldState,
             navigateToSearchPetClinic = { appState.navigateTo("search-pet-clinic-list")},
@@ -62,7 +60,7 @@ fun NavGraphBuilder.customerMainNavGraph (appState: MainAppState, scaffoldState:
             id = navBackStackEntry.arguments?.getString("id")?.toInt() ?: 0,
             navigateBack = appState::navigateBack,
             navigateToInfo = {id -> appState.navigateTo("info-pet-clinic/$id") },
-            navigateToHome = { id -> appState.navigateTo("home-customer", "detail-pet-clinic/$id")}
+            navigateToHome = { id -> appState.navigateTo("home/customer", "home/customer")}
         )
     }
 
@@ -88,7 +86,19 @@ fun NavGraphBuilder.customerMainNavGraph (appState: MainAppState, scaffoldState:
             navigateBack = appState::navigateBack
         )
     }
-    composable(route = "profile"){}
+    composable(route = "profile/customer"){
+        CustomerProfilePage(
+            navigateToEditCustomerProfile = { appState.navigateTo("profile/customer/update") },
+            navigateToLoginOption = { appState.navigateTo("login-option", "main/customer")},
+            scaffoldState = appState.scaffoldState
+        )
+    }
+    composable(route = "profile/customer/update"){
+        EditCustomerProfilePage(
+            navigateBack = appState::navigateBack,
+            scaffoldState = appState.scaffoldState
+        )
+    }
 }
 
 fun NavGraphBuilder.clinicMainNavGraph (appState: MainAppState, scaffoldState: ScaffoldState){
@@ -169,7 +179,7 @@ fun NavGraphBuilder.clinicMainNavGraph (appState: MainAppState, scaffoldState: S
     composable(route = "profile/clinic"){
         ClinicProfilePage(
             navigateToEditClinicProfile = { appState.navigateTo("profile/clinic/update") },
-            navigateToLoginOption = { appState.navigateTo("login-option", "profile/clinic/update") },
+            navigateToLoginOption = { appState.navigateTo("login-option", "main/clinic") },
             navigateToClinicSchedule = { appState.navigateTo("clinic/schedule") },
             scaffoldState = appState.scaffoldState
         )
@@ -215,11 +225,11 @@ enum class MainBottomNavTabs(
     val icon: ImageVector,
     val route: String
 ) {
-    Home(R.string.tab_home, Icons.Rounded.Home, "home-customer"),
+    Home(R.string.tab_home, Icons.Rounded.Home, "home/customer"),
     History(R.string.tab_history, Icons.Rounded.History,"history"),
     Appointment(R.string.tab_appointment, Icons.Rounded.BookOnline, "appointment"),
     Service(R.string.tab_service, Icons.Rounded.LocalHospital, "service"),
-    Profile(R.string.tab_profile, Icons.Rounded.AccountCircle, "profile"),
+    Profile(R.string.tab_profile, Icons.Rounded.AccountCircle, "profile/customer"),
     ClinicProfile(R.string.tab_profile, Icons.Rounded.AccountCircle, "profile/clinic");
 
     companion object {

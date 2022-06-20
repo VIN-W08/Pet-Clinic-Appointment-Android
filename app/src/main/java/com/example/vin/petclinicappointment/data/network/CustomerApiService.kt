@@ -4,7 +4,7 @@ import com.example.vin.petclinicappointment.data.model.*
 import retrofit2.Response
 import retrofit2.http.*
 
-interface ApiService {
+interface CustomerApiService {
     @POST("customer")
     suspend fun registerCustomer(
         @Body body: RegisterBody
@@ -14,4 +14,10 @@ interface ApiService {
     suspend fun loginCustomer(
         @Body body: LoginBody
     ): Response<LoginResponse>
+
+    @PUT("customer/{id}")
+    suspend fun updateCustomer(
+        @Path("id") customerId: Int,
+        @Body body: UpdateCustomerBody
+    ): Response<UpdateCustomerResponse>
 }

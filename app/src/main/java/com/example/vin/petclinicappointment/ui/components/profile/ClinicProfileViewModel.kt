@@ -143,7 +143,10 @@ class ClinicProfileViewModel @Inject constructor(
         }
     }
 
-    suspend fun logoutClinic(){
-        userRepository.logoutClinic()
+    suspend fun logout(){
+        val userRole = userRepository.getUserRole()
+        if (userRole != null) {
+            userRepository.logout(userRole)
+        }
     }
 }

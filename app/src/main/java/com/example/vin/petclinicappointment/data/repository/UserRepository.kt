@@ -1,8 +1,9 @@
 package com.example.vin.petclinicappointment.data.repository
 
+import android.util.Log
 import com.example.vin.petclinicappointment.data.UserDataStore
 import com.example.vin.petclinicappointment.data.model.*
-import com.example.vin.petclinicappointment.data.network.ApiService
+import com.example.vin.petclinicappointment.data.network.CustomerApiService
 import com.example.vin.petclinicappointment.data.network.PetClinicApiService
 import retrofit2.Response
 import retrofit2.Retrofit
@@ -16,7 +17,7 @@ class UserRepository @Inject constructor(
         .baseUrl("http://10.0.2.2:7284/api/")
         .addConverterFactory(GsonConverterFactory.create())
         .build()
-        .create(ApiService::class.java)
+        .create(CustomerApiService::class.java)
 
     val clinicApiService = Retrofit.Builder()
         .baseUrl("http://10.0.2.2:7284/api/")
@@ -48,17 +49,27 @@ class UserRepository @Inject constructor(
         return Call.Error(response)
     }
 
-    suspend fun logoutClinic(){
-        userDataStore.saveUserId(0)
-        userDataStore.saveUserEmail("")
-        userDataStore.saveUserName("")
-        userDataStore.saveUserImage("")
-        userDataStore.saveUserPhoneNum("")
-        userDataStore.saveUserAddress("")
-        userDataStore.saveUserVillageId(0)
-        userDataStore.saveUserLatitude(0.0)
-        userDataStore.saveUserLongitude(0.0)
-        userDataStore.saveUserRole("")
+    suspend fun logout(userRole: String){
+        Log.d("debug1", "role:$userRole")
+        when(userRole) {
+            "clinic" -> {
+                userDataStore.saveUserId(0)
+                userDataStore.saveUserEmail("")
+                userDataStore.saveUserName("")
+                userDataStore.saveUserImage("")
+                userDataStore.saveUserPhoneNum("")
+                userDataStore.saveUserAddress("")
+                userDataStore.saveUserVillageId(0)
+                userDataStore.saveUserLatitude(0.0)
+                userDataStore.saveUserLongitude(0.0)
+                userDataStore.saveUserRole("")
+            }
+            "customer" -> {
+                userDataStore.saveUserId(0)
+                userDataStore.saveUserName("")
+                userDataStore.saveUserEmail("")
+            }
+        }
     }
 
     suspend fun saveUserId(value: Int) =
