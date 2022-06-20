@@ -20,6 +20,9 @@ import com.example.vin.petclinicappointment.R
 import com.example.vin.petclinicappointment.data.model.PetClinic
 import com.example.vin.petclinicappointment.ui.theme.PetClinicAppointmentTheme
 import com.example.vin.petclinicappointment.ui.components.common.Image
+import java.text.DecimalFormat
+import java.text.DecimalFormatSymbols
+import java.util.*
 
 @Composable
 fun PetClinicList(
@@ -48,6 +51,8 @@ fun PetClinicListItem(
     navigateToDetail: (id: Int) -> Unit
 ){
     val clinicAddress = petClinic.address
+    val clinicDistance = petClinic.distance
+
     Row (
         modifier
             .fillMaxWidth()
@@ -106,6 +111,13 @@ fun PetClinicListItem(
                         fontWeight = FontWeight.Light,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
+                    )
+                }
+                if(clinicDistance !== null){
+                    Text(
+                        "${DecimalFormat("#.#").format(clinicDistance).replace(",", ".")} km",
+                        style = PetClinicAppointmentTheme.typography.h3,
+                        fontWeight = FontWeight.Light
                     )
                 }
             }

@@ -15,6 +15,7 @@ open class PetClinic(
     val rating: Float = 0f,
     val latitude: Double? = null,
     val longitude: Double? = null,
+    val distance: Double? = null,
     updatedAt: String? = null,
     createdAt: String? = null
 ): User(
@@ -40,6 +41,7 @@ class PetClinicDetail(
     rating: Float,
     latitude: Double,
     longitude: Double,
+    distance: Double,
     @SerializedName("services")
     val serviceList: List<Service>,
     @SerializedName("schedules_pet_clinic")
@@ -58,6 +60,7 @@ class PetClinicDetail(
     rating,
     latitude,
     longitude,
+    distance,
     updatedAt,
     createdAt
 )
