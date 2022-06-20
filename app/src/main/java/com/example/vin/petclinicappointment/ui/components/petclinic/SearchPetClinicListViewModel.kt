@@ -41,7 +41,7 @@ class SearchPetClinicListViewModel @Inject constructor(
         when(response) {
             is Call.Success -> {
                 val data = response.data?.body()?.data
-                if (!data.isNullOrEmpty()) {
+                if (data !== null) {
                     _nearbyPetClinicList.value = data
                 } else{
                     setMessage(response.data?.body()?.status?.message as String)

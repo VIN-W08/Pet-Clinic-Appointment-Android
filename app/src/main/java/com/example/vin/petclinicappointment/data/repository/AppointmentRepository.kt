@@ -1,5 +1,6 @@
 package com.example.vin.petclinicappointment.data.repository
 
+import android.util.Log
 import com.example.vin.petclinicappointment.data.model.*
 import com.example.vin.petclinicappointment.data.network.AppointmentApiService
 import retrofit2.Response
@@ -25,14 +26,17 @@ class AppointmentRepository {
         customerId: Int? = null,
         clinicId: Int? = null,
         status: Int? = null,
+        startSchedule: String? = null,
         finished: Boolean? = null
     ): Call<Response<GetAppointmentListResponse>>{
         val response = apiService.getAppointmentList(
             customerId = customerId,
             clinicId = clinicId,
             status = status,
+            startSchedule = startSchedule,
             finished = finished
         )
+        Log.d("debug1", "response:$response")
         if(response.isSuccessful){
             return Call.Success(response)
         }

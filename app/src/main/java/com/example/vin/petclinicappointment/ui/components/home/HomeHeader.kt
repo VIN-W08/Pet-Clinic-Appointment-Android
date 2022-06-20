@@ -16,11 +16,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.vin.petclinicappointment.R
 import com.example.vin.petclinicappointment.ui.theme.PetClinicAppointmentTheme
 import com.example.vin.petclinicappointment.ui.components.common.IconButton
+import com.example.vin.petclinicappointment.ui.theme.Black_50
 
 @Composable
 fun HomeHeader(
@@ -39,25 +42,20 @@ fun HomeHeader(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.google_logo),
-                        contentDescription = "profile_photo",
-                        modifier = Modifier
-                            .size(PetClinicAppointmentTheme.dimensions.grid_6)
-                            .clip(CircleShape)
-                            .padding(end = PetClinicAppointmentTheme.dimensions.grid_2)
-                    )
-                    Column {
-                        Text("Hello",
+                if(username.isNotEmpty()) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            "Hai, ",
                             style = PetClinicAppointmentTheme.typography.h2,
-                            color = PetClinicAppointmentTheme.colors.onPrimary
+                            color = PetClinicAppointmentTheme.colors.onPrimary,
+                            fontWeight = FontWeight.SemiBold,
                         )
-                        Text(username,
-                            style = PetClinicAppointmentTheme.typography.h3,
-                            color = PetClinicAppointmentTheme.colors.onPrimary
+                        Text(
+                            username,
+                            style = PetClinicAppointmentTheme.typography.h2,
+                            color = PetClinicAppointmentTheme.colors.onPrimary,
                         )
                     }
                 }
@@ -67,9 +65,9 @@ fun HomeHeader(
                     contentDescription = "search",
                     hasBorder = true,
                     onClick = { navigateToPetClinicList() },
+                    containerModifier = Modifier.background(PetClinicAppointmentTheme.colors.primaryVariant, CircleShape),
                     modifier = Modifier
                         .size(PetClinicAppointmentTheme.dimensions.grid_2_5)
-//                        .background(PetClinicAppointmentTheme.colors.primary)
                 )
             }
 }

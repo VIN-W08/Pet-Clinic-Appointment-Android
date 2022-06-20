@@ -7,31 +7,48 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.CalendarToday
+import androidx.compose.material.icons.rounded.Schedule
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import java.util.Locale
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.vin.petclinicappointment.R
-import com.example.vin.petclinicappointment.data.actionCategoryList
+import com.example.vin.petclinicappointment.data.model.AppointmentDetail
+import com.example.vin.petclinicappointment.ui.components.common.Image
+import com.example.vin.petclinicappointment.ui.components.common.MessageView
 import com.example.vin.petclinicappointment.ui.components.common.ModalBottomSheet
 import com.example.vin.petclinicappointment.ui.components.common.View
+import com.example.vin.petclinicappointment.ui.theme.Gray
 import com.example.vin.petclinicappointment.ui.theme.PetClinicAppointmentTheme
 import com.google.android.gms.common.api.ResolvableApiException
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.time.format.TextStyle
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun CustomerHomePage(
+    homeViewModel: HomeViewModel = hiltViewModel(),
     scaffoldState: ScaffoldState,
     navigateToSearchPetClinic: () -> Unit,
     navigateTo: (route: String) -> Unit,
@@ -39,6 +56,7 @@ fun CustomerHomePage(
     getLocationPermissionStatus: (context: Context) -> Boolean,
     getGpsEnabledStatus: (context: Context, onEnabled: () -> Unit, onDisabled: (exception: Exception) -> Unit) -> Unit,
 ) {
+    var progressIndicatorVisible by rememberSaveable { mutableStateOf(false) }
     val modalBottomSheetState = rememberModalBottomSheetState(
         initialValue = ModalBottomSheetValue.Hidden,
         confirmStateChange = { state -> state != ModalBottomSheetValue.HalfExpanded }
@@ -48,6 +66,14 @@ fun CustomerHomePage(
     val localFocusManager = LocalFocusManager.current
     val context = LocalContext.current
     val locationPermission = Manifest.permission.ACCESS_FINE_LOCATION
+
+    val todayUnfinishedAppointmentList by homeViewModel.todayNotFinishedAppointmentList.collectAsState()
+
+    LaunchedEffect(Unit){
+        progressIndicatorVisible = true
+        homeViewModel.getTodayNotFinishedAppointmentList()
+        progressIndicatorVisible = false
+    }
 
     fun onFailGetLocation() {
         coroutineScope.launch {
@@ -85,6 +111,14 @@ fun CustomerHomePage(
                 onLocationPermissionGranted()
             }
         }
+
+    LaunchedEffect(Unit){
+        homeViewModel.message.collectLatest {
+            if(it.isNotEmpty()) {
+                scaffoldState.snackbarHostState.showSnackbar(it)
+            }
+        }
+    }
 
     LaunchedEffect(Unit) {
         val locationPermissionStatus = getLocationPermissionStatus(context)
@@ -125,35 +159,144 @@ fun CustomerHomePage(
                     Modifier
                         .fillMaxSize()
                         .clip(RoundedCornerShape(
-                            topStart = 30.dp,
-                            topEnd = 30.dp
+                            topStart = PetClinicAppointmentTheme.dimensions.grid_4,
+                            topEnd = PetClinicAppointmentTheme.dimensions.grid_4
                         ))
-                        .background(Color.White)
+                        .background(PetClinicAppointmentTheme.colors.surface)
                 ) {
                     Column(
-                        Modifier.padding(
-                            top = PetClinicAppointmentTheme.dimensions.grid_3
-                        )
+                        Modifier
+                            .padding(
+                                top = PetClinicAppointmentTheme.dimensions.grid_5
+                            )
                     ) {
-                        ActionCategoryList(
-                            modalBottomSheetState,
-                            selectedActionCategoryList,
-                            "Klinik",
-                            actionCategoryList,
-                            navigateTo,
-                            "pet-clinic-list"
-                        )
-                        ActionCategoryList(
-                            modalBottomSheetState,
-                            selectedActionCategoryList,
-                            "Layanan",
-                            actionCategoryList,
-                            navigateTo,
-                            "pet-clinic-list"
-                        )
+                        TodayUnfinishedAppointmentList(todayUnfinishedAppointmentList)
                     }
                 }
             }
         }
+    }
+}
+
+@Composable
+fun TodayUnfinishedAppointmentList(appointmentList: List<AppointmentDetail>){
+    Column {
+        Column {
+            Text(
+                "Janji Temu Yang Akan Datang",
+                style = PetClinicAppointmentTheme.typography.h3,
+                modifier = Modifier.padding(
+                    start = PetClinicAppointmentTheme.dimensions.grid_2,
+                    bottom = PetClinicAppointmentTheme.dimensions.grid_0_5
+                )
+            )
+            Divider(Modifier.fillMaxWidth())
+        }
+        if (appointmentList.isNotEmpty()) {
+            LazyColumn(
+                Modifier.fillMaxSize()
+            ) {
+                items(appointmentList) {
+                    TodayUnfinishedAppointmentItem(it)
+                }
+            }
+        } else {
+            MessageView(
+                message = "Tidak ada janji temu",
+                modifier = Modifier.fillMaxSize()
+            )
+        }
+    }
+}
+
+@Composable
+fun TodayUnfinishedAppointmentItem(
+    appointment: AppointmentDetail
+){
+    val startSchedule = LocalDateTime.parse(appointment.serviceSchedule.startSchedule)
+    val endSchedule = LocalDateTime.parse(appointment.serviceSchedule.endSchedule)
+    val startDate = startSchedule.toLocalDate()
+    val startTime = startSchedule.format(DateTimeFormatter.ofPattern("HH:mm"))
+    val endTime = endSchedule.format(DateTimeFormatter.ofPattern("HH:mm"))
+
+    Column {
+        Card(
+            Modifier
+                .fillMaxWidth()
+                .height(PetClinicAppointmentTheme.dimensions.grid_6 * 2),
+            elevation = 0.dp
+        ) {
+            Row(
+                Modifier.fillMaxSize()
+            ) {
+                View(
+                    Modifier
+                        .padding(PetClinicAppointmentTheme.dimensions.grid_1)
+                        .width(PetClinicAppointmentTheme.dimensions.grid_8),
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (appointment.petClinic.image !== null) {
+                        Image(
+                            base64 = appointment.petClinic.image,
+                            contentScale = ContentScale.Fit,
+                            contentDescription = "clinic image",
+                            modifier = Modifier.clip(RoundedCornerShape(10))
+                        )
+                    } else {
+                        Image(
+                            painter = painterResource(id = R.drawable.default_clinic_image),
+                            contentScale = ContentScale.Fit,
+                            contentDescription = "default clinic image",
+                            modifier = Modifier.clip(RoundedCornerShape(10))
+                        )
+                    }
+                }
+                Column(
+                    Modifier
+                        .padding(PetClinicAppointmentTheme.dimensions.grid_1)
+                        .fillMaxHeight(),
+                    verticalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        appointment.petClinic.name ?: "",
+                        style = PetClinicAppointmentTheme.typography.h2,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    Column {
+                        Row(
+                            Modifier.padding(bottom = PetClinicAppointmentTheme.dimensions.grid_0_25),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Icon(
+                                imageVector = Icons.Rounded.CalendarToday,
+                                contentDescription = "calendar icon",
+                                modifier = Modifier.padding(end = PetClinicAppointmentTheme.dimensions.grid_1),
+                                tint = Gray
+                            )
+                            Text("${startDate.dayOfMonth} ${
+                                startDate.month.getDisplayName(TextStyle.FULL,
+                                    Locale.getDefault())
+                            } ${startDate.year}",
+                                style = PetClinicAppointmentTheme.typography.h3)
+                        }
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                imageVector = Icons.Rounded.Schedule,
+                                contentDescription = "clock icon",
+                                modifier = Modifier.padding(end = PetClinicAppointmentTheme.dimensions.grid_1),
+                                tint = Gray
+                            )
+                            Text(
+                                "$startTime - $endTime",
+                                style = PetClinicAppointmentTheme.typography.h3
+                            )
+                        }
+                    }
+                }
+            }
+        }
+        Divider(Modifier.fillMaxWidth())
     }
 }

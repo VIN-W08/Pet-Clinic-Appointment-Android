@@ -15,6 +15,7 @@ interface AppointmentApiService {
         @Query("customer_id") customerId: Int?,
         @Query("clinic_id") clinicId: Int?,
         @Query("status") status: Int?,
+        @Query("start_schedule") startSchedule: String?,
         @Query("finished") finished: Boolean?
     ): Response<GetAppointmentListResponse>
 

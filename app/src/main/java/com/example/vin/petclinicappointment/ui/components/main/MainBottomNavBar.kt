@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.example.vin.petclinicappointment.ui.theme.PetClinicAppointmentTheme
 
 @Composable
 fun MainBottomNavBar(
@@ -36,7 +37,7 @@ fun MainBottomNavBar(
                             tab.icon,
                             contentDescription = title,
                             tint = itemColor,
-                            modifier = Modifier.size(30.dp)
+                            modifier = Modifier.size(PetClinicAppointmentTheme.dimensions.grid_4)
                         )
                         if(selected) {
                             Text(title, color = itemColor)

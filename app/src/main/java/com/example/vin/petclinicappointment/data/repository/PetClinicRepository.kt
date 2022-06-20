@@ -1,5 +1,6 @@
 package com.example.vin.petclinicappointment.data.repository
 
+import android.util.Log
 import com.example.vin.petclinicappointment.data.model.*
 import com.example.vin.petclinicappointment.data.network.PetClinicApiService
 import okhttp3.MultipartBody
@@ -18,6 +19,7 @@ class PetClinicRepository {
 
     suspend fun getPetClinicList(name: String? = "", latitude: Double? = null, longitude: Double? = null): Call<Response<PetClinicListResponse>> {
         val response = apiService.getPetClinicList(name, latitude, longitude)
+        Log.d("debug1", "response:$response")
         if(response.isSuccessful){
             return Call.Success(response)
         }
