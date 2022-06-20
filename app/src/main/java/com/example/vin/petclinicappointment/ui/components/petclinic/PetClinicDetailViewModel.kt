@@ -60,7 +60,11 @@ class PetClinicDetailViewModel @Inject constructor(
         when(response){
             is Call.Success -> {
                 val data = response.data?.body()?.data
-                _clinicDetail.value = data
+                if(data!==null) {
+                    _clinicDetail.value = data
+                }else{
+                    setMessage(response.data?.body()?.status?.message as String)
+                }
             }
             else -> setMessage(response.data?.message() as String)
         }
@@ -73,7 +77,11 @@ class PetClinicDetailViewModel @Inject constructor(
         when(response){
             is Call.Success -> {
                 val data = response.data?.body()?.data
-                _serviceDetail.value = data
+                if(data !== null) {
+                    _serviceDetail.value = data
+                }else{
+                    setMessage(response.data?.body()?.status?.message as String)
+                }
             }
             else -> { setMessage(response.data?.message() as String) }
         }
@@ -94,6 +102,8 @@ class PetClinicDetailViewModel @Inject constructor(
                     val data = response.data?.body()?.data
                     if (data != null) {
                         _scheduleList.value = data
+                    }else{
+                        setMessage(response.data?.body()?.status?.message as String)
                     }
                 }
                 else -> { setMessage(response.data?.message() as String) }
@@ -125,6 +135,8 @@ class PetClinicDetailViewModel @Inject constructor(
                     val data = response.data?.body()?.data
                     if (data != null) {
                         _appointment.value = data
+                    }else{
+                        setMessage(response.data?.body()?.status?.message as String)
                     }
                 }
                 else -> setMessage(response.data?.message() as String)

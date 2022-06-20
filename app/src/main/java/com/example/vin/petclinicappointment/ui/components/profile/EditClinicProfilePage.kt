@@ -113,7 +113,6 @@ fun EditClinicProfilePage(
         runBlocking {
             progressIndicatorVisible = true
             val isSuccess = editClinicProfileViewModel.updateClinic(context)
-            Log.d("debug1", "is success${isSuccess}")
             progressIndicatorVisible = false
             if(isSuccess){
                 editClinicProfileViewModel.saveClinic()

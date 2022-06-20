@@ -10,8 +10,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.NavigateBefore
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.NavigateBefore
 import androidx.compose.material.icons.rounded.TrendingFlat
@@ -25,20 +23,19 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.vin.petclinicappointment.data.model.Service
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import com.example.vin.petclinicappointment.data.model.ServiceSchedule
-import com.example.vin.petclinicappointment.ui.components.common.AppButton
-import com.example.vin.petclinicappointment.ui.components.common.ModalBottomSheet
-import com.example.vin.petclinicappointment.ui.components.common.View
+import com.example.vin.petclinicappointment.ui.components.common.*
 import kotlinx.coroutines.launch
-import com.example.vin.petclinicappointment.ui.components.common.Image
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import com.example.vin.petclinicappointment.ui.components.common.CircularProgressIndicator
 import kotlinx.coroutines.Dispatchers
-import com.example.vin.petclinicappointment.ui.components.common.IconButton
 import com.example.vin.petclinicappointment.ui.theme.*
+import kotlinx.coroutines.flow.collectLatest
+import java.text.DecimalFormat
+import com.example.vin.petclinicappointment.R
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -47,7 +44,8 @@ fun PetClinicDetailPage(
     id : Int,
     navigateBack: () -> Unit,
     navigateToInfo: (id: Int) -> Unit,
-    navigateToHome: (id: Int) -> Unit
+    navigateToHome: (id: Int) -> Unit,
+    scaffoldState: ScaffoldState
 ){
     val modalBottomSheetState = rememberModalBottomSheetState(
         initialValue = ModalBottomSheetValue.Hidden,
@@ -59,7 +57,17 @@ fun PetClinicDetailPage(
     val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(Unit){
+        petClinicDetailViewModel.message.collectLatest {
+            if(it.isNotEmpty()) {
+                scaffoldState.snackbarHostState.showSnackbar(it)
+            }
+        }
+    }
+
+    LaunchedEffect(Unit){
+        progressIndicatorVisible = true
         petClinicDetailViewModel.getPetClinicDetail(id)
+        progressIndicatorVisible = false
     }
 
     val clinicName = clinicDetail?.name
@@ -79,111 +87,129 @@ fun PetClinicDetailPage(
             },
         color = PetClinicAppointmentTheme.colors.background
     ) {
+        if(!progressIndicatorVisible){
         if(clinicDetail?.equals(null) == false) {
-            Box {
-                Column {
-                    Column(
-                        Modifier
-                            .fillMaxWidth()
-                            .fillMaxHeight(0.2f)
-                    ) {
+            Column {
+                Column(
+                    Modifier
+                        .fillMaxWidth()
+                        .fillMaxHeight(0.2f)
+                ) {
+                    if(clinicImage !== null) {
                         Image(
                             base64 = clinicImage,
                             modifier = Modifier.fillMaxSize(),
                             contentScale = ContentScale.Crop,
                             contentDescription = null
                         )
+                    }else{
+                        Image(
+                            painter = painterResource(id = R.drawable.default_clinic_image),
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop,
+                            contentDescription = null
+                        )
                     }
-                    Divider(Modifier.fillMaxWidth())
-                    Row(
-                        Modifier
-                            .padding(
-                                top = PetClinicAppointmentTheme.dimensions.grid_2,
-                                bottom = PetClinicAppointmentTheme.dimensions.grid_2,
-                                start = PetClinicAppointmentTheme.dimensions.grid_2,
-                                end = PetClinicAppointmentTheme.dimensions.grid_2
+                }
+                Divider(Modifier.fillMaxWidth())
+                Row(
+                    Modifier
+                        .padding(
+                            top = PetClinicAppointmentTheme.dimensions.grid_2,
+                            bottom = PetClinicAppointmentTheme.dimensions.grid_2,
+                            start = PetClinicAppointmentTheme.dimensions.grid_2,
+                            end = PetClinicAppointmentTheme.dimensions.grid_2
+                        )
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        clinicName ?: "",
+                        style = PetClinicAppointmentTheme.typography.h1,
+                        modifier = Modifier.weight(1f)
+                    )
+                    IconButton(
+                        icon = Icons.Rounded.Info,
+                        contentDescription = "info",
+                        onClick = { navigateToInfo(id) },
+                        tint = PetClinicAppointmentTheme.colors.primary,
+                        modifier = Modifier.size(PetClinicAppointmentTheme.dimensions.grid_3)
+                    )
+                }
+                ModalBottomSheet(
+                    Modifier.fillMaxSize(),
+                    modalBottomSheetState = modalBottomSheetState,
+                    sheetContent = {
+                        if (modalBottomSheetState.isVisible) {
+                            ServiceScheduleContent(
+                                id = selectedServiceId,
+                                petClinicDetailViewModel = petClinicDetailViewModel,
+                                onClickRegisterAppointment = {
+                                    progressIndicatorVisible = true
+                                    coroutineScope.launch(Dispatchers.IO) {
+                                        petClinicDetailViewModel.createAppointment()
+                                    }
+                                    navigateToHome(id)
+                                    progressIndicatorVisible = false
+                                }
                             )
-                            .fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
+                        } else {
+                            petClinicDetailViewModel.setSelectedServiceId(null)
+                            petClinicDetailViewModel.setSelectedScheduleId(null)
+                            return@ModalBottomSheet
+                        }
+                    }
+                ) {
+                    Column(
+                        Modifier
+                            .fillMaxWidth()
+                            .weight(1f)
                     ) {
                         Text(
-                            clinicName ?: "",
-                            style = PetClinicAppointmentTheme.typography.h1
+                            "Layanan",
+                            style = PetClinicAppointmentTheme.typography.h2,
+                            modifier = Modifier.padding(PetClinicAppointmentTheme.dimensions.grid_2)
                         )
-                        IconButton(
-                            icon = Icons.Rounded.Info,
-                            contentDescription = "info",
-                            onClick = { navigateToInfo(id) },
-                            tint = PetClinicAppointmentTheme.colors.primary,
-                            modifier = Modifier.size(PetClinicAppointmentTheme.dimensions.grid_3)
-                        )
-                    }
-                    ModalBottomSheet(
-                        Modifier.fillMaxSize(),
-                        modalBottomSheetState = modalBottomSheetState,
-                        sheetContent = {
-                            if (modalBottomSheetState.isVisible) {
-                                ServiceScheduleContent(
-                                    id = selectedServiceId,
-                                    petClinicDetailViewModel = petClinicDetailViewModel,
-                                    onClickRegisterAppointment = {
-                                        progressIndicatorVisible = true
-                                        coroutineScope.launch(Dispatchers.IO) {
-                                            petClinicDetailViewModel.createAppointment()
-                                        }
-                                        navigateToHome(id)
-                                        progressIndicatorVisible = false
-                                    }
-                                )
-                            } else {
-                                petClinicDetailViewModel.setSelectedServiceId(null)
-                                petClinicDetailViewModel.setSelectedScheduleId(null)
-                                return@ModalBottomSheet
-                            }
-                        }
-                    ) {
-                        Column(
-                            Modifier
-                                .fillMaxWidth()
-                                .weight(1f)
-                        ) {
-                            Text(
-                                "Layanan",
-                                style = PetClinicAppointmentTheme.typography.h2,
-                                modifier = Modifier.padding(PetClinicAppointmentTheme.dimensions.grid_2)
+                        Divider(Modifier.fillMaxWidth())
+                        clinicDetail?.serviceList?.let {
+                            ServiceList(
+                                serviceList = it,
+                                modifier = Modifier.weight(1f),
+                                modalBottomSheetState,
+                                petClinicDetailViewModel
                             )
-                            Divider(Modifier.fillMaxWidth())
-                            clinicDetail?.serviceList?.let {
-                                ServiceList(
-                                    serviceList = it,
-                                    modifier = Modifier.weight(1f),
-                                    modalBottomSheetState,
-                                    petClinicDetailViewModel
-                                )
-                            }
                         }
                     }
                 }
             }
+            Box {
+                Row(
+                    Modifier.height(PetClinicAppointmentTheme.dimensions.grid_7_5),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    IconButton(
+                        icon = Icons.Rounded.NavigateBefore,
+                        contentDescription = "arrow_back",
+                        hasBorder = true,
+                        onClick = { navigateBack() },
+                        containerModifier = Modifier
+                            .padding(
+                                horizontal = PetClinicAppointmentTheme.dimensions.grid_2
+                            )
+                            .background(Black_50, CircleShape),
+                        modifier = Modifier.padding(end = PetClinicAppointmentTheme.dimensions.grid_0_25),
+                        tint = Color.White
+                    )
+                }
+            }
+        }
             Box(
                 Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
                 CircularProgressIndicator(
                     visible = progressIndicatorVisible
-                )
-            }
-            Box {
-                IconButton(
-                    icon = Icons.Rounded.NavigateBefore,
-                    contentDescription = "arrow_back",
-                    hasBorder = true,
-                    onClick = { navigateBack() },
-                    containerModifier = Modifier
-                        .padding(PetClinicAppointmentTheme.dimensions.grid_2)
-                        .background(Black_50, CircleShape),
-                    tint = Color.White
                 )
             }
         }
@@ -198,12 +224,19 @@ fun ServiceList(
     modalBottomSheetState: ModalBottomSheetState,
     petClinicDetailViewModel: PetClinicDetailViewModel
 ){
-    LazyColumn(
-        modifier = modifier
-    ){
-        items(serviceList) { service ->
-            ServiceItem(service, modalBottomSheetState, petClinicDetailViewModel)
+    if(serviceList.isNotEmpty()){
+        LazyColumn(
+            modifier = modifier
+        ){
+            items(serviceList) { service ->
+                ServiceItem(service, modalBottomSheetState, petClinicDetailViewModel)
+            }
         }
+    }else{
+        MessageView(
+            message = "Layanan tidak tersedia",
+            modifier = Modifier.fillMaxSize()
+        )
     }
 }
 
@@ -236,7 +269,7 @@ fun ServiceItem(
                 style = PetClinicAppointmentTheme.typography.h3
             )
             Text(
-                "Rp ${service.price}",
+                "Rp ${DecimalFormat("0.#").format(service.price)}",
                 style = PetClinicAppointmentTheme.typography.h3
             )
         }
@@ -395,12 +428,19 @@ fun TimeList(
         petClinicDetailViewModel.getServiceScheduleList()
     }
 
-    LazyColumn(
-        modifier = modifier
-    ) {
-        items(scheduleList){
-            TimeItem(it, petClinicDetailViewModel)
+    if(scheduleList.isNotEmpty()) {
+        LazyColumn(
+            modifier = modifier
+        ) {
+            items(scheduleList) {
+                TimeItem(it, petClinicDetailViewModel)
+            }
         }
+    }else{
+        MessageView(
+            message = "Jadwal layanan tidak tersedia",
+            modifier = Modifier.fillMaxSize()
+        )
     }
 }
 

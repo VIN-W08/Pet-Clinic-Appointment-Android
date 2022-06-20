@@ -60,7 +60,8 @@ fun NavGraphBuilder.customerMainNavGraph (appState: MainAppState, scaffoldState:
             id = navBackStackEntry.arguments?.getString("id")?.toInt() ?: 0,
             navigateBack = appState::navigateBack,
             navigateToInfo = {id -> appState.navigateTo("info-pet-clinic/$id") },
-            navigateToHome = { id -> appState.navigateTo("home/customer", "home/customer")}
+            navigateToHome = { id -> appState.navigateTo("home/customer", "home/customer")},
+            scaffoldState = appState.scaffoldState
         )
     }
 
@@ -68,7 +69,8 @@ fun NavGraphBuilder.customerMainNavGraph (appState: MainAppState, scaffoldState:
         PetClinicInfoPage(
             id = navBackStackEntry.arguments?.getString("id")?.toInt() ?: 0,
             navigateBack = appState::navigateBack,
-            navigateToLocationMap = {name, lat, lon -> appState.navigateTo("location-map?name=$name&lat=$lat&lon=$lon")}
+            navigateToLocationMap = {name, lat, lon -> appState.navigateTo("location-map?name=$name&lat=$lat&lon=$lon")},
+            scaffoldState = appState.scaffoldState
         )
     }
 

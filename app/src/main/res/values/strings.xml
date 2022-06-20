@@ -6,9 +6,9 @@
     <string name="tab_appointment">Janji Temu</string>
     <string name="tab_service">Layanan</string>
     <string name="fail_get_location_message">Gagal mendapatkan informasi lokasi</string>
-    <string name="close">Tutup</string>
     <string name="use_current_location">Gunakan lokasi sekarang.</string>
     <string name="location_not_found">Lokasi tidak ditemukan.</string>
     <string name="my_location">Lokasi Saya</string>
     <string name="search">Cari</string>
+    <string name="close">Tutup</string>
 </resources>

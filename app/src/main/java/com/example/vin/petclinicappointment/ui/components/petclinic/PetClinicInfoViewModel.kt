@@ -33,13 +33,13 @@ class PetClinicInfoViewModel @Inject constructor(
     val province = _province.asStateFlow()
 
     val dayToStringMap = mapOf(
-        1 to "Monday",
-        2 to "Tuesday",
-        3 to "Wednesday",
-        4 to "Thursday",
-        5 to "Friday",
-        6 to "Saturday",
-        7 to "Sunday"
+        1 to "senin",
+        2 to "selasa",
+        3 to "rabu",
+        4 to "kamis",
+        5 to "jumat",
+        6 to "sabtu",
+        7 to "minggu"
     )
 
     suspend fun getPetClinicDetail(id: Int){
@@ -49,7 +49,11 @@ class PetClinicInfoViewModel @Inject constructor(
         when(response){
             is Call.Success -> {
                 val data = response.data?.body()?.data
-                _clinicDetail.value = data
+                if(data !== null) {
+                    _clinicDetail.value = data
+                }else{
+                    setMessage(response.data?.body()?.status?.message as String)
+                }
             }
             else -> setMessage(response.data?.message() as String)
         }
