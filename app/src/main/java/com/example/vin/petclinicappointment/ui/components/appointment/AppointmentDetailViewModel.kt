@@ -75,6 +75,8 @@ class AppointmentDetailViewModel @Inject constructor(
             "customer" -> {
                 if(currentStatusCode == 0  || currentStatusCode == 1){
                     _appointmentActionList.value = listOf(3)
+                }else{
+                    _appointmentActionList.value = listOf()
                 }
             }
             "clinic" -> {
@@ -82,6 +84,8 @@ class AppointmentDetailViewModel @Inject constructor(
                     _appointmentActionList.value = listOf(2, 1)
                 }else if(currentStatusCode == 1){
                     _appointmentActionList.value = listOf(3, 4)
+                }else{
+                    _appointmentActionList.value = listOf()
                 }
             }
             else -> throw IllegalArgumentException()

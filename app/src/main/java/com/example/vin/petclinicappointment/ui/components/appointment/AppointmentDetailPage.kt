@@ -1,6 +1,5 @@
 package com.example.vin.petclinicappointment.ui.components.appointment
 
-import android.util.Log
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -20,24 +19,18 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.vin.petclinicappointment.ui.theme.PetClinicAppointmentTheme
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import com.example.vin.petclinicappointment.R
 import com.example.vin.petclinicappointment.ui.components.common.*
-import com.example.vin.petclinicappointment.ui.theme.Cultured_50
 import com.example.vin.petclinicappointment.ui.theme.Gray
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.runBlocking
 import java.text.DecimalFormat
-import java.time.format.FormatStyle
 
 @Composable
 fun AppointmentDetailPage(
@@ -341,10 +334,11 @@ fun AppointmentAction(
     appointmentDetailViewModel: AppointmentDetailViewModel,
     onClickAppointmentAction: (statusId: Int) -> Unit
 ){
+    val appointmentDetail by appointmentDetailViewModel.appointmentDetail.collectAsState()
+    val appointmentStatusCode = appointmentDetail?.status
     val appointmentActionList by appointmentDetailViewModel.appointmentActionList.collectAsState()
-    val coroutineScope = rememberCoroutineScope()
 
-    LaunchedEffect(Unit){
+    LaunchedEffect(appointmentStatusCode){
         appointmentDetailViewModel.getAppointmentActionList()
     }
 
