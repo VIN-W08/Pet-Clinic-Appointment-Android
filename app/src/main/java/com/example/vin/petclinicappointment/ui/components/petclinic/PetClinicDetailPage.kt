@@ -325,19 +325,20 @@ fun ServiceScheduleContent(
                             modifier = Modifier.weight(1f),
                             petClinicDetailViewModel
                         )
-                        Divider(Modifier.fillMaxWidth())
+
                         Column(
                             Modifier
-                                .height(PetClinicAppointmentTheme.dimensions.grid_8)
                                 .fillMaxWidth(),
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center
                         ) {
+                            Divider(Modifier.fillMaxWidth())
                             AppButton(
                                 onClick = onClickRegisterAppointment,
                                 disabled = selectedScheduleId == null,
                                 modifier = Modifier
-                                    .width(PetClinicAppointmentTheme.dimensions.grid_8 * 6)
+                                    .padding(PetClinicAppointmentTheme.dimensions.grid_2)
+                                    .fillMaxWidth()
                                     .height(PetClinicAppointmentTheme.dimensions.grid_5_5),
                                 colors = ButtonDefaults.buttonColors(PetClinicAppointmentTheme.colors.primary),
                                 shape = RoundedCornerShape(PetClinicAppointmentTheme.dimensions.grid_5)
