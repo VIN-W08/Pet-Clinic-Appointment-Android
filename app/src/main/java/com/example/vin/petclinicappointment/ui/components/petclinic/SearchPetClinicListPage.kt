@@ -54,7 +54,7 @@ fun SearchPetClinicListPage(
         }
     }
 
-    LaunchedEffect(Unit){
+    LaunchedEffect(selectedLocationState.value){
         progressIndicatorVisible = true
         searchPetClinicListViewModel.getNearbyPetClinicList(
             selectedLocationState.value?.let {
