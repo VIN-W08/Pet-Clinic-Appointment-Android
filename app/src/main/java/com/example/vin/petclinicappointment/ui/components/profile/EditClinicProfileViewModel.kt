@@ -4,10 +4,8 @@ import android.content.Context
 import android.database.Cursor
 import android.net.Uri
 import android.provider.MediaStore
-import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.example.vin.petclinicappointment.data.model.Call
-import com.example.vin.petclinicappointment.data.model.ResponseStatus
 import com.example.vin.petclinicappointment.data.repository.LocationRepository
 import com.example.vin.petclinicappointment.data.repository.PetClinicRepository
 import com.example.vin.petclinicappointment.data.repository.UserRepository
@@ -21,8 +19,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
-import org.json.JSONObject
-import retrofit2.Response
 import java.io.File
 import javax.inject.Inject
 
