@@ -421,6 +421,9 @@ fun ClinicSignUpContent(
                         )
                         .fillMaxWidth(),
                     modifier = Modifier.fillMaxWidth(),
+                    keyBoardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Email
+                    ),
                     showError = showEmailError,
                     errorMessage = emailErrorMessage,
                     onFocus = { showEmailError = false },
@@ -443,6 +446,10 @@ fun ClinicSignUpContent(
                         )
                         .fillMaxWidth(),
                     modifier = Modifier.fillMaxWidth(),
+                    keyBoardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Password,
+                        autoCorrect = false
+                    ),
                     inputType = "password",
                     showError = showPasswordError,
                     errorMessage = passwordErrorMessage,
@@ -467,6 +474,9 @@ fun ClinicSignUpContent(
                         )
                         .fillMaxWidth(),
                     modifier = Modifier.fillMaxWidth(),
+                    keyBoardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Phone
+                    ),
                     showError = showPhoneNumError,
                     errorMessage = phoneNumErrorMessage,
                     onFocus = { showPhoneNumError = false },
