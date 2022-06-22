@@ -3,6 +3,7 @@ package com.example.vin.petclinicappointment.ui.components.profile
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -11,6 +12,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.vin.petclinicappointment.ui.components.common.AppButton
 import com.example.vin.petclinicappointment.ui.components.common.CircularProgressIndicator
@@ -100,6 +102,9 @@ fun EditCustomerProfilePage(
                         label = "Email",
                         value = email,
                         onValueChange = { editCustomerProfilePageViewModel.setEmail(it) },
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Email
+                        ),
                         modifier = Modifier.padding(bottom = PetClinicAppointmentTheme.dimensions.grid_2)
                     )
                 }

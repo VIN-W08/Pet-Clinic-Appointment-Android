@@ -1,6 +1,7 @@
 package com.example.vin.petclinicappointment.ui.components.common
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -17,7 +18,8 @@ fun LabelTextInput(
     required: Boolean = true,
     numberOnly: Boolean = false,
     numberWithDotAndHyphenOnly: Boolean = false,
-    readOnly: Boolean = false
+    readOnly: Boolean = false,
+    keyboardOptions: KeyboardOptions
 ){
     Row (
         modifier = modifier,
@@ -53,6 +55,7 @@ fun LabelTextInput(
                 readOnly = readOnly,
                 numberOnly = numberOnly,
                 numberWithDotAndHyphenOnly = numberWithDotAndHyphenOnly,
+                keyBoardOptions = keyboardOptions,
                 containerModifier = Modifier.fillMaxWidth(),
                 modifier = Modifier.fillMaxWidth()
             )
