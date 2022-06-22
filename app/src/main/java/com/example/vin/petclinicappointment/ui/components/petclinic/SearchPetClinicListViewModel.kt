@@ -25,7 +25,6 @@ class SearchPetClinicListViewModel @Inject constructor(
     private val _nearbyPetClinicList = MutableStateFlow<List<PetClinic>>(listOf())
     val nearbyPetClinicList = _nearbyPetClinicList.asStateFlow()
 
-    @OptIn(FlowPreview::class)
     fun setSearchPetClinicListInputValue(value: String){
         _searchPetClinicListInputValue.value = value
     }
