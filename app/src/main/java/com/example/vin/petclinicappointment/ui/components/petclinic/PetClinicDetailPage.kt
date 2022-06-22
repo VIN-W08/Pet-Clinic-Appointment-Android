@@ -303,62 +303,60 @@ fun ServiceScheduleContent(
             }
         ) {
             if (scheduleList != null) {
-                if (scheduleList.isNotEmpty()) {
+                Column(
+                    Modifier.padding(PetClinicAppointmentTheme.dimensions.grid_2)
+                ) {
+                    Text(
+                        "Jadwal $serviceName",
+                        style = PetClinicAppointmentTheme.typography.h2
+                    )
+                }
+                DateList(
+                    petClinicDetailViewModel,
+                    modifier = Modifier.padding(
+                        start = PetClinicAppointmentTheme.dimensions.grid_2,
+                        bottom = PetClinicAppointmentTheme.dimensions.grid_2
+                    )
+                )
+                Divider(Modifier.fillMaxWidth())
+                if (id !== null) {
+                    TimeList(
+                        modifier = Modifier.weight(1f),
+                        petClinicDetailViewModel
+                    )
+
                     Column(
-                        Modifier.padding(PetClinicAppointmentTheme.dimensions.grid_2)
+                        Modifier
+                            .fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Divider(Modifier.fillMaxWidth())
+                        AppButton(
+                            onClick = onClickRegisterAppointment,
+                            disabled = selectedScheduleId == null,
+                            modifier = Modifier
+                                .padding(PetClinicAppointmentTheme.dimensions.grid_2)
+                                .fillMaxWidth()
+                                .height(PetClinicAppointmentTheme.dimensions.grid_5_5),
+                            colors = ButtonDefaults.buttonColors(PetClinicAppointmentTheme.colors.primary),
+                            shape = RoundedCornerShape(PetClinicAppointmentTheme.dimensions.grid_5)
+                        ) {
+                            Text("Daftar")
+                        }
+                    }
+                } else {
+                    Column(
+                        Modifier
+                            .fillMaxWidth()
+                            .weight(1f)
+                            .padding(PetClinicAppointmentTheme.dimensions.grid_2),
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            "Jadwal $serviceName" ?: "",
-                            style = PetClinicAppointmentTheme.typography.h2
+                            "Maaf, jadwal layanan $serviceName tidak tersedia.",
+                            style = PetClinicAppointmentTheme.typography.h2,
                         )
-                    }
-                    DateList(
-                        petClinicDetailViewModel,
-                        modifier = Modifier.padding(
-                            start = PetClinicAppointmentTheme.dimensions.grid_2,
-                            bottom = PetClinicAppointmentTheme.dimensions.grid_2
-                        )
-                    )
-                    Divider(Modifier.fillMaxWidth())
-                    if (id !== null) {
-                        TimeList(
-                            modifier = Modifier.weight(1f),
-                            petClinicDetailViewModel
-                        )
-
-                        Column(
-                            Modifier
-                                .fillMaxWidth(),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center
-                        ) {
-                            Divider(Modifier.fillMaxWidth())
-                            AppButton(
-                                onClick = onClickRegisterAppointment,
-                                disabled = selectedScheduleId == null,
-                                modifier = Modifier
-                                    .padding(PetClinicAppointmentTheme.dimensions.grid_2)
-                                    .fillMaxWidth()
-                                    .height(PetClinicAppointmentTheme.dimensions.grid_5_5),
-                                colors = ButtonDefaults.buttonColors(PetClinicAppointmentTheme.colors.primary),
-                                shape = RoundedCornerShape(PetClinicAppointmentTheme.dimensions.grid_5)
-                            ) {
-                                Text("Daftar")
-                            }
-                        }
-                    } else {
-                        Column(
-                            Modifier
-                                .fillMaxWidth()
-                                .weight(1f)
-                                .padding(PetClinicAppointmentTheme.dimensions.grid_2),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Text(
-                                "Maaf, jadwal layanan $serviceName tidak tersedia.",
-                                style = PetClinicAppointmentTheme.typography.h2,
-                            )
-                        }
                     }
                 }
             }
