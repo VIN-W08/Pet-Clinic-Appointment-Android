@@ -136,7 +136,7 @@ fun CustomerSignUpContent(
                 verticalArrangement = Arrangement.Center
             ) {
                 Text(
-                    text = "PetClinic",
+                    text = "Pet Clinic",
                     style = MaterialTheme.typography.h1
                 )
             }

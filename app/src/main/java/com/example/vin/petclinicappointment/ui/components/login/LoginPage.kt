@@ -115,7 +115,7 @@ fun LoginPage(
                 verticalArrangement = Arrangement.Center
             ) {
                 Text(
-                    text = "PetClinic",
+                    text = "Pet Clinic",
                     style = MaterialTheme.typography.h1
                 )
             }
@@ -197,12 +197,6 @@ fun LoginPage(
                     ),
                 horizontalAlignment = Alignment.CenterHorizontally
                     ){
-                ClickableText(
-                    text = AnnotatedString("Lupa Password?"),
-                    onClick = {},
-                    style = TextStyle(color = PetClinicAppointmentTheme.colors.secondary)
-                )
-                Spacer(Modifier.height(PetClinicAppointmentTheme.dimensions.grid_4))
                 Row {
                     Text("Belum punya akun?")
                     Spacer(modifier = Modifier.width(PetClinicAppointmentTheme.dimensions.grid_1))
