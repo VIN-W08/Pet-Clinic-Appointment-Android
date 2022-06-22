@@ -97,12 +97,19 @@ fun HistoryPage(
             CircularProgressIndicator(visible = progressIndicatorVisible)
         }
         Box {
-            IconButton(
-                icon = Icons.Rounded.ArrowBackIos,
-                contentDescription = "arrow_back",
-                onClick = { navigateBack() },
-                modifier = Modifier.padding(PetClinicAppointmentTheme.dimensions.grid_2)
-            )
+            Row (
+                Modifier.height(PetClinicAppointmentTheme.dimensions.grid_7_5),
+                verticalAlignment = Alignment.CenterVertically
+            ){
+                IconButton(
+                    icon = Icons.Rounded.ArrowBackIos,
+                    contentDescription = "arrow_back",
+                    onClick = { navigateBack() },
+                    modifier = Modifier
+                        .padding(start = PetClinicAppointmentTheme.dimensions.grid_2)
+                        .size(PetClinicAppointmentTheme.dimensions.grid_2_5)
+                )
+            }
         }
     }
 }
