@@ -68,13 +68,8 @@ fun PetClinicListItem(
             Image(
                 base64 = petClinic.image,
                 modifier = Modifier
-                    .fillMaxWidth(0.25f)
-                    .fillMaxHeight(0.8f)
-                    .border(
-                        0.dp,
-                        PetClinicAppointmentTheme.colors.surface,
-                        RoundedCornerShape(PetClinicAppointmentTheme.dimensions.grid_1)
-                    ),
+                    .size(PetClinicAppointmentTheme.dimensions.grid_10)
+                    .clip(RoundedCornerShape(10)),
                 contentScale = ContentScale.Fit,
                 contentDescription = null
             )
@@ -82,9 +77,8 @@ fun PetClinicListItem(
             Image(
                 painterResource(id = R.drawable.default_clinic_image),
                 modifier = Modifier
-                    .fillMaxWidth(0.25f)
-                    .fillMaxHeight(0.8f)
-                    .clip(RoundedCornerShape(PetClinicAppointmentTheme.dimensions.grid_1)),
+                    .size(PetClinicAppointmentTheme.dimensions.grid_10)
+                    .clip(RoundedCornerShape(10)),
                 contentScale = ContentScale.Fit,
                 contentDescription = null
             )
