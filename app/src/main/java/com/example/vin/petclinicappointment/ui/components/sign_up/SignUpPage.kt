@@ -82,7 +82,7 @@ fun CustomerSignUpContent(
     val localFocusManager = LocalFocusManager.current
 
     fun onClickSignUp(){
-        nameErrorMessage = validateUserName(email)
+        nameErrorMessage = validateUserName(name)
         if(!nameErrorMessage.isNullOrEmpty()){
             showNameError = true
             return
@@ -99,7 +99,7 @@ fun CustomerSignUpContent(
         }
         progressIndicatorVisible = true
         coroutineScope.launch {
-            registerViewModel.register(Customer(email = email, password = password, name = name))
+            registerViewModel.registerCustomer(Customer(email = email, password = password, name = name))
             progressIndicatorVisible = false
             if (registerViewModel.isLoggedIn.value) {
                 navigateToHome()

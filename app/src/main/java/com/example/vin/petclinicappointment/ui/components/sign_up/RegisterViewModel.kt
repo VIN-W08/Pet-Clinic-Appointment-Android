@@ -125,23 +125,25 @@ class RegisterViewModel @Inject constructor(
     }
 
 
-    private fun validateUser(user: User): Boolean {
+    private fun validateCustomer(user: User): Boolean {
         val passwordRegex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[a-zA-Z\\d]{8,}\$"
         val passwordPattern = Pattern.compile(passwordRegex)
-        if(user.email.isEmpty() || !Patterns.EMAIL_ADDRESS.matcher(user.email).matches()){
+        if(user.email.trim().isEmpty() || !Patterns.EMAIL_ADDRESS.matcher(user.email.trim()).matches()){
             return false
         }
-        if(user.password !== null || !passwordPattern.matcher(user.password).matches()){
+        if(user.password == null || !passwordPattern.matcher(user.password.trim()).matches()){
             return false
         }
-        if(user.name.isNullOrEmpty()){
+        if(user.name == null){
+            return false
+        }else if(user.name.trim().isEmpty()){
             return false
         }
         return true
     }
 
-    suspend fun register(user: User) {
-        if(validateUser(user)) {
+    suspend fun registerCustomer(user: User) {
+        if(validateCustomer(user)) {
             if(user.password !== null) {
                 val response = viewModelScope.async(Dispatchers.IO) {
                     userRepository.registerCustomer(RegisterBody(
@@ -157,16 +159,11 @@ class RegisterViewModel @Inject constructor(
                             setMessage(response.data?.body()?.status?.message as String)
                             return
                         }
-                        _customer.value = data.customer.let {
-                            it.password?.let { it1 ->
-                                Customer(
-                                    id = it.id,
-                                    name = it.name,
-                                    email = it.email,
-                                    password = it1
-                                )
-                            }
-                        }
+                        _customer.value =  Customer(
+                            id = data.customer.id,
+                            name = data.customer.name,
+                            email = data.customer.email
+                        )
                         userRepository.saveUserRole(data.role)
                         saveUserData(data.role)
                         if (data.status) {
@@ -334,6 +331,5 @@ class RegisterViewModel @Inject constructor(
                 userRepository.saveUserLongitude(it.longitude ?: 0.0)
             }
         }
-        userRepository.saveUserPassword(password.value)
     }
 }

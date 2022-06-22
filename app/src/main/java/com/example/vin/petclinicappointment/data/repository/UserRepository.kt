@@ -1,6 +1,5 @@
 package com.example.vin.petclinicappointment.data.repository
 
-import android.util.Log
 import com.example.vin.petclinicappointment.data.UserDataStore
 import com.example.vin.petclinicappointment.data.model.*
 import com.example.vin.petclinicappointment.data.network.CustomerApiService
@@ -50,7 +49,6 @@ class UserRepository @Inject constructor(
     }
 
     suspend fun logout(userRole: String){
-        Log.d("debug1", "role:$userRole")
         when(userRole) {
             "clinic" -> {
                 userDataStore.saveUserId(0)
