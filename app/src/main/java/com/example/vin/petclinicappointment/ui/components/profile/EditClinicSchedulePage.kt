@@ -141,6 +141,8 @@ fun EditClinicSchedulePage(
                         readOnly = true,
                         modifier = Modifier
                             .padding(
+                                start = PetClinicAppointmentTheme.dimensions.grid_2,
+                                end = PetClinicAppointmentTheme.dimensions.grid_2,
                                 bottom = PetClinicAppointmentTheme.dimensions.grid_2
                             )
                             .fillMaxWidth()

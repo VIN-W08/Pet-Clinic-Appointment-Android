@@ -13,6 +13,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.vin.petclinicappointment.data.model.ClinicSchedule
@@ -21,6 +22,7 @@ import com.example.vin.petclinicappointment.ui.components.common.CircularProgres
 import com.example.vin.petclinicappointment.ui.components.common.IconButton
 import com.example.vin.petclinicappointment.ui.theme.PetClinicAppointmentTheme
 import kotlinx.coroutines.flow.collectLatest
+import com.example.vin.petclinicappointment.R
 
 @Composable
 fun ClinicSchedulePage(
@@ -88,13 +90,13 @@ fun ClinicSchedulePage(
                             )
                     ) {
                         Row(
-                            modifier = Modifier.width(PetClinicAppointmentTheme.dimensions.grid_9),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.SpaceBetween,
                         ) {
                             Icon(
                                 imageVector = Icons.Rounded.AddCircle,
-                                contentDescription = "add_circle"
+                                contentDescription = "add_circle",
+                                modifier = Modifier.padding(end = PetClinicAppointmentTheme.dimensions.grid_1)
                             )
                             Text("Jadwal")
                         }
@@ -176,7 +178,7 @@ fun ClinicScheduleDayItemView(
                     style = PetClinicAppointmentTheme.typography.h3
                 )
                 if (clinicScheduleList.isEmpty()) {
-                    Text("-")
+                    Text(stringResource(R.string.close))
                 }
             }
             if(clinicScheduleList.isEmpty()) {
