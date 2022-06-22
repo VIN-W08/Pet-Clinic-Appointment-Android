@@ -6,6 +6,7 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.ButtonDefaults.buttonColors
 import androidx.compose.runtime.*
@@ -18,6 +19,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.vin.petclinicappointment.data.model.Customer
 import com.example.vin.petclinicappointment.ui.components.common.*
@@ -174,6 +176,9 @@ fun CustomerSignUpContent(
                     placeholder = "Email",
                     containerModifier = Modifier
                         .padding(bottom = PetClinicAppointmentTheme.dimensions.grid_2),
+                    keyBoardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Email
+                    ),
                     showError = showEmailError,
                     errorMessage = emailErrorMessage,
                     onFocus = { showEmailError = false },
@@ -190,6 +195,10 @@ fun CustomerSignUpContent(
                     placeholder = "Kata Sandi",
                     containerModifier = Modifier
                         .padding(bottom = PetClinicAppointmentTheme.dimensions.grid_4),
+                    keyBoardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Password,
+                        autoCorrect = false
+                    ),
                     inputType = "password",
                     showError = showPasswordError,
                     errorMessage = passwordErrorMessage,
