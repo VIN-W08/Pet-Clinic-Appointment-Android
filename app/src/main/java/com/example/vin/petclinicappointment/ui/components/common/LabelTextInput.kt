@@ -19,7 +19,7 @@ fun LabelTextInput(
     numberOnly: Boolean = false,
     numberWithDotAndHyphenOnly: Boolean = false,
     readOnly: Boolean = false,
-    keyboardOptions: KeyboardOptions
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default
 ){
     Row (
         modifier = modifier,

@@ -9,6 +9,7 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -37,6 +38,7 @@ import androidx.compose.material.icons.filled.ArrowBackIos
 import androidx.compose.material.icons.filled.ChangeCircle
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.rounded.ArrowBackIos
+import androidx.compose.ui.text.input.KeyboardType
 import com.example.vin.petclinicappointment.ui.theme.Black_50
 import java.util.jar.Manifest
 
@@ -273,6 +275,9 @@ fun EditClinicProfilePage(
                             )
                             .fillMaxWidth(),
                         modifier = Modifier.fillMaxWidth(),
+                        keyBoardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Email
+                        ),
                         showError = showEmailError,
                         errorMessage = emailErrorMessage,
                         onFocus = { showEmailError = false },
@@ -296,6 +301,9 @@ fun EditClinicProfilePage(
                             .fillMaxWidth(),
                         modifier = Modifier.fillMaxWidth(),
                         numberOnly = true,
+                        keyBoardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Phone
+                        ),
                         showError = showPhoneNumError,
                         errorMessage = phoneNumErrorMessage,
                         onFocus = { showPhoneNumError = false },
@@ -356,7 +364,7 @@ fun EditClinicProfilePage(
                             .fillMaxWidth()
                     )
                     TextInput(
-                        value = clinicLatitude ?: "",
+                        value = clinicLatitude,
                         onValueChange = { editClinicProfileViewModel.setClinicLatitude(it) },
                         placeholder = "Lintang",
                         containerModifier = Modifier
@@ -368,6 +376,9 @@ fun EditClinicProfilePage(
                             .fillMaxWidth(),
                         modifier = Modifier.fillMaxWidth(),
                         numberWithDotAndHyphenOnly = true,
+                        keyBoardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Number
+                        ),
                         showError = showLatError,
                         errorMessage = latErrorMessage,
                         onFocus = { showLatError = false },
@@ -379,7 +390,7 @@ fun EditClinicProfilePage(
                         }
                     )
                     TextInput(
-                        value = clinicLongitude ?: "",
+                        value = clinicLongitude,
                         onValueChange = { editClinicProfileViewModel.setClinicLongitude(it) },
                         placeholder = "Bujur",
                         containerModifier = Modifier
@@ -391,6 +402,9 @@ fun EditClinicProfilePage(
                             .fillMaxWidth(),
                         modifier = Modifier.fillMaxWidth(),
                         numberWithDotAndHyphenOnly = true,
+                        keyBoardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Number
+                        ),
                         showError = showLonError,
                         errorMessage = lonErrorMessage,
                         onFocus = { showLonError = false },
