@@ -449,6 +449,7 @@ fun ClinicSignUpContent(
                     value = phoneNum,
                     onValueChange = { registerViewModel.setPhoneNum(it) },
                     placeholder = "No. Telp",
+                    numberOnly = true,
                     containerModifier = Modifier
                         .padding(
                             start = PetClinicAppointmentTheme.dimensions.grid_2,
