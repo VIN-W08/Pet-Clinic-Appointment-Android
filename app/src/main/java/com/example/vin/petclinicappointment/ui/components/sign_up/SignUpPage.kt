@@ -290,7 +290,7 @@ fun ClinicSignUpContent(
     var progressIndicatorVisible by rememberSaveable { mutableStateOf(false) }
 
     fun onClickSignUp(){
-        nameErrorMessage = validateUserName(email)
+        nameErrorMessage = validateUserName(name)
         if(!nameErrorMessage.isNullOrEmpty()){
             showNameError = true
             return
