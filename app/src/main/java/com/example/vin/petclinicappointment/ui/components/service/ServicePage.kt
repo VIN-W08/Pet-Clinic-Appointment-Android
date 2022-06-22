@@ -21,7 +21,6 @@ import com.example.vin.petclinicappointment.ui.theme.PetClinicAppointmentTheme
 import kotlinx.coroutines.flow.collectLatest
 import java.text.DecimalFormat
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ServicePage(
     serviceViewModel: ServiceViewModel = hiltViewModel(),
@@ -83,13 +82,15 @@ fun ServicePage(
                             )
                     ) {
                         Row(
-                            modifier = Modifier.width(PetClinicAppointmentTheme.dimensions.grid_10),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.SpaceBetween,
                         ) {
                             Icon(
                                 imageVector = Icons.Rounded.AddCircle,
-                                contentDescription = "add_circle"
+                                contentDescription = "add_circle",
+                                modifier = Modifier.padding(
+                                    end = PetClinicAppointmentTheme.dimensions.grid_1
+                                )
                             )
                             Text("Layanan")
                         }

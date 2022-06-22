@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.vin.petclinicappointment.data.model.ServiceSchedule
 import com.example.vin.petclinicappointment.ui.components.common.*
@@ -29,7 +30,6 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.text.DecimalFormat
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ServiceDetailPage(
     serviceId: Int,
@@ -144,13 +144,13 @@ fun ServiceDetailPage(
                                     )
                             ) {
                                 Row(
-                                    modifier = Modifier.width(PetClinicAppointmentTheme.dimensions.grid_9),
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.SpaceBetween,
                                 ) {
                                     Icon(
                                         imageVector = Icons.Rounded.AddCircle,
-                                        contentDescription = "add_circle"
+                                        contentDescription = "add_circle",
+                                        modifier = Modifier.padding(end = PetClinicAppointmentTheme.dimensions.grid_1)
                                     )
                                     Text("Jadwal")
                                 }
@@ -211,6 +211,7 @@ fun ServiceTextAttributeView(
         verticalAlignment = Alignment.CenterVertically
     ){
         Row(
+            Modifier.weight(0.4f),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
@@ -222,7 +223,7 @@ fun ServiceTextAttributeView(
             )
         }
         Row(
-            Modifier.width(PetClinicAppointmentTheme.dimensions.grid_10 * 3),
+            Modifier.weight(0.6f),
             horizontalArrangement = Arrangement.Start,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -251,6 +252,7 @@ fun ServiceStatusAttributeView(
         verticalAlignment = Alignment.CenterVertically
     ){
         Row(
+            Modifier.weight(0.4f),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
@@ -262,7 +264,7 @@ fun ServiceStatusAttributeView(
             )
         }
         Row(
-            Modifier.width(PetClinicAppointmentTheme.dimensions.grid_10 * 3),
+            Modifier.weight(0.6f),
             horizontalArrangement = Arrangement.Start,
             verticalAlignment = Alignment.CenterVertically
         ) {
