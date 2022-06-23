@@ -178,13 +178,30 @@ fun EditClinicProfilePage(
                                 style = Stroke(width = 4f, pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f), 10f))
                             )
                         }
+                        if (clinicImage !== null) {
+                            Image(
+                                painter = rememberAsyncImagePainter(model = clinicImage),
+                                contentDescription = "clinic image",
+                                contentScale = ContentScale.Fit,
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        } else if (initialClinicImage.isNotEmpty()) {
+                            Image(
+                                base64 = initialClinicImage,
+                                contentDescription = "clinic image",
+                                contentScale = ContentScale.Fit,
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        } else {
+                            Text("Foto klinik tidak tersedia")
+                        }
                         Column (
                             modifier = Modifier.fillMaxSize(),
                             horizontalAlignment = Alignment.End,
                             verticalArrangement = Arrangement.SpaceBetween
                         ){
                             View(
-                                Modifier.background(PetClinicAppointmentTheme.colors.error),
+                                Modifier.background(color = PetClinicAppointmentTheme.colors.error.copy(alpha = 0.8f)),
                                 onClick = {
                                     editClinicProfileViewModel.setClinicImage(null)
                                     editClinicProfileViewModel.setInitialClinicImage("")
@@ -208,23 +225,6 @@ fun EditClinicProfilePage(
                                     tint = Color.White
                                 )
                             }
-                        }
-                        if (clinicImage !== null) {
-                            Image(
-                                painter = rememberAsyncImagePainter(model = clinicImage),
-                                contentDescription = "clinic image",
-                                contentScale = ContentScale.Fit,
-                                modifier = Modifier.fillMaxSize()
-                            )
-                        } else if (initialClinicImage.isNotEmpty()) {
-                            Image(
-                                base64 = initialClinicImage,
-                                contentDescription = "clinic image",
-                                contentScale = ContentScale.Fit,
-                                modifier = Modifier.fillMaxSize()
-                            )
-                        } else {
-                            Text("Foto klinik tidak tersedia")
                         }
                     }
                     Text(
