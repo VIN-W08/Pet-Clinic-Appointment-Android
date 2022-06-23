@@ -22,7 +22,6 @@ import kotlinx.coroutines.runBlocking
 fun EditClinicSchedulePage(
     id: Int? = null,
     pageType: String,
-    navigateToClinicSchedule: () -> Unit,
     navigateBack: () -> Unit,
     editClinicScheduleViewModel: EditClinicScheduleViewModel = hiltViewModel(),
     scaffoldState: ScaffoldState
@@ -38,7 +37,7 @@ fun EditClinicSchedulePage(
                 progressIndicatorVisible = true
                 val isSuccess = editClinicScheduleViewModel.deleteClinicSchedule(id)
                 if (isSuccess) {
-                    navigateToClinicSchedule()
+                    navigateBack()
                 }
                 progressIndicatorVisible = false
             }
@@ -51,7 +50,7 @@ fun EditClinicSchedulePage(
                 progressIndicatorVisible = true
                 val isSuccess = editClinicScheduleViewModel.updateClinicSchedule(id)
                 if (isSuccess) {
-                    navigateToClinicSchedule()
+                    navigateBack()
                 }
                 progressIndicatorVisible = false
             }
@@ -63,7 +62,7 @@ fun EditClinicSchedulePage(
             progressIndicatorVisible = true
             val isSuccess = editClinicScheduleViewModel.addClinicSchedule()
             if (isSuccess) {
-                navigateToClinicSchedule()
+                navigateBack()
             }
             progressIndicatorVisible = false
         }

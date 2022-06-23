@@ -23,6 +23,8 @@ import com.example.vin.petclinicappointment.ui.components.common.IconButton
 import com.example.vin.petclinicappointment.ui.theme.PetClinicAppointmentTheme
 import kotlinx.coroutines.flow.collectLatest
 import com.example.vin.petclinicappointment.R
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 
 @Composable
 fun ClinicSchedulePage(
@@ -202,8 +204,10 @@ fun ClinicScheduleTimeListView(
     Column {
         Divider(Modifier.fillMaxWidth())
         clinicScheduleList.map { schedule ->
+            val startTime = LocalTime.parse(schedule.startTime).format(DateTimeFormatter.ofPattern("HH:mm"))
+            val endTime = LocalTime.parse(schedule.endTime).format(DateTimeFormatter.ofPattern("HH:mm"))
             ClinicScheduleTimeItemView(
-                "${schedule.startTime} - ${schedule.endTime}",
+                "$startTime - $endTime",
                 navigateToClinicScheduleUpdate = { navigateToClinicScheduleUpdate(schedule.id) }
             )
         }

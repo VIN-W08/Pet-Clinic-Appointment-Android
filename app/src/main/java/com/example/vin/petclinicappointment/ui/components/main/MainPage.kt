@@ -207,7 +207,6 @@ fun NavGraphBuilder.clinicMainNavGraph (appState: MainAppState, scaffoldState: S
         EditClinicSchedulePage(
             id = it.arguments?.getString("id")?.toInt() ?: 0,
             pageType = "update",
-            navigateToClinicSchedule = { appState.navigateTo("clinic/schedule") },
             navigateBack = appState::navigateBack,
             scaffoldState = scaffoldState
         )
@@ -216,7 +215,6 @@ fun NavGraphBuilder.clinicMainNavGraph (appState: MainAppState, scaffoldState: S
     composable(route = "clinic/schedule/add"){
         EditClinicSchedulePage(
             pageType = "add",
-            navigateToClinicSchedule = { appState.navigateTo("clinic/schedule") },
             navigateBack = appState::navigateBack,
             scaffoldState = scaffoldState
         )
