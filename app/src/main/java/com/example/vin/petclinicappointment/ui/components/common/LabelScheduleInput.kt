@@ -33,13 +33,14 @@ fun LabelScheduleInput(
     modifier: Modifier = Modifier
 ){
     val context = LocalContext.current
-    val currentDateTime = LocalDateTime.now()
-    val currentDayOfMonth = currentDateTime.dayOfMonth
-    val currentMonth = currentDateTime.month.value - 1
-    val currentYear = currentDateTime.year
+    val currentDate = LocalDate.now()
+    val currentDayOfMonth = currentDate.dayOfMonth
+    val currentMonth = currentDate.month.value - 1
+    val currentYear = currentDate.year
 
-    val currentHour = currentDateTime.hour
-    val currentMinute = currentDateTime.minute
+    val currentTime = if(timeValue.isEmpty()) LocalTime.now() else LocalTime.parse(timeValue)
+    val currentHour = currentTime.hour
+    val currentMinute = currentTime.minute
 
     val datePickerDialog = DatePickerDialog(
         context,
