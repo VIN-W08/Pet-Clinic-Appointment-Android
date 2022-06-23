@@ -548,6 +548,10 @@ fun ClinicSignUpContent(
                         )
                         .fillMaxWidth(),
                     modifier = Modifier.fillMaxWidth(),
+                    keyBoardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Number,
+                        autoCorrect = false
+                    ),
                     showError = showLatError,
                     errorMessage = latErrorMessage,
                     onFocus = { showLatError = false },
@@ -571,6 +575,10 @@ fun ClinicSignUpContent(
                         .fillMaxWidth(),
                     modifier = Modifier.fillMaxWidth(),
                     showError = showLonError,
+                    keyBoardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Number,
+                        autoCorrect = false
+                    ),
                     errorMessage = lonErrorMessage,
                     onFocus = { showLonError = false },
                     onLeaveFocus = {
