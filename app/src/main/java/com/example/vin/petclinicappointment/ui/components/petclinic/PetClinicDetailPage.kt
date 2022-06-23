@@ -449,9 +449,16 @@ fun TimeItem(
     petClinicDetailViewModel: PetClinicDetailViewModel
 ){
     val selectedScheduleId by petClinicDetailViewModel.selectedScheduleId.collectAsState()
+    val startScheduleDateTime = LocalDateTime.parse(schedule.startSchedule)
+    val currentDateTime = LocalDateTime.now()
+    val itemDisabled = (
+            (!schedule.status) ||
+                    (schedule.quota < 1) ||
+            (startScheduleDateTime.isBefore(currentDateTime)) ||
+            (startScheduleDateTime.isEqual(currentDateTime)))
     val brushColor = if(selectedScheduleId == schedule.id)
                         PetClinicAppointmentTheme.colors.onSecondary
-                    else if(!schedule.status) Color.Gray
+                    else if(itemDisabled) Color.Gray
                     else PetClinicAppointmentTheme.colors.onSurface
     val backgroundColor = if(selectedScheduleId == schedule.id)
                             PetClinicAppointmentTheme.colors.secondary
@@ -465,7 +472,7 @@ fun TimeItem(
                 .height(PetClinicAppointmentTheme.dimensions.grid_2 * 3),
             contentAlignment = Alignment.Center,
             onClick = {
-                if (schedule.status) {
+                if (!itemDisabled) {
                     petClinicDetailViewModel.setSelectedScheduleId(schedule.id)
                 } else return@View
             }
