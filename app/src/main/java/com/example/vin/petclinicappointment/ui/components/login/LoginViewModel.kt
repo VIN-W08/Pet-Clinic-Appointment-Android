@@ -1,6 +1,5 @@
 package com.example.vin.petclinicappointment.ui.components.login
 
-import android.util.Log
 import android.util.Patterns
 import androidx.lifecycle.viewModelScope
 import com.example.vin.petclinicappointment.data.model.*
@@ -114,10 +113,10 @@ class LoginViewModel @Inject constructor (
                             id = clinic.id,
                             name = clinic.name,
                             email = clinic.email,
+                            image = clinic.image,
                             phoneNum = clinic.phoneNum,
                             address = clinic.address,
                             villageId = clinic.villageId,
-                            rating = clinic.rating,
                             latitude = clinic.latitude,
                             longitude = clinic.longitude
                         )
@@ -155,7 +154,6 @@ class LoginViewModel @Inject constructor (
                 userRepository.saveUserLatitude(it.latitude ?: 0.0)
                 userRepository.saveUserLongitude(it.longitude ?: 0.0)
             }
-            userRepository.saveUserPassword(password.value)
         }
     }
 }
