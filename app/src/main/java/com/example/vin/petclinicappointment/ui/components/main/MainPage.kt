@@ -25,7 +25,7 @@ fun NavGraphBuilder.customerMainNavGraph (appState: MainAppState, scaffoldState:
         CustomerHomePage(
             scaffoldState = scaffoldState,
             navigateToSearchPetClinic = { appState.navigateTo("search-pet-clinic-list")},
-            navigateTo = appState::navigateTo,
+            navigateToAppointmentDetail = { id -> appState.navigateTo("appointment-detail/$id") },
             getLocation = appState::getLocation,
             getLocationPermissionStatus = appState::getLocationPermissionStatus,
             getGpsEnabledStatus = appState::getGpsEnabledStatus,

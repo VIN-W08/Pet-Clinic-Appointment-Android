@@ -7,6 +7,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -34,7 +35,6 @@ import com.example.vin.petclinicappointment.R
 import com.example.vin.petclinicappointment.data.model.AppointmentDetail
 import com.example.vin.petclinicappointment.ui.components.common.Image
 import com.example.vin.petclinicappointment.ui.components.common.MessageView
-import com.example.vin.petclinicappointment.ui.components.common.ModalBottomSheet
 import com.example.vin.petclinicappointment.ui.components.common.View
 import com.example.vin.petclinicappointment.ui.theme.Gray
 import com.example.vin.petclinicappointment.ui.theme.PetClinicAppointmentTheme
@@ -44,6 +44,7 @@ import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
+import com.example.vin.petclinicappointment.ui.components.common.CircularProgressIndicator
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -51,7 +52,7 @@ fun CustomerHomePage(
     homeViewModel: HomeViewModel = hiltViewModel(),
     scaffoldState: ScaffoldState,
     navigateToSearchPetClinic: () -> Unit,
-    navigateTo: (route: String) -> Unit,
+    navigateToAppointmentDetail: (appointmentId: Int) -> Unit,
     getLocation: (context: Context, onFail: () -> Unit) -> Unit,
     getLocationPermissionStatus: (context: Context) -> Boolean,
     getGpsEnabledStatus: (context: Context, onEnabled: () -> Unit, onDisabled: (exception: Exception) -> Unit) -> Unit,
@@ -61,17 +62,16 @@ fun CustomerHomePage(
         initialValue = ModalBottomSheetValue.Hidden,
         confirmStateChange = { state -> state != ModalBottomSheetValue.HalfExpanded }
     )
-    val selectedActionCategoryList = rememberSaveable { mutableStateOf("") }
     val coroutineScope = rememberCoroutineScope()
     val localFocusManager = LocalFocusManager.current
     val context = LocalContext.current
     val locationPermission = Manifest.permission.ACCESS_FINE_LOCATION
 
-    val todayUnfinishedAppointmentList by homeViewModel.todayNotFinishedAppointmentList.collectAsState()
+    val todayApprovedAppointmentList by homeViewModel.todayApprovedAppointmentList.collectAsState()
 
     LaunchedEffect(Unit){
         progressIndicatorVisible = true
-        homeViewModel.getTodayNotFinishedAppointmentList()
+        homeViewModel.getTodayApprovedAppointmentList()
         progressIndicatorVisible = false
     }
 
@@ -150,41 +150,50 @@ fun CustomerHomePage(
                 .background(PetClinicAppointmentTheme.colors.primary)
         ) {
             HomeHeader(navigateToPetClinicList = navigateToSearchPetClinic)
-            ModalBottomSheet(
-                Modifier.fillMaxSize(),
-                modalBottomSheetState = modalBottomSheetState,
-                sheetContent = { MoreCategoryContent(selectedActionCategoryList.value) }
+            Column(
+                Modifier
+                    .fillMaxSize()
+                    .clip(RoundedCornerShape(
+                        topStart = PetClinicAppointmentTheme.dimensions.grid_4,
+                        topEnd = PetClinicAppointmentTheme.dimensions.grid_4
+                    ))
+                    .background(PetClinicAppointmentTheme.colors.surface)
             ) {
                 Column(
                     Modifier
-                        .fillMaxSize()
-                        .clip(RoundedCornerShape(
-                            topStart = PetClinicAppointmentTheme.dimensions.grid_4,
-                            topEnd = PetClinicAppointmentTheme.dimensions.grid_4
-                        ))
-                        .background(PetClinicAppointmentTheme.colors.surface)
+                        .padding(
+                            top = PetClinicAppointmentTheme.dimensions.grid_5
+                        )
                 ) {
-                    Column(
-                        Modifier
-                            .padding(
-                                top = PetClinicAppointmentTheme.dimensions.grid_5
-                            )
-                    ) {
-                        TodayUnfinishedAppointmentList(todayUnfinishedAppointmentList)
-                    }
+                    TodayApprovedAppointmentList(
+                        todayApprovedAppointmentList,
+                        progressIndicatorVisible,
+                        navigateToAppointmentDetail
+                    )
                 }
             }
+        }
+        Box(
+            Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator(visible = progressIndicatorVisible)
         }
     }
 }
 
 @Composable
-fun TodayUnfinishedAppointmentList(appointmentList: List<AppointmentDetail>){
+fun TodayApprovedAppointmentList(
+    appointmentList: List<AppointmentDetail>,
+    loading: Boolean,
+    navigateToAppointmentDetail: (appointmentId: Int) -> Unit
+){
     Column {
         Column {
             Text(
                 "Janji Temu Yang Akan Datang",
                 style = PetClinicAppointmentTheme.typography.h3,
+                fontWeight = FontWeight.SemiBold,
                 modifier = Modifier.padding(
                     start = PetClinicAppointmentTheme.dimensions.grid_2,
                     bottom = PetClinicAppointmentTheme.dimensions.grid_0_5
@@ -192,26 +201,27 @@ fun TodayUnfinishedAppointmentList(appointmentList: List<AppointmentDetail>){
             )
             Divider(Modifier.fillMaxWidth())
         }
-        if (appointmentList.isNotEmpty()) {
-            LazyColumn(
-                Modifier.fillMaxSize()
-            ) {
-                items(appointmentList) {
-                    TodayUnfinishedAppointmentItem(it)
-                }
-            }
-        } else {
+        if (appointmentList.isEmpty() && !loading) {
             MessageView(
                 message = "Tidak ada janji temu",
                 modifier = Modifier.fillMaxSize()
             )
+        } else {
+            LazyColumn(
+                Modifier.fillMaxSize()
+            ) {
+                items(appointmentList) {
+                    TodayApprovedAppointmentItem(it, navigateToAppointmentDetail)
+                }
+            }
         }
     }
 }
 
 @Composable
-fun TodayUnfinishedAppointmentItem(
-    appointment: AppointmentDetail
+fun TodayApprovedAppointmentItem(
+    appointment: AppointmentDetail,
+    navigateToAppointmentDetail: (appointmentId: Int) -> Unit
 ){
     val startSchedule = LocalDateTime.parse(appointment.serviceSchedule.startSchedule)
     val endSchedule = LocalDateTime.parse(appointment.serviceSchedule.endSchedule)
@@ -223,16 +233,18 @@ fun TodayUnfinishedAppointmentItem(
         Card(
             Modifier
                 .fillMaxWidth()
-                .height(PetClinicAppointmentTheme.dimensions.grid_6 * 2),
+                .height(PetClinicAppointmentTheme.dimensions.grid_6 * 2)
+                .clickable { navigateToAppointmentDetail(appointment.id) },
             elevation = 0.dp
         ) {
             Row(
-                Modifier.fillMaxSize()
+                Modifier.fillMaxSize(),
             ) {
                 View(
                     Modifier
-                        .padding(PetClinicAppointmentTheme.dimensions.grid_1)
-                        .width(PetClinicAppointmentTheme.dimensions.grid_8),
+                        .padding(PetClinicAppointmentTheme.dimensions.grid_2)
+                        .width(PetClinicAppointmentTheme.dimensions.grid_9)
+                        .fillMaxHeight(),
                     contentAlignment = Alignment.Center
                 ) {
                     if (appointment.petClinic.image !== null) {
@@ -240,14 +252,18 @@ fun TodayUnfinishedAppointmentItem(
                             base64 = appointment.petClinic.image,
                             contentScale = ContentScale.Fit,
                             contentDescription = "clinic image",
-                            modifier = Modifier.clip(RoundedCornerShape(10))
+                            modifier = Modifier
+                                .fillMaxHeight()
+                                .clip(RoundedCornerShape(10))
                         )
                     } else {
                         Image(
                             painter = painterResource(id = R.drawable.default_clinic_image),
                             contentScale = ContentScale.Fit,
                             contentDescription = "default clinic image",
-                            modifier = Modifier.clip(RoundedCornerShape(10))
+                            modifier = Modifier
+                                .fillMaxHeight()
+                                .clip(RoundedCornerShape(10))
                         )
                     }
                 }
@@ -255,29 +271,36 @@ fun TodayUnfinishedAppointmentItem(
                     Modifier
                         .padding(PetClinicAppointmentTheme.dimensions.grid_1)
                         .fillMaxHeight(),
-                    verticalArrangement = Arrangement.SpaceBetween
+                    verticalArrangement = Arrangement.Center
                 ) {
                     Text(
                         appointment.petClinic.name ?: "",
-                        style = PetClinicAppointmentTheme.typography.h2,
-                        fontWeight = FontWeight.SemiBold
+                        style = PetClinicAppointmentTheme.typography.h3,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(
+                            bottom = PetClinicAppointmentTheme.dimensions.grid_1
+                        )
                     )
                     Column {
                         Row(
-                            Modifier.padding(bottom = PetClinicAppointmentTheme.dimensions.grid_0_25),
+                            Modifier
+                                .padding(bottom = PetClinicAppointmentTheme.dimensions.grid_0_25),
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Icon(
                                 imageVector = Icons.Rounded.CalendarToday,
                                 contentDescription = "calendar icon",
-                                modifier = Modifier.padding(end = PetClinicAppointmentTheme.dimensions.grid_1),
+                                modifier = Modifier
+                                    .padding(end = PetClinicAppointmentTheme.dimensions.grid_1)
+                                    .size(PetClinicAppointmentTheme.dimensions.grid_2_5),
                                 tint = Gray
                             )
                             Text("${startDate.dayOfMonth} ${
                                 startDate.month.getDisplayName(TextStyle.FULL,
                                     Locale.getDefault())
                             } ${startDate.year}",
-                                style = PetClinicAppointmentTheme.typography.h3)
+                                style = PetClinicAppointmentTheme.typography.body1,
+                            fontWeight = FontWeight.SemiBold)
                         }
                         Row(
                             verticalAlignment = Alignment.CenterVertically
@@ -285,12 +308,15 @@ fun TodayUnfinishedAppointmentItem(
                             Icon(
                                 imageVector = Icons.Rounded.Schedule,
                                 contentDescription = "clock icon",
-                                modifier = Modifier.padding(end = PetClinicAppointmentTheme.dimensions.grid_1),
+                                modifier = Modifier
+                                    .padding(end = PetClinicAppointmentTheme.dimensions.grid_1)
+                                    .size(PetClinicAppointmentTheme.dimensions.grid_2_5),
                                 tint = Gray
                             )
                             Text(
                                 "$startTime - $endTime",
-                                style = PetClinicAppointmentTheme.typography.h3
+                                style = PetClinicAppointmentTheme.typography.body1,
+                                fontWeight = FontWeight.SemiBold
                             )
                         }
                     }
