@@ -1,5 +1,6 @@
 package com.example.vin.petclinicappointment.ui.components.profile
 
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -12,6 +13,8 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.vin.petclinicappointment.ui.components.common.AppButton
@@ -28,6 +31,7 @@ fun EditCustomerProfilePage(
     navigateBack: () -> Unit,
     scaffoldState: ScaffoldState
 ){
+    val localFocusManager = LocalFocusManager.current
     var progressIndicatorVisible by rememberSaveable { mutableStateOf(false) }
     val name by editCustomerProfilePageViewModel.name.collectAsState()
     val email by editCustomerProfilePageViewModel.email.collectAsState()
@@ -59,6 +63,11 @@ fun EditCustomerProfilePage(
     }
 
     Surface(
+        Modifier.pointerInput(Unit) {
+            detectTapGestures(onTap = {
+                localFocusManager.clearFocus()
+            })
+        },
         color = PetClinicAppointmentTheme.colors.background
     ) {
         Column (

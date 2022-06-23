@@ -83,6 +83,5 @@ class EditCustomerProfilePageViewModel @Inject constructor(
     suspend fun updateLocalCustomer(){
         userRepository.saveUserName(name.value)
         userRepository.saveUserEmail(email.value)
-        userRepository.saveUserRole("")
     }
 }
