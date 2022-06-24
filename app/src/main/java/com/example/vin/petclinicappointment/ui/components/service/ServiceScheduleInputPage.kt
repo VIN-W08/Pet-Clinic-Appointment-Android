@@ -14,14 +14,13 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.vin.petclinicappointment.ui.components.common.*
 import com.example.vin.petclinicappointment.ui.theme.PetClinicAppointmentTheme
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.launch
 import java.lang.IllegalArgumentException
 import java.time.format.TextStyle
 import java.util.*
@@ -43,10 +42,10 @@ fun ServiceScheduleInputPage(
     val quota by serviceScheduleInputViewModel.quota.collectAsState()
     val status by serviceScheduleInputViewModel.status.collectAsState()
     var progressIndicatorVisible by rememberSaveable { mutableStateOf(false) }
-
+    val coroutineScope = rememberCoroutineScope()
 
     fun onClickAddSchedule(){
-        runBlocking {
+        coroutineScope.launch {
             progressIndicatorVisible = true
             val isSuccess = serviceScheduleInputViewModel.addServiceSchedule()
             progressIndicatorVisible = false
@@ -57,7 +56,7 @@ fun ServiceScheduleInputPage(
     }
 
     fun onClickDeleteSchedule(){
-        runBlocking {
+        coroutineScope.launch {
             progressIndicatorVisible = true
             val isSuccess = serviceScheduleInputViewModel.deleteServiceSchedule()
             progressIndicatorVisible = false
@@ -68,7 +67,7 @@ fun ServiceScheduleInputPage(
     }
 
     fun onClickUpdateSchedule(){
-        runBlocking {
+        coroutineScope.launch {
             progressIndicatorVisible = true
             val isSuccess = serviceScheduleInputViewModel.updateServiceSchedule()
             progressIndicatorVisible = false
