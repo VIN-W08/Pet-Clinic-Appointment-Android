@@ -9,7 +9,6 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.vin.petclinicappointment.ui.components.common.AppButton
 import com.example.vin.petclinicappointment.ui.components.common.CircularProgressIndicator
@@ -17,7 +16,7 @@ import com.example.vin.petclinicappointment.ui.components.common.PrefTextView
 import com.example.vin.petclinicappointment.ui.theme.Gray
 import com.example.vin.petclinicappointment.ui.theme.PetClinicAppointmentTheme
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.launch
 
 @Composable
 fun CustomerProfilePage(
@@ -26,6 +25,7 @@ fun CustomerProfilePage(
     navigateToLoginOption: () -> Unit,
     scaffoldState: ScaffoldState
 ){
+    val coroutineScope = rememberCoroutineScope()
     var progressIndicatorVisible by rememberSaveable { mutableStateOf(false) }
     val name by customerProfileViewModel.name.collectAsState()
     val email by customerProfileViewModel.email.collectAsState()
@@ -45,7 +45,7 @@ fun CustomerProfilePage(
     }
 
     fun logout(){
-        runBlocking {
+        coroutineScope.launch {
             progressIndicatorVisible = true
             customerProfileViewModel.logout()
             progressIndicatorVisible = false
