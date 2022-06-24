@@ -13,4 +13,7 @@
     <string name="close">Tutup</string>
     <string name="request">Pengajuan</string>
     <string name="approved">Disetujui</string>
+    <string name="forgot_password">Lupa Kata Sandi</string>
+    <string name="update_password">Ubah Kata Sandi</string>
+    <string name="change">Ubah</string>
 </resources>

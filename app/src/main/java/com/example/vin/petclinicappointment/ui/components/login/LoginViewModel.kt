@@ -3,6 +3,7 @@ package com.example.vin.petclinicappointment.ui.components.login
 import android.util.Patterns
 import androidx.lifecycle.viewModelScope
 import com.example.vin.petclinicappointment.data.model.*
+import com.example.vin.petclinicappointment.data.repository.CustomerRepository
 import com.example.vin.petclinicappointment.data.repository.UserRepository
 import com.example.vin.petclinicappointment.ui.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -15,7 +16,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LoginViewModel @Inject constructor (
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val customerRepository: CustomerRepository
 ): BaseViewModel() {
     private val _isLoggedIn = MutableStateFlow(false)
     val isLoggedIn = _isLoggedIn.asStateFlow()
@@ -40,25 +42,22 @@ class LoginViewModel @Inject constructor (
         _password.value = value
     }
 
-    private fun validateUser(user: User): Boolean {
+    private fun validateUser(): Boolean {
         val passwordRegex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[a-zA-Z\\d]{8,}\$"
         val passwordPattern = Pattern.compile(passwordRegex)
-        if(user.email.isEmpty() || !Patterns.EMAIL_ADDRESS.matcher(user.email).matches()){
+        val email = email.value
+        val password = password.value
+        if(email.isEmpty() || !Patterns.EMAIL_ADDRESS.matcher(email).matches()){
             return false
         }
-        if(user.password == null || !passwordPattern.matcher(user.password).matches()){
+        if(!passwordPattern.matcher(password).matches()){
             return false
         }
         return true
     }
 
     suspend fun login() {
-        if(validateUser(
-                Customer(
-                    email = email.value,
-                    password = password.value
-                )
-        )) {
+        if(validateUser()) {
             val response = viewModelScope.async(Dispatchers.IO) {
                 userRepository.login(LoginBody(
                     email = email.value,
@@ -91,10 +90,7 @@ class LoginViewModel @Inject constructor (
     }
 
     suspend fun loginClinic() {
-        if(validateUser(PetClinic(
-                email = email.value,
-                password = password.value
-        ))) {
+        if(validateUser()) {
             val response = viewModelScope.async(Dispatchers.IO) {
                 userRepository.loginClinic(LoginBody(
                     email = email.value,
@@ -132,7 +128,31 @@ class LoginViewModel @Inject constructor (
         }
     }
 
-
+    suspend fun updatePassword(role: String): Boolean{
+        if(validateUser()) {
+            val body = UpdatePasswordBody(email = email.value, password = password.value)
+            val response = viewModelScope.async(Dispatchers.IO) {
+                when(role) {
+                    "customer" -> customerRepository.updatePassword(body)
+                    else -> throw IllegalArgumentException()
+                }
+            }.await()
+            return when (response) {
+                is Call.Success -> {
+                    val data = response.data?.body()?.data
+                    if (data == null) {
+                        setMessage(response.data?.body()?.status?.message as String)
+                    }
+                    data !== null
+                }
+                else -> {
+                    setMessage(response.data?.message() as String)
+                    return false
+                }
+            }
+        }
+        return false
+    }
 
     private suspend fun saveUserData(role: String) {
         if(role == "customer") {

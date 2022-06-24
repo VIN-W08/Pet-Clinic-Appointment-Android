@@ -16,11 +16,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.vin.petclinicappointment.R
 import com.example.vin.petclinicappointment.ui.components.common.AppButton
 import com.example.vin.petclinicappointment.ui.components.common.TextInput
 import com.example.vin.petclinicappointment.ui.theme.*
@@ -37,6 +39,7 @@ fun LoginPage(
     navigateToCustomerHome: () -> Unit,
     navigateToAppointment: () -> Unit,
     navigateToSignUp: () -> Unit,
+    navigateToUpdatePassword: () -> Unit,
     userRole: MutableState<String?>,
 ){
     val email by loginViewModel.email.collectAsState()
@@ -197,6 +200,12 @@ fun LoginPage(
                     ),
                 horizontalAlignment = Alignment.CenterHorizontally
                     ){
+                ClickableText(
+                    text = AnnotatedString("${stringResource(R.string.forgot_password)}?"),
+                    onClick = { navigateToUpdatePassword() },
+                    style = TextStyle(color = PetClinicAppointmentTheme.colors.secondary),
+                    modifier = Modifier.padding(bottom = PetClinicAppointmentTheme.dimensions.grid_4)
+                )
                 Row {
                     Text("Belum punya akun?")
                     Spacer(modifier = Modifier.width(PetClinicAppointmentTheme.dimensions.grid_1))

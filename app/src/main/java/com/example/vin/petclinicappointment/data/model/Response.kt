@@ -180,3 +180,8 @@ data class UpdateCustomerResponse(
     val status: ResponseStatus,
     val data: Customer
 )
+
+data class UpdatePasswordResponse(
+    val status: ResponseStatus,
+    val data: Any
+)

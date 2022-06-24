@@ -20,4 +20,9 @@ interface CustomerApiService {
         @Path("id") customerId: Int,
         @Body body: UpdateCustomerBody
     ): Response<UpdateCustomerResponse>
+
+    @PATCH("customer/password")
+    suspend fun updatePassword(
+        @Body body: UpdatePasswordBody
+    ): Response<UpdatePasswordResponse>
 }

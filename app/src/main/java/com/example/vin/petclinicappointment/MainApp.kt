@@ -18,6 +18,7 @@ import com.example.vin.petclinicappointment.ui.components.appointment.ClinicAppo
 import com.example.vin.petclinicappointment.ui.components.common.Snackbar
 import com.example.vin.petclinicappointment.ui.components.login.LoginOptionsPage
 import com.example.vin.petclinicappointment.ui.components.login.LoginPage
+import com.example.vin.petclinicappointment.ui.components.login.UpdatePasswordPage
 import com.example.vin.petclinicappointment.ui.components.main.*
 import com.example.vin.petclinicappointment.ui.components.petclinic.*
 import com.example.vin.petclinicappointment.ui.components.sign_up.SignUpPage
@@ -109,7 +110,8 @@ private fun NavGraphBuilder.appNavGraph (appState: MainAppState, scaffoldState: 
             navigateToAppointment = {
                 appState.setMainBottomNav()
                 appState.navigateTo("main/clinic", "login-option")
-            }
+            },
+            navigateToUpdatePassword = { appState.navigateTo("update-password") }
         )
     }
 
@@ -126,6 +128,14 @@ private fun NavGraphBuilder.appNavGraph (appState: MainAppState, scaffoldState: 
             },
             scaffoldState = appState.scaffoldState,
             userRole = appState.userRole.value ?: ""
+        )
+    }
+
+    composable(route = "update-password"){
+        UpdatePasswordPage(
+            navigateBack = appState::navigateBack,
+            scaffoldState = scaffoldState,
+            userRole = appState.userRole
         )
     }
 }

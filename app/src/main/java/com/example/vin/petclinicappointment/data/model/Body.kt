@@ -85,3 +85,8 @@ data class UpdateCustomerBody(
     val name: String,
     val email: String
 )
+
+data class UpdatePasswordBody(
+    val email: String,
+    val password: String
+)
