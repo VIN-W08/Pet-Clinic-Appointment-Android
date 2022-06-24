@@ -121,7 +121,7 @@ fun UpdatePasswordPage(
                 TextInput(
                     value = email,
                     onValueChange = { loginViewModel.setEmail(it) },
-                    placeholder = "Email",
+                    placeholder = stringResource(R.string.email),
                     containerModifier = Modifier
                         .padding(bottom = PetClinicAppointmentTheme.dimensions.grid_2),
                     keyBoardOptions = KeyboardOptions(
@@ -140,7 +140,7 @@ fun UpdatePasswordPage(
                 TextInput(
                     value = password,
                     onValueChange = { loginViewModel.setPassword(it) },
-                    placeholder = "Kata Sandi",
+                    placeholder = stringResource(R.string.new_password),
                     containerModifier = Modifier
                         .padding(bottom = PetClinicAppointmentTheme.dimensions.grid_4_5),
                     keyBoardOptions = KeyboardOptions(

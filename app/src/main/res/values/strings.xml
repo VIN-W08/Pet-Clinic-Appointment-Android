@@ -16,4 +16,6 @@
     <string name="forgot_password">Lupa Kata Sandi</string>
     <string name="update_password">Ubah Kata Sandi</string>
     <string name="change">Ubah</string>
+    <string name="new_password">Kata Sandi Baru</string>
+    <string name="email">Email</string>
 </resources>
