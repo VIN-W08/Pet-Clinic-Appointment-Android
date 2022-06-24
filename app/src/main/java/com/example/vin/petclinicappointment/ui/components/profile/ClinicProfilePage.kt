@@ -22,7 +22,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.vin.petclinicappointment.ui.components.common.*
 import com.example.vin.petclinicappointment.ui.theme.PetClinicAppointmentTheme
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.launch
 
 @Composable
 fun ClinicProfilePage(
@@ -32,6 +32,7 @@ fun ClinicProfilePage(
     navigateToClinicSchedule: () -> Unit,
     scaffoldState: ScaffoldState
 ){
+    val coroutineScope = rememberCoroutineScope()
     var progressIndicatorVisible by rememberSaveable { mutableStateOf(false) }
     val clinicName by clinicProfileViewModel.clinicName.collectAsState()
     val clinicEmail by clinicProfileViewModel.clinicEmail.collectAsState()
@@ -43,7 +44,7 @@ fun ClinicProfilePage(
     val clinicLocationName by clinicProfileViewModel.clinicLocationName.collectAsState()
 
     fun logout(){
-        runBlocking {
+        coroutineScope.launch {
             progressIndicatorVisible = true
             clinicProfileViewModel.logout()
             progressIndicatorVisible = false
