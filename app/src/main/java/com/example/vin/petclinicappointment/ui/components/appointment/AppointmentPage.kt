@@ -4,24 +4,21 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.vin.petclinicappointment.R
 import com.example.vin.petclinicappointment.data.model.Appointment
 import com.example.vin.petclinicappointment.ui.components.common.*
 import com.example.vin.petclinicappointment.ui.theme.PetClinicAppointmentTheme
+import com.google.accompanist.pager.ExperimentalPagerApi
+import com.google.accompanist.pager.rememberPagerState
 import kotlinx.coroutines.flow.collectLatest
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
+@OptIn(ExperimentalPagerApi::class)
 @Composable
 fun AppointmentPage(
     appointmentViewModel: AppointmentViewModel = hiltViewModel(),
@@ -29,8 +26,11 @@ fun AppointmentPage(
     navigateToClinicAppointmentHistory: () -> Unit,
     scaffoldState: ScaffoldState
 ){
-    val clinicUnfinishedAppointmentList by appointmentViewModel.clinicUnfinishedAppointmentList.collectAsState()
-    var progressIndicatorVisible by rememberSaveable { mutableStateOf(false) }
+    val appointmentTabs = listOf(
+        AppointmentTab.Approved,
+        AppointmentTab.Request
+    )
+    val pagerState = rememberPagerState(initialPage = 0)
 
     LaunchedEffect(Unit){
         appointmentViewModel.message.collectLatest {
@@ -38,12 +38,6 @@ fun AppointmentPage(
                 scaffoldState.snackbarHostState.showSnackbar(it)
             }
         }
-    }
-
-    LaunchedEffect(Unit){
-        progressIndicatorVisible = true
-        appointmentViewModel.getClinicUnfinishedAppointmentList()
-        progressIndicatorVisible = false
     }
 
     Surface(
@@ -73,6 +67,7 @@ fun AppointmentPage(
             ){
                 Text(
                     "Riwayat",
+                    style = PetClinicAppointmentTheme.typography.h2,
                     color = PetClinicAppointmentTheme.colors.secondary,
                     modifier = Modifier
                         .padding(
@@ -87,50 +82,35 @@ fun AppointmentPage(
                     .fillMaxWidth()
                     .weight(1f)
             ) {
-                if(clinicUnfinishedAppointmentList.isEmpty() && !progressIndicatorVisible) {
-                    MessageView(
-                        message = "Janji temu saat ini tidak tersedia",
-                        modifier = Modifier.fillMaxSize()
-                    )
-                }else {
-                    AppointmentList(
-                        title = "Janji Temu Saat Ini",
-                        appointmentList = clinicUnfinishedAppointmentList,
-                        navigateToAppointmentDetail = navigateToAppointmentDetail
-                    )
-                }
+                AppointmentTabRow(tabs = appointmentTabs, pagerState = pagerState)
+                AppointmentTabContent(tabs = appointmentTabs, pagerState = pagerState, navigateToAppointmentDetail = navigateToAppointmentDetail)
             }
-        }
-        Box(
-            Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            CircularProgressIndicator(visible = progressIndicatorVisible)
         }
     }
 }
 
 @Composable
 fun AppointmentList(
-    title: String,
+    title: String? = null,
     appointmentList: List<Appointment>,
     navigateToAppointmentDetail: (id: Int) -> Unit
 ){
     Column(
         Modifier
             .fillMaxWidth()
-            .padding(bottom = PetClinicAppointmentTheme.dimensions.grid_4)
     ) {
-        Text(
-            title,
-            style = PetClinicAppointmentTheme.typography.h2,
-            modifier = Modifier
-                .padding(
-                    start = PetClinicAppointmentTheme.dimensions.grid_2,
-                    bottom = PetClinicAppointmentTheme.dimensions.grid_1
-                )
-        )
-        Divider(Modifier.fillMaxWidth())
+        if(!title.isNullOrEmpty()) {
+            Text(
+                title,
+                style = PetClinicAppointmentTheme.typography.h2,
+                modifier = Modifier
+                    .padding(
+                        start = PetClinicAppointmentTheme.dimensions.grid_2,
+                        bottom = PetClinicAppointmentTheme.dimensions.grid_1
+                    )
+            )
+            Divider(Modifier.fillMaxWidth())
+        }
         LazyColumn {
             items(appointmentList) {
                 AppointmentItem(

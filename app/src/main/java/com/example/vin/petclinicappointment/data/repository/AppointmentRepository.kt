@@ -1,6 +1,5 @@
 package com.example.vin.petclinicappointment.data.repository
 
-import android.util.Log
 import com.example.vin.petclinicappointment.data.model.*
 import com.example.vin.petclinicappointment.data.network.AppointmentApiService
 import retrofit2.Response
@@ -36,7 +35,6 @@ class AppointmentRepository {
             startSchedule = startSchedule,
             finished = finished
         )
-        Log.d("debug1", "response:$response")
         if(response.isSuccessful){
             return Call.Success(response)
         }

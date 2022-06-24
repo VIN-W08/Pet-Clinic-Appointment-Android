@@ -11,4 +11,6 @@
     <string name="my_location">Lokasi Saya</string>
     <string name="search">Cari</string>
     <string name="close">Tutup</string>
+    <string name="request">Pengajuan</string>
+    <string name="approved">Disetujui</string>
 </resources>

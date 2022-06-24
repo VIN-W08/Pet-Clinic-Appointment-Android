@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ButtonDefaults.buttonColors
 import androidx.compose.material.Divider
@@ -19,6 +20,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
@@ -256,7 +258,7 @@ fun AppointmentDetailPage(
                                     }
                                     TableValue(modifier = Modifier.weight(0.25f)){
                                         Text(
-                                            DecimalFormat("0.#").format(servicePrice),
+                                            "Rp ${DecimalFormat("0.#").format(servicePrice)}",
                                             textAlign = TextAlign.Center
                                         )
                                     }
@@ -342,31 +344,41 @@ fun AppointmentAction(
         appointmentDetailViewModel.getAppointmentActionList()
     }
 
+    val actionToButtonColorMap = mapOf(
+        1 to ButtonStatus.Success,
+        2 to ButtonStatus.Error,
+        3 to ButtonStatus.Error,
+        4 to ButtonStatus.Success
+    )
+
     Row (
         Modifier.fillMaxWidth()
     ) {
         appointmentActionList.map {
             val statusText = appointmentDetailViewModel.appointmentStatusCodeToStatusActionMap[it]
+            val buttonColor = actionToButtonColorMap[it]
             if(statusText !== null) {
                 AppButton(
                     onClick = { onClickAppointmentAction(it) },
-                    colors = buttonColors(
-                        PetClinicAppointmentTheme.colors.surface
-                    ),
-                    shape = RectangleShape,
+//                    colors = buttonColors(
+//                        PetClinicAppointmentTheme.colors.surface
+//                    ),
+                    shape = RoundedCornerShape(20),
                     modifier = Modifier
-                        .padding(PetClinicAppointmentTheme.dimensions.grid_2)
-                        .weight(1f)
-                        .height(PetClinicAppointmentTheme.dimensions.grid_4_5)
-                        .border(
-                            PetClinicAppointmentTheme.dimensions.grid_0_125,
-                            PetClinicAppointmentTheme.colors.onSurface
+                        .padding(
+                            horizontal = PetClinicAppointmentTheme.dimensions.grid_1,
+                            vertical = PetClinicAppointmentTheme.dimensions.grid_2
                         )
+                        .weight(1f)
+                        .height(PetClinicAppointmentTheme.dimensions.grid_4_5),
+                    buttonStatus = buttonColor
                 ) {
                     Text(
                         statusText
                             .trim()
-                            .replaceFirstChar { it.uppercase() }
+                            .replaceFirstChar { it.uppercase() },
+                        color = Color.White,
+                        textAlign = TextAlign.Center
                     )
                 }
             }

@@ -28,11 +28,11 @@ fun StatusLabel(
     )
 
     val appointmentStatusCodeToColorMap = mapOf(
-        0 to SafetyYellow,
-        1 to VividMalachite,
-        2 to DeepCarminePink,
-        3 to DeepCarminePink,
-        4 to VividMalachite
+        0 to Sandstorm,
+        1 to VeryLightMalachite,
+        2 to CarminePink,
+        3 to CarminePink,
+        4 to VeryLightMalachite
     )
 
     val appointmentStatusCodeToMap = mapOf(
