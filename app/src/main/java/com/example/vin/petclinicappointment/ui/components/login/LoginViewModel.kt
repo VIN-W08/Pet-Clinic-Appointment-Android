@@ -4,6 +4,7 @@ import android.util.Patterns
 import androidx.lifecycle.viewModelScope
 import com.example.vin.petclinicappointment.data.model.*
 import com.example.vin.petclinicappointment.data.repository.CustomerRepository
+import com.example.vin.petclinicappointment.data.repository.PetClinicRepository
 import com.example.vin.petclinicappointment.data.repository.UserRepository
 import com.example.vin.petclinicappointment.ui.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -17,7 +18,8 @@ import javax.inject.Inject
 @HiltViewModel
 class LoginViewModel @Inject constructor (
     private val userRepository: UserRepository,
-    private val customerRepository: CustomerRepository
+    private val customerRepository: CustomerRepository,
+    private val petClinicRepository: PetClinicRepository
 ): BaseViewModel() {
     private val _isLoggedIn = MutableStateFlow(false)
     val isLoggedIn = _isLoggedIn.asStateFlow()
@@ -134,6 +136,7 @@ class LoginViewModel @Inject constructor (
             val response = viewModelScope.async(Dispatchers.IO) {
                 when(role) {
                     "customer" -> customerRepository.updatePassword(body)
+                    "clinic" -> petClinicRepository.updatePassword(body)
                     else -> throw IllegalArgumentException()
                 }
             }.await()

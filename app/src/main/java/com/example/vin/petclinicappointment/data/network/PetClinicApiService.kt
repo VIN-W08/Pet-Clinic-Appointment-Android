@@ -55,4 +55,9 @@ interface PetClinicApiService {
     suspend fun loginPetClinic(
         @Body body: LoginBody
     ): Response<LoginClinicResponse>
+
+    @PATCH("petclinic/password")
+    suspend fun updatePassword(
+        @Body body: UpdatePasswordBody
+    ): Response<UpdatePasswordResponse>
 }

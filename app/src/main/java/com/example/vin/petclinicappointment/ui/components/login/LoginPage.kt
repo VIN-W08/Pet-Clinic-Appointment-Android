@@ -206,8 +206,14 @@ fun LoginPage(
                     style = TextStyle(color = PetClinicAppointmentTheme.colors.secondary),
                     modifier = Modifier.padding(bottom = PetClinicAppointmentTheme.dimensions.grid_4)
                 )
-                Row {
-                    Text("Belum punya akun?")
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        "Belum punya akun?",
+                        style = PetClinicAppointmentTheme.typography.h3,
+                        fontWeight = FontWeight.Normal
+                    )
                     Spacer(modifier = Modifier.width(PetClinicAppointmentTheme.dimensions.grid_1))
                     ClickableText(
                         text = AnnotatedString("Daftar Akun"),

@@ -95,4 +95,12 @@ class PetClinicRepository {
         }
         return Call.Error(response)
     }
+
+    suspend fun updatePassword(body: UpdatePasswordBody): Call<Response<UpdatePasswordResponse>>{
+        val response = apiService.updatePassword(body)
+        if(response.isSuccessful){
+            return Call.Success(response)
+        }
+        return Call.Error(response)
+    }
 }
