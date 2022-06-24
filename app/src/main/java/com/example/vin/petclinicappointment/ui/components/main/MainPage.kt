@@ -229,7 +229,7 @@ enum class MainBottomNavTabs(
     Home(R.string.tab_home, Icons.Rounded.Home, "home/customer"),
     History(R.string.tab_history, Icons.Rounded.History,"history"),
     Appointment(R.string.tab_appointment, Icons.Rounded.BookOnline, "appointment"),
-    Service(R.string.tab_service, Icons.Rounded.LocalHospital, "service"),
+    Service(R.string.tab_service, Icons.Rounded.MedicalServices, "service"),
     Profile(R.string.tab_profile, Icons.Rounded.AccountCircle, "profile/customer"),
     ClinicProfile(R.string.tab_profile, Icons.Rounded.AccountCircle, "profile/clinic");
 

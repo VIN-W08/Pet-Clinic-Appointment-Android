@@ -24,6 +24,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.vin.petclinicappointment.data.model.ServiceSchedule
 import com.example.vin.petclinicappointment.ui.components.common.*
 import com.example.vin.petclinicappointment.ui.theme.PetClinicAppointmentTheme
+import com.example.vin.petclinicappointment.ui.theme.VeryLightMalachite
 import kotlinx.coroutines.flow.collectLatest
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -387,7 +388,7 @@ fun TimeItem(
                         contentDescription = "circle",
                         modifier = Modifier
                             .size(PetClinicAppointmentTheme.dimensions.grid_2),
-                        tint = if(schedule.status) Color.Green else PetClinicAppointmentTheme.colors.error
+                        tint = if(schedule.status) VeryLightMalachite else PetClinicAppointmentTheme.colors.error
                     )
                 }
                 Row(

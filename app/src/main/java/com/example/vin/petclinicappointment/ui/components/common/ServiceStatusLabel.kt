@@ -25,8 +25,8 @@ fun ServiceStatusLabel(
     )
 
     val serviceStatusTextColorMap = mapOf(
-        false to DeepCarminePink,
-        true to VividMalachite
+        false to CarminePink,
+        true to VeryLightMalachite
     )
 
     val serviceStatusMap = mapOf(
