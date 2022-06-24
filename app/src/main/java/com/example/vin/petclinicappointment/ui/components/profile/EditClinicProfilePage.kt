@@ -106,13 +106,15 @@ fun EditClinicProfilePage(
     }
 
     fun onClickEdit(){
+        progressIndicatorVisible = true
         coroutineScope.launch {
-            progressIndicatorVisible = true
             val isSuccess = editClinicProfileViewModel.updateClinic(context)
-            progressIndicatorVisible = false
             if(isSuccess){
                 editClinicProfileViewModel.saveClinic()
+                progressIndicatorVisible = false
                 navigateToProfile()
+            }else{
+                progressIndicatorVisible = false
             }
         }
     }
