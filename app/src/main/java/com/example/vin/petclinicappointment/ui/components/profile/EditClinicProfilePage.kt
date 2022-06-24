@@ -1,7 +1,6 @@
 package com.example.vin.petclinicappointment.ui.components.profile
 
 import android.net.Uri
-import android.util.Log
 import android.util.Patterns
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -22,25 +21,19 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.res.painterResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberAsyncImagePainter
-import com.example.vin.petclinicappointment.R
 import com.example.vin.petclinicappointment.ui.components.common.*
 import com.example.vin.petclinicappointment.ui.components.common.Image
 import com.example.vin.petclinicappointment.ui.theme.PetClinicAppointmentTheme
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import java.util.regex.Pattern
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBackIos
 import androidx.compose.material.icons.filled.ChangeCircle
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.rounded.ArrowBackIos
 import androidx.compose.ui.text.input.KeyboardType
 import com.example.vin.petclinicappointment.ui.theme.Black_50
-import java.util.jar.Manifest
 
 @Composable
 fun EditClinicProfilePage(
@@ -49,6 +42,7 @@ fun EditClinicProfilePage(
     navigateBack: () -> Unit,
     scaffoldState: ScaffoldState
 ){
+    val coroutineScope = rememberCoroutineScope()
     val localFocusManager = LocalFocusManager.current
     val context = LocalContext.current
     val readStoragePermission = android.Manifest.permission.READ_EXTERNAL_STORAGE
@@ -112,7 +106,7 @@ fun EditClinicProfilePage(
     }
 
     fun onClickEdit(){
-        runBlocking {
+        coroutineScope.launch {
             progressIndicatorVisible = true
             val isSuccess = editClinicProfileViewModel.updateClinic(context)
             progressIndicatorVisible = false
