@@ -37,10 +37,10 @@ fun EditClinicSchedulePage(
             coroutineScope.launch {
                 progressIndicatorVisible = true
                 val isSuccess = editClinicScheduleViewModel.deleteClinicSchedule(id)
+                progressIndicatorVisible = false
                 if (isSuccess) {
                     navigateBack()
                 }
-                progressIndicatorVisible = false
             }
         }
     }
@@ -50,10 +50,10 @@ fun EditClinicSchedulePage(
             coroutineScope.launch {
                 progressIndicatorVisible = true
                 val isSuccess = editClinicScheduleViewModel.updateClinicSchedule(id)
+                progressIndicatorVisible = false
                 if (isSuccess) {
                     navigateBack()
                 }
-                progressIndicatorVisible = false
             }
         }
     }
@@ -62,10 +62,10 @@ fun EditClinicSchedulePage(
         coroutineScope.launch {
             progressIndicatorVisible = true
             val isSuccess = editClinicScheduleViewModel.addClinicSchedule()
+            progressIndicatorVisible = false
             if (isSuccess) {
                 navigateBack()
             }
-            progressIndicatorVisible = false
         }
     }
 
