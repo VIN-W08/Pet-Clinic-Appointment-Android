@@ -23,7 +23,7 @@ import com.example.vin.petclinicappointment.ui.components.common.IconButton
 import com.example.vin.petclinicappointment.ui.components.common.LabelTextInput
 import com.example.vin.petclinicappointment.ui.theme.PetClinicAppointmentTheme
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.launch
 
 @Composable
 fun EditCustomerProfilePage(
@@ -32,12 +32,13 @@ fun EditCustomerProfilePage(
     scaffoldState: ScaffoldState
 ){
     val localFocusManager = LocalFocusManager.current
+    val coroutineScope = rememberCoroutineScope()
     var progressIndicatorVisible by rememberSaveable { mutableStateOf(false) }
     val name by editCustomerProfilePageViewModel.name.collectAsState()
     val email by editCustomerProfilePageViewModel.email.collectAsState()
 
     fun onUpdateCustomer(){
-        runBlocking {
+        coroutineScope.launch {
             progressIndicatorVisible = true
             val isSuccess = editCustomerProfilePageViewModel.updateCustomer()
             if(isSuccess){
