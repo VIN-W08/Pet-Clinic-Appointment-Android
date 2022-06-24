@@ -1,6 +1,5 @@
 package com.example.vin.petclinicappointment.ui.components.appointment
 
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -8,7 +7,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.ButtonDefaults.buttonColors
 import androidx.compose.material.Divider
 import androidx.compose.material.ScaffoldState
 import androidx.compose.material.Surface
@@ -21,8 +19,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.vin.petclinicappointment.ui.theme.PetClinicAppointmentTheme
@@ -31,8 +29,9 @@ import java.time.format.DateTimeFormatter
 import com.example.vin.petclinicappointment.ui.components.common.*
 import com.example.vin.petclinicappointment.ui.theme.Gray
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.launch
 import java.text.DecimalFormat
+import com.example.vin.petclinicappointment.R
 
 @Composable
 fun AppointmentDetailPage(
@@ -41,6 +40,7 @@ fun AppointmentDetailPage(
     navigateBack: () -> Unit,
     scaffoldState: ScaffoldState
 ){
+    val coroutineScope = rememberCoroutineScope()
     val appointmentDetail by appointmentDetailViewModel.appointmentDetail.collectAsState()
     val userRole by appointmentDetailViewModel.userRole.collectAsState()
     var progressIndicatorVisible by rememberSaveable { mutableStateOf(false) }
@@ -61,7 +61,7 @@ fun AppointmentDetailPage(
     }
 
     fun onClickAppointmentAction(statusId: Int){
-        runBlocking {
+        coroutineScope.launch {
             progressIndicatorVisible = true
             appointmentDetailViewModel.setSelectedAppointmentStatusId(statusId)
             appointmentDetailViewModel.updateAppointmentStatus()
@@ -143,16 +143,28 @@ fun AppointmentDetailPage(
                         Row(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            if (userRole == "customer" && clinicImage !== null) {
-                                Image(
-                                    base64 = clinicImage,
-                                    contentScale = ContentScale.Crop,
-                                    contentDescription = "clinic image",
-                                    modifier = Modifier
-                                        .padding(PetClinicAppointmentTheme.dimensions.grid_2)
-                                        .size(PetClinicAppointmentTheme.dimensions.grid_6)
-                                        .clip(CircleShape)
-                                )
+                            if (userRole == "customer") {
+                                if(clinicImage !== null) {
+                                    Image(
+                                        base64 = clinicImage,
+                                        contentScale = ContentScale.Crop,
+                                        contentDescription = "clinic image",
+                                        modifier = Modifier
+                                            .padding(PetClinicAppointmentTheme.dimensions.grid_2)
+                                            .size(PetClinicAppointmentTheme.dimensions.grid_6)
+                                            .clip(CircleShape)
+                                    )
+                                }else {
+                                    Image(
+                                        painter = painterResource(R.drawable.default_clinic_image),
+                                        contentScale = ContentScale.Crop,
+                                        contentDescription = "clinic image",
+                                        modifier = Modifier
+                                            .padding(PetClinicAppointmentTheme.dimensions.grid_2)
+                                            .size(PetClinicAppointmentTheme.dimensions.grid_6)
+                                            .clip(CircleShape)
+                                    )
+                                }
                             }
                             if(userRole == "customer") {
                                 Text(
