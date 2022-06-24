@@ -16,7 +16,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.vin.petclinicappointment.ui.components.common.*
 import com.example.vin.petclinicappointment.ui.theme.PetClinicAppointmentTheme
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.launch
 
 @Composable
 fun EditClinicSchedulePage(
@@ -30,10 +30,11 @@ fun EditClinicSchedulePage(
     val day by editClinicScheduleViewModel.day.collectAsState()
     val startTime by editClinicScheduleViewModel.startTime.collectAsState()
     val endTime by editClinicScheduleViewModel.endTime.collectAsState()
+    val coroutineScope = rememberCoroutineScope()
 
     fun onDeleteClinicSchedule(){
         if(id !==null) {
-            runBlocking {
+            coroutineScope.launch {
                 progressIndicatorVisible = true
                 val isSuccess = editClinicScheduleViewModel.deleteClinicSchedule(id)
                 if (isSuccess) {
@@ -46,7 +47,7 @@ fun EditClinicSchedulePage(
 
     fun onUpdateClinicSchedule(){
         if(id !==null) {
-            runBlocking {
+            coroutineScope.launch {
                 progressIndicatorVisible = true
                 val isSuccess = editClinicScheduleViewModel.updateClinicSchedule(id)
                 if (isSuccess) {
@@ -58,7 +59,7 @@ fun EditClinicSchedulePage(
     }
 
     fun onAddClinicSchedule(){
-        runBlocking {
+        coroutineScope.launch {
             progressIndicatorVisible = true
             val isSuccess = editClinicScheduleViewModel.addClinicSchedule()
             if (isSuccess) {
