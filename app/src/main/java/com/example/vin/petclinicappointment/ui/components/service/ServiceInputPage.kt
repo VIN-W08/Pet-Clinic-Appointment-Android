@@ -20,7 +20,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.vin.petclinicappointment.ui.components.common.*
 import com.example.vin.petclinicappointment.ui.theme.PetClinicAppointmentTheme
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.launch
 import java.lang.IllegalArgumentException
 
 @Composable
@@ -37,9 +37,10 @@ fun ServiceInputPage(
     val servicePrice by serviceInputViewModel.servicePrice.collectAsState()
     val serviceStatus by serviceInputViewModel.serviceStatus.collectAsState()
     var progressIndicatorVisible by rememberSaveable { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
 
     fun onClickAddService(){
-        runBlocking {
+        coroutineScope.launch {
             progressIndicatorVisible = true
             val isSuccess = serviceInputViewModel.addService()
             progressIndicatorVisible = false
@@ -50,7 +51,7 @@ fun ServiceInputPage(
     }
 
     fun onClickUpdateService(){
-        runBlocking {
+        coroutineScope.launch {
             progressIndicatorVisible = true
             val isSuccess = serviceInputViewModel.updateService()
             progressIndicatorVisible = false
@@ -61,7 +62,7 @@ fun ServiceInputPage(
     }
 
     fun onClickDeleteSchedule(){
-        runBlocking {
+        coroutineScope.launch {
             progressIndicatorVisible = true
             val isSuccess = serviceInputViewModel.deleteService()
             progressIndicatorVisible = false
