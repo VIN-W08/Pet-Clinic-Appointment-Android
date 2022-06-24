@@ -31,12 +31,10 @@ import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import kotlinx.coroutines.Dispatchers
 import com.example.vin.petclinicappointment.ui.theme.*
 import kotlinx.coroutines.flow.collectLatest
 import java.text.DecimalFormat
 import com.example.vin.petclinicappointment.R
-import kotlinx.coroutines.runBlocking
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -147,13 +145,13 @@ fun PetClinicDetailPage(
                                 id = selectedServiceId,
                                 petClinicDetailViewModel = petClinicDetailViewModel,
                                 onClickRegisterAppointment = {
-                                    runBlocking {
+                                    coroutineScope.launch {
                                         progressIndicatorVisible = true
                                         val isSuccess = petClinicDetailViewModel.createAppointment()
+                                        progressIndicatorVisible = false
                                         if(isSuccess) {
                                             navigateToHome(id)
                                         }
-                                        progressIndicatorVisible = false
                                     }
                                 }
                             )
