@@ -36,6 +36,7 @@ import com.example.vin.petclinicappointment.ui.theme.*
 import kotlinx.coroutines.flow.collectLatest
 import java.text.DecimalFormat
 import com.example.vin.petclinicappointment.R
+import kotlinx.coroutines.runBlocking
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -146,12 +147,14 @@ fun PetClinicDetailPage(
                                 id = selectedServiceId,
                                 petClinicDetailViewModel = petClinicDetailViewModel,
                                 onClickRegisterAppointment = {
-                                    progressIndicatorVisible = true
-                                    coroutineScope.launch(Dispatchers.IO) {
-                                        petClinicDetailViewModel.createAppointment()
+                                    runBlocking {
+                                        progressIndicatorVisible = true
+                                        val isSuccess = petClinicDetailViewModel.createAppointment()
+                                        if(isSuccess) {
+                                            navigateToHome(id)
+                                        }
+                                        progressIndicatorVisible = false
                                     }
-                                    navigateToHome(id)
-                                    progressIndicatorVisible = false
                                 }
                             )
                         } else {

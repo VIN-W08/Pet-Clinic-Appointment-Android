@@ -111,7 +111,7 @@ class PetClinicDetailViewModel @Inject constructor(
         }
     }
 
-    suspend fun createAppointment(){
+    suspend fun createAppointment(): Boolean {
         val selectedServiceId = selectedServiceId.value
         val selectedServiceDetail = serviceDetail.value
         val selectedScheduleId = selectedScheduleId.value
@@ -130,7 +130,7 @@ class PetClinicDetailViewModel @Inject constructor(
                     totalPayable = selectedServiceDetail.price
                 ))
             }.await()
-            when (response) {
+            return when (response) {
                 is Call.Success -> {
                     val data = response.data?.body()?.data
                     if (data != null) {
@@ -138,9 +138,14 @@ class PetClinicDetailViewModel @Inject constructor(
                     }else{
                         setMessage(response.data?.body()?.status?.message as String)
                     }
+                    data !== null
                 }
-                else -> setMessage(response.data?.message() as String)
+                else -> {
+                    setMessage(response.data?.message() as String)
+                    return false
+                }
             }
         }
+        return false
     }
 }
