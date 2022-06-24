@@ -17,7 +17,8 @@ fun LabelSwitchInput(
 ){
     Row (
         modifier = modifier,
-        horizontalArrangement = Arrangement.SpaceBetween
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ){
         Row(
             verticalAlignment = Alignment.CenterVertically,

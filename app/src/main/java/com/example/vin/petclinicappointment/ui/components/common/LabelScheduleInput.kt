@@ -110,7 +110,7 @@ fun LabelScheduleInput(
                 },
                 readOnly = true,
                 containerModifier = Modifier
-                    .weight(0.8f),
+                    .weight(0.6f),
                 modifier = Modifier.fillMaxWidth()
             )
             Divider(Modifier.width(PetClinicAppointmentTheme.dimensions.grid_1))
@@ -134,7 +134,7 @@ fun LabelScheduleInput(
                     }
                 },
                 readOnly = true,
-                containerModifier = Modifier.weight(0.55f),
+                containerModifier = Modifier.weight(0.4f),
                 modifier = Modifier.fillMaxWidth()
             )
         }
