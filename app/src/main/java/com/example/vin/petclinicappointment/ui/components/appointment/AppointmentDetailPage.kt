@@ -55,8 +55,8 @@ fun AppointmentDetailPage(
 
     LaunchedEffect(Unit){
         progressIndicatorVisible = true
-        appointmentDetailViewModel.getAppointmentDetail(id)
         appointmentDetailViewModel.getUserRole()
+        appointmentDetailViewModel.getAppointmentDetail(id)
         progressIndicatorVisible = false
     }
 
@@ -72,10 +72,10 @@ fun AppointmentDetailPage(
     val appointmentId = appointmentDetail?.id
     val clinicName = appointmentDetail?.petClinic?.name
     val clinicImage = appointmentDetail?.petClinic?.image
-    val serviceName = appointmentDetail?.service?.name
-    val servicePrice = appointmentDetail?.service?.price
-    val serviceStartSchedule = appointmentDetail?.serviceSchedule?.startSchedule
-    val serviceEndSchedule = appointmentDetail?.serviceSchedule?.endSchedule
+    val serviceName = appointmentDetail?.serviceName
+    val servicePrice = appointmentDetail?.servicePrice
+    val serviceStartSchedule = appointmentDetail?.startSchedule
+    val serviceEndSchedule = appointmentDetail?.endSchedule
     val appointmentCreatedAt = appointmentDetail?.createdAt
     val appointmentStatusCode = appointmentDetail?.status
     val customerName = appointmentDetail?.customer?.name
@@ -97,7 +97,7 @@ fun AppointmentDetailPage(
                         start = PetClinicAppointmentTheme.dimensions.grid_2,
                         end = PetClinicAppointmentTheme.dimensions.grid_2,
                         top = PetClinicAppointmentTheme.dimensions.grid_2,
-                        bottom = PetClinicAppointmentTheme.dimensions.grid_4
+                        bottom = PetClinicAppointmentTheme.dimensions.grid_2
                     ),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
@@ -113,13 +113,13 @@ fun AppointmentDetailPage(
             Column (
                 Modifier
                     .fillMaxWidth()
-                    .weight(1f)
+                    .weight(1f),
+                verticalArrangement = Arrangement.Center
             ) {
                 Column(
                     Modifier
                         .fillMaxWidth()
-                        .padding(bottom = PetClinicAppointmentTheme.dimensions.grid_6),
-                    verticalArrangement = Arrangement.Center
+                        .padding(bottom = PetClinicAppointmentTheme.dimensions.grid_10)
                 ) {
                     Row (
                         Modifier.fillMaxWidth(),
@@ -256,7 +256,7 @@ fun AppointmentDetailPage(
                                         ){
                                             Text(LocalDateTime.parse(serviceStartSchedule).format(
                                                 DateTimeFormatter.ofPattern("dd MMM YYYY")))
-                                            Text(LocalDateTime.parse(appointmentDetail?.serviceSchedule?.startSchedule).format(DateTimeFormatter.ofPattern("HH:mm")))
+                                            Text(LocalDateTime.parse(serviceStartSchedule).format(DateTimeFormatter.ofPattern("HH:mm")))
                                         }
                                     }
                                     TableValue(modifier = Modifier.weight(0.25f)){
@@ -265,7 +265,7 @@ fun AppointmentDetailPage(
                                             horizontalAlignment = Alignment.CenterHorizontally
                                         ){
                                             Text(LocalDateTime.parse(serviceEndSchedule).format(DateTimeFormatter.ofPattern("dd MMM YYYY")))
-                                            Text(LocalDateTime.parse(appointmentDetail?.serviceSchedule?.endSchedule).format(DateTimeFormatter.ofPattern("HH:mm")))
+                                            Text(LocalDateTime.parse(serviceEndSchedule).format(DateTimeFormatter.ofPattern("HH:mm")))
                                         }
                                     }
                                     TableValue(modifier = Modifier.weight(0.25f)){
@@ -372,15 +372,9 @@ fun AppointmentAction(
             if(statusText !== null) {
                 AppButton(
                     onClick = { onClickAppointmentAction(it) },
-//                    colors = buttonColors(
-//                        PetClinicAppointmentTheme.colors.surface
-//                    ),
                     shape = RoundedCornerShape(20),
                     modifier = Modifier
-                        .padding(
-                            horizontal = PetClinicAppointmentTheme.dimensions.grid_1,
-                            vertical = PetClinicAppointmentTheme.dimensions.grid_2
-                        )
+                        .padding(PetClinicAppointmentTheme.dimensions.grid_2)
                         .weight(1f)
                         .height(PetClinicAppointmentTheme.dimensions.grid_4_5),
                     buttonStatus = buttonColor

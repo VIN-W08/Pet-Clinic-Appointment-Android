@@ -25,4 +25,9 @@ interface CustomerApiService {
     suspend fun updatePassword(
         @Body body: UpdatePasswordBody
     ): Response<UpdatePasswordResponse>
+
+    @GET("customer/{id}")
+    suspend fun getCustomerDetail(
+       @Path("id") customerId: Int
+    ): Response<GetCustomerDetailResponse>
 }

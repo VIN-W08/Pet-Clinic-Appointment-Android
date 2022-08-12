@@ -16,6 +16,6 @@ fun NoServiceView(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("Layanan tidak tersedia")
+        Text("Tidak ada Layanan")
     }
 }

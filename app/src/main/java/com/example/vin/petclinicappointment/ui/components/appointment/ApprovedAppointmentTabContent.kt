@@ -3,19 +3,22 @@ package com.example.vin.petclinicappointment.ui.components.appointment
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.CalendarToday
 import androidx.compose.material.icons.rounded.MedicalServices
 import androidx.compose.material.icons.rounded.Schedule
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.paging.LoadState
+import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.items
+import com.example.vin.petclinicappointment.R
 import com.example.vin.petclinicappointment.data.model.AppointmentDetail
 import com.example.vin.petclinicappointment.ui.components.common.*
 import com.example.vin.petclinicappointment.ui.theme.Gray
@@ -28,54 +31,57 @@ import java.util.*
 @Composable
 fun ApprovedAppointmentTabContent(
     navigateToAppointmentDetail: (id: Int) -> Unit,
+    currentPage: Int,
     appointmentViewModel: AppointmentViewModel = hiltViewModel(),
 ){
-    var progressIndicatorVisible by rememberSaveable { mutableStateOf(false) }
-    val clinicApprovedAppointmentList by appointmentViewModel.clinicApprovedAppointmentList.collectAsState()
-
-    LaunchedEffect(Unit){
-        progressIndicatorVisible = true
-        appointmentViewModel.getClinicApprovedAppointmentList()
-        progressIndicatorVisible = false
-    }
-
     Surface(
         color = PetClinicAppointmentTheme.colors.background
     ){
         Column(
             Modifier.fillMaxSize()
         ) {
-            if(clinicApprovedAppointmentList.isEmpty() && !progressIndicatorVisible) {
-                MessageView(
-                    message = "Tidak ada persetujuan janji temu",
-                    modifier = Modifier.fillMaxSize()
-                )
-            }else {
+            if(currentPage == 0) {
                 ApprovedAppointmentList(
-                    appointmentList = clinicApprovedAppointmentList,
+                    appointmentViewModel = appointmentViewModel,
                     navigateToAppointmentDetail = navigateToAppointmentDetail
                 )
             }
-        }
-        Box(
-            Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            CircularProgressIndicator(visible = progressIndicatorVisible)
         }
     }
 }
 
 @Composable
 fun ApprovedAppointmentList(
-    appointmentList: List<AppointmentDetail>,
+    appointmentViewModel: AppointmentViewModel,
     navigateToAppointmentDetail: (appointmentId: Int) -> Unit
 ){
+    val approvedAppointmentList = appointmentViewModel.approvedAppointmentList.collectAsLazyPagingItems()
     LazyColumn(
         Modifier.fillMaxSize()
     ) {
-        items(appointmentList) {
-            ApprovedAppointmentItem(it, navigateToAppointmentDetail)
+        items(approvedAppointmentList) {
+            if (it != null) {
+                ApprovedAppointmentItem(it, navigateToAppointmentDetail)
+            }
+        }
+        approvedAppointmentList.apply {
+            when {
+                loadState.refresh == LoadState.Loading -> {
+                    item { ProgressIndicatorView(Modifier.fillParentMaxSize())  }
+                }
+                loadState.append == LoadState.Loading -> {
+                    item { ProgressIndicatorView(Modifier.fillMaxWidth()) }
+                }
+                (loadState.refresh is LoadState.NotLoading &&
+                        approvedAppointmentList.itemCount == 0) -> {
+                    item {
+                        MessageView(
+                            message = stringResource(R.string.no_approved_appointment),
+                            modifier = Modifier.fillParentMaxSize()
+                        )
+                    }
+                }
+            }
         }
     }
 }
@@ -126,7 +132,7 @@ fun ApprovedAppointmentItem(
                         ) {
                             Icon(
                                 imageVector = Icons.Rounded.MedicalServices,
-                                contentDescription = "calendar icon",
+                                contentDescription = "medical service icon",
                                 modifier = Modifier
                                     .padding(end = PetClinicAppointmentTheme.dimensions.grid_1)
                                     .size(PetClinicAppointmentTheme.dimensions.grid_2_5),

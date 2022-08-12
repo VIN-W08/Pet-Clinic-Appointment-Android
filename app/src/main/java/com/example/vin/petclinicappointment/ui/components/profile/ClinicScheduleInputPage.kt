@@ -19,27 +19,28 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 @Composable
-fun EditClinicSchedulePage(
+fun ClinicScheduleInputPage(
     id: Int? = null,
     pageType: String,
     navigateBack: () -> Unit,
-    editClinicScheduleViewModel: EditClinicScheduleViewModel = hiltViewModel(),
+    navigateToClinicSchedule: () -> Unit,
+    clinicScheduleInputViewModel: ClinicScheduleInputViewModel = hiltViewModel(),
     scaffoldState: ScaffoldState
 ){
     var progressIndicatorVisible by rememberSaveable { mutableStateOf(false) }
-    val day by editClinicScheduleViewModel.day.collectAsState()
-    val startTime by editClinicScheduleViewModel.startTime.collectAsState()
-    val endTime by editClinicScheduleViewModel.endTime.collectAsState()
+    val day by clinicScheduleInputViewModel.day.collectAsState()
+    val startTime by clinicScheduleInputViewModel.startTime.collectAsState()
+    val endTime by clinicScheduleInputViewModel.endTime.collectAsState()
     val coroutineScope = rememberCoroutineScope()
 
     fun onDeleteClinicSchedule(){
         if(id !==null) {
             coroutineScope.launch {
                 progressIndicatorVisible = true
-                val isSuccess = editClinicScheduleViewModel.deleteClinicSchedule(id)
+                val isSuccess = clinicScheduleInputViewModel.deleteClinicSchedule(id)
                 progressIndicatorVisible = false
                 if (isSuccess) {
-                    navigateBack()
+                    navigateToClinicSchedule()
                 }
             }
         }
@@ -49,10 +50,10 @@ fun EditClinicSchedulePage(
         if(id !==null) {
             coroutineScope.launch {
                 progressIndicatorVisible = true
-                val isSuccess = editClinicScheduleViewModel.updateClinicSchedule(id)
+                val isSuccess = clinicScheduleInputViewModel.updateClinicSchedule(id)
                 progressIndicatorVisible = false
                 if (isSuccess) {
-                    navigateBack()
+                    navigateToClinicSchedule()
                 }
             }
         }
@@ -61,16 +62,16 @@ fun EditClinicSchedulePage(
     fun onAddClinicSchedule(){
         coroutineScope.launch {
             progressIndicatorVisible = true
-            val isSuccess = editClinicScheduleViewModel.addClinicSchedule()
+            val isSuccess = clinicScheduleInputViewModel.addClinicSchedule()
             progressIndicatorVisible = false
             if (isSuccess) {
-                navigateBack()
+                navigateToClinicSchedule()
             }
         }
     }
 
     LaunchedEffect(Unit){
-        editClinicScheduleViewModel.message.collectLatest {
+        clinicScheduleInputViewModel.message.collectLatest {
             if(it.isNotEmpty()) {
                 scaffoldState.snackbarHostState.showSnackbar(it)
             }
@@ -79,7 +80,7 @@ fun EditClinicSchedulePage(
 
     LaunchedEffect(Unit){
         if(id !==null) {
-            editClinicScheduleViewModel.getClinicScheduleDetail(id)
+            clinicScheduleInputViewModel.getClinicScheduleDetail(id)
         }
     }
 
@@ -116,14 +117,14 @@ fun EditClinicSchedulePage(
                         label = "Hari",
                         option = day ?: DropdownOption("0", ""),
                         onValueChange = {},
-                        optionList = editClinicScheduleViewModel.dayCodeToDayNameMap.toList()
+                        optionList = clinicScheduleInputViewModel.dayCodeToDayNameMap.toList()
                             .map {
                                 DropdownOption(
                                     it.first.toString(),
                                     it.second.replaceFirstChar { it.uppercase() },
                                 )
                             },
-                        onClickOption = { editClinicScheduleViewModel.setDay(it) },
+                        onClickOption = { clinicScheduleInputViewModel.setDay(it) },
                         modifier = Modifier
                             .padding(
                                 start = PetClinicAppointmentTheme.dimensions.grid_2,
@@ -151,7 +152,7 @@ fun EditClinicSchedulePage(
                 LabelTimeInput(
                     label = "Waktu Mulai",
                     value = if(startTime !== null) startTime.toString() else "",
-                    onTimeValueChange = { editClinicScheduleViewModel.setStartTime(it) },
+                    onTimeValueChange = { clinicScheduleInputViewModel.setStartTime(it) },
                     modifier = Modifier
                         .padding(
                             start = PetClinicAppointmentTheme.dimensions.grid_2,
@@ -163,7 +164,7 @@ fun EditClinicSchedulePage(
                 LabelTimeInput(
                     label = "Waktu Berakhir",
                     value = if(endTime !== null) endTime.toString() else "",
-                    onTimeValueChange = {editClinicScheduleViewModel.setEndTime(it)},
+                    onTimeValueChange = { clinicScheduleInputViewModel.setEndTime(it) },
                     modifier = Modifier
                         .padding(
                             start = PetClinicAppointmentTheme.dimensions.grid_2,

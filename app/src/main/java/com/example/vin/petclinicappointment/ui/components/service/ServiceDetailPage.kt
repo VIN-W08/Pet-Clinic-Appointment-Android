@@ -1,12 +1,11 @@
 package com.example.vin.petclinicappointment.ui.components.service
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.ButtonDefaults.buttonColors
@@ -17,9 +16,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.vin.petclinicappointment.data.model.ServiceSchedule
 import com.example.vin.petclinicappointment.ui.components.common.*
@@ -30,6 +27,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.text.DecimalFormat
+import com.example.vin.petclinicappointment.ui.components.common.IconButton
 
 @Composable
 fun ServiceDetailPage(
@@ -37,15 +35,16 @@ fun ServiceDetailPage(
     serviceDetailViewModel: ServiceDetailViewModel = hiltViewModel(),
     navigateToUpdateService: (id: Int) -> Unit,
     navigateToAddServiceSchedule: (serviceId: Int) -> Unit,
-    navigateToServiceScheduleUpdate: (serviceScheduleId: Int) -> Unit,
+    navigateToServiceScheduleUpdate: (serviceId: Int, serviceScheduleId: Int) -> Unit,
     navigateBack: () -> Unit,
     scaffoldState: ScaffoldState
 ){
     var progressIndicatorVisible by rememberSaveable { mutableStateOf(false) }
-    val serviceDetail by serviceDetailViewModel.serviceDetail.collectAsState()
-    val serviceName = serviceDetail?.name
-    val servicePrice = serviceDetail?.price
-    val serviceStatus = serviceDetail?.status
+    var expandServiceSchedule by rememberSaveable { mutableStateOf(false) }
+    val service by serviceDetailViewModel.service.collectAsState()
+    val serviceName = service?.name
+    val servicePrice = service?.price
+    val serviceStatus = service?.status
 
     LaunchedEffect(Unit){
         serviceDetailViewModel.message.collectLatest {
@@ -65,7 +64,7 @@ fun ServiceDetailPage(
     Surface(
         color = MaterialTheme.colors.background
     ) {
-        if(serviceDetail !== null) {
+        if(service !== null) {
             Column {
                 Row(
                     Modifier
@@ -89,86 +88,73 @@ fun ServiceDetailPage(
                         .fillMaxWidth()
                         .weight(1f)
                 ) {
-                    Card (
-                        Modifier
-                            .padding(
-                                start = PetClinicAppointmentTheme.dimensions.grid_2,
-                                end = PetClinicAppointmentTheme.dimensions.grid_2,
-                                bottom = PetClinicAppointmentTheme.dimensions.grid_4
-                            ),
-                        elevation = PetClinicAppointmentTheme.dimensions.grid_0_5
-                    ){
-                        Column {
-                            Column {
-                                ServiceTextAttributeView(
-                                    label = "Nama Layanan",
-                                    value = serviceName,
-                                    modifier = Modifier.padding(
-                                        top = PetClinicAppointmentTheme.dimensions.grid_3
-                                    )
-                                )
-                                ServiceTextAttributeView(label = "Harga Layanan",
-                                    value = "Rp ${DecimalFormat("0.#").format(servicePrice)}")
-                                if (serviceStatus != null) {
-                                    ServiceStatusAttributeView( label = "Status", value = serviceStatus)
-                                }
-                            }
-                            AppButton(
-                                onClick = { navigateToUpdateService(serviceId) },
-                                colors = buttonColors(PetClinicAppointmentTheme.colors.secondary),
-                                shape = RoundedCornerShape(20),
-                                modifier = Modifier
-                                    .padding(
-                                        start = PetClinicAppointmentTheme.dimensions.grid_2,
-                                        end = PetClinicAppointmentTheme.dimensions.grid_2,
-                                        bottom = PetClinicAppointmentTheme.dimensions.grid_3
-                                    )
-                                    .fillMaxWidth()
-                            ) {
-                                Text("Ubah Data")
-                            }
-                        }
-                    }
-                    Column {
-                        Row(
-                            Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.End
+                        Card(
+                            Modifier
+                                .padding(
+                                    start = PetClinicAppointmentTheme.dimensions.grid_2,
+                                    end = PetClinicAppointmentTheme.dimensions.grid_2,
+                                    bottom = PetClinicAppointmentTheme.dimensions.grid_4
+                                ),
+                            elevation = PetClinicAppointmentTheme.dimensions.grid_0_5
                         ) {
-                            AppButton(
-                                onClick = { navigateToAddServiceSchedule(serviceId) },
-                                colors = buttonColors(PetClinicAppointmentTheme.colors.secondary),
-                                shape = RoundedCornerShape(PetClinicAppointmentTheme.dimensions.grid_2),
-                                modifier = Modifier
-                                    .padding(
-                                        end = PetClinicAppointmentTheme.dimensions.grid_2,
-                                        bottom = PetClinicAppointmentTheme.dimensions.grid_2
-                                    )
-                            ) {
+                            Column {
                                 Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.End
                                 ) {
-                                    Icon(
-                                        imageVector = Icons.Rounded.AddCircle,
-                                        contentDescription = "add_circle",
-                                        modifier = Modifier.padding(end = PetClinicAppointmentTheme.dimensions.grid_1)
+                                    IconButton(
+                                        icon = if (expandServiceSchedule) Icons.Rounded.ExpandMore else Icons.Rounded.ExpandLess,
+                                        contentDescription = "expand icon",
+                                        modifier = Modifier
+                                            .padding(
+                                                top = PetClinicAppointmentTheme.dimensions.grid_2,
+                                                end = PetClinicAppointmentTheme.dimensions.grid_2
+                                            ),
+                                        onClick = { expandServiceSchedule = !expandServiceSchedule }
                                     )
-                                    Text("Jadwal")
+                                }
+                                Column {
+                                    ServiceTextAttributeView(
+                                        label = "Nama Layanan",
+                                        value = serviceName
+                                    )
+                                    if(!expandServiceSchedule) {
+                                        ServiceTextAttributeView(
+                                            label = "Harga Layanan",
+                                            value = "Rp ${DecimalFormat("0.#").format(servicePrice)}"
+                                        )
+                                        if (serviceStatus != null) {
+                                            ServiceStatusAttributeView(
+                                                label = "Status",
+                                                value = serviceStatus
+                                            )
+                                        }
+                                    }
+                                }
+                                if(!expandServiceSchedule) {
+                                    AppButton(
+                                        onClick = { navigateToUpdateService(serviceId) },
+                                        colors = buttonColors(PetClinicAppointmentTheme.colors.secondary),
+                                        shape = RoundedCornerShape(20),
+                                        modifier = Modifier
+                                            .padding(
+                                                start = PetClinicAppointmentTheme.dimensions.grid_2,
+                                                end = PetClinicAppointmentTheme.dimensions.grid_2,
+                                                bottom = PetClinicAppointmentTheme.dimensions.grid_3
+                                            )
+                                            .fillMaxWidth()
+                                    ) {
+                                        Text("Ubah Data")
+                                    }
                                 }
                             }
                         }
-                        DateList(
-                            serviceDetailViewModel = serviceDetailViewModel,
-                            modifier = Modifier.padding(
-                                start = PetClinicAppointmentTheme.dimensions.grid_2,
-                                bottom = PetClinicAppointmentTheme.dimensions.grid_2
-                            )
-                        )
-                        TimeList(
-                            serviceDetailViewModel = serviceDetailViewModel,
-                            navigateToServiceScheduleUpdate = navigateToServiceScheduleUpdate
-                        )
-                    }
+                    ServiceScheduleSectionView(
+                        serviceId = serviceId,
+                        serviceDetailViewModel = serviceDetailViewModel,
+                        navigateToAddServiceSchedule = navigateToAddServiceSchedule,
+                        navigateToServiceScheduleUpdate = { serviceScheduleId -> navigateToServiceScheduleUpdate(serviceId, serviceScheduleId)}
+                    )
                 }
             }
         }
@@ -193,6 +179,81 @@ fun ServiceDetailPage(
                 )
             }
         }
+    }
+}
+
+@Composable
+fun ServiceScheduleSectionView(
+    serviceId: Int,
+    serviceDetailViewModel: ServiceDetailViewModel,
+    navigateToServiceScheduleUpdate: (serviceScheduleId: Int) -> Unit,
+    navigateToAddServiceSchedule: (serviceId: Int) -> Unit
+){
+    val currentDate = LocalDate.now()
+    var startListDate by rememberSaveable { mutableStateOf(currentDate) }
+
+    LaunchedEffect(startListDate){
+        serviceDetailViewModel.setSelectedServiceStartDate(startListDate)
+    }
+
+    Column {
+        Row(
+            Modifier
+                .padding(
+                    start = PetClinicAppointmentTheme.dimensions.grid_2,
+                    end = PetClinicAppointmentTheme.dimensions.grid_2,
+                    bottom = PetClinicAppointmentTheme.dimensions.grid_2
+                )
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Row (
+                verticalAlignment = Alignment.CenterVertically
+            ){
+                Text(
+                    "Pilih tanggal",
+                    style = PetClinicAppointmentTheme.typography.h3,
+                    modifier = Modifier.padding(end = PetClinicAppointmentTheme.dimensions.grid_1)
+                )
+                DatePicker(
+                    onDateValueChange = { startListDate = it },
+                    containerModifier = Modifier.background(PetClinicAppointmentTheme.colors.primaryVariant, CircleShape),
+                    modifier = Modifier.size(PetClinicAppointmentTheme.dimensions.grid_2_5),
+                    hasBorder = true,
+                    tint = PetClinicAppointmentTheme.colors.onPrimary
+                )
+            }
+            AppButton(
+                onClick = { navigateToAddServiceSchedule(serviceId) },
+                colors = buttonColors(PetClinicAppointmentTheme.colors.secondary),
+                shape = RoundedCornerShape(PetClinicAppointmentTheme.dimensions.grid_2),
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.AddCircle,
+                        contentDescription = "add_circle",
+                        modifier = Modifier.padding(end = PetClinicAppointmentTheme.dimensions.grid_1)
+                    )
+                    Text("Jadwal")
+                }
+            }
+        }
+        DateList(
+            startListDate = startListDate,
+            serviceDetailViewModel = serviceDetailViewModel,
+            modifier = Modifier.padding(
+                start = PetClinicAppointmentTheme.dimensions.grid_2,
+                bottom = PetClinicAppointmentTheme.dimensions.grid_2
+            )
+        )
+        TimeList(
+            serviceDetailViewModel = serviceDetailViewModel,
+            navigateToServiceScheduleUpdate = navigateToServiceScheduleUpdate
+        )
     }
 }
 
@@ -276,15 +337,15 @@ fun ServiceStatusAttributeView(
 
 @Composable
 fun DateList(
+    startListDate: LocalDate,
     serviceDetailViewModel: ServiceDetailViewModel,
     modifier: Modifier = Modifier
 ){
-    val currentLocalDate = LocalDate.now()
     LazyRow(
         modifier = modifier
     ) {
         items((0..6).toList()) { item ->
-            DateItem(date = currentLocalDate.plusDays(item.toLong()), serviceDetailViewModel)
+            DateItem(date = startListDate.plusDays(item.toLong()), serviceDetailViewModel)
         }
     }
 }

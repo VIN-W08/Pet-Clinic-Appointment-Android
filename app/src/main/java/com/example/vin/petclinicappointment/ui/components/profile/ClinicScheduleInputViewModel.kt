@@ -16,7 +16,7 @@ import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 @HiltViewModel
-class EditClinicScheduleViewModel @Inject constructor(
+class ClinicScheduleInputViewModel @Inject constructor(
     private val clinicScheduleRepository: ClinicScheduleRepository,
     private val userRepository: UserRepository
 ): BaseViewModel() {

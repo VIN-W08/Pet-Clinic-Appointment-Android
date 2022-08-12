@@ -11,14 +11,13 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.CalendarToday
+import androidx.compose.material.icons.rounded.MedicalServices
 import androidx.compose.material.icons.rounded.Schedule
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -27,24 +26,27 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import java.util.Locale
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.paging.LoadState
+import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.items
 import com.example.vin.petclinicappointment.R
 import com.example.vin.petclinicappointment.data.model.AppointmentDetail
-import com.example.vin.petclinicappointment.ui.components.common.Image
-import com.example.vin.petclinicappointment.ui.components.common.MessageView
-import com.example.vin.petclinicappointment.ui.components.common.View
+import com.example.vin.petclinicappointment.ui.components.common.*
 import com.example.vin.petclinicappointment.ui.theme.Gray
 import com.example.vin.petclinicappointment.ui.theme.PetClinicAppointmentTheme
+import com.google.android.gms.common.ConnectionResult
+import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.common.api.ResolvableApiException
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
-import com.example.vin.petclinicappointment.ui.components.common.CircularProgressIndicator
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -57,23 +59,11 @@ fun CustomerHomePage(
     getLocationPermissionStatus: (context: Context) -> Boolean,
     getGpsEnabledStatus: (context: Context, onEnabled: () -> Unit, onDisabled: (exception: Exception) -> Unit) -> Unit,
 ) {
-    var progressIndicatorVisible by rememberSaveable { mutableStateOf(false) }
-    val modalBottomSheetState = rememberModalBottomSheetState(
-        initialValue = ModalBottomSheetValue.Hidden,
-        confirmStateChange = { state -> state != ModalBottomSheetValue.HalfExpanded }
-    )
     val coroutineScope = rememberCoroutineScope()
     val localFocusManager = LocalFocusManager.current
     val context = LocalContext.current
     val locationPermission = Manifest.permission.ACCESS_FINE_LOCATION
 
-    val todayApprovedAppointmentList by homeViewModel.todayApprovedAppointmentList.collectAsState()
-
-    LaunchedEffect(Unit){
-        progressIndicatorVisible = true
-        homeViewModel.getTodayApprovedAppointmentList()
-        progressIndicatorVisible = false
-    }
 
     fun onFailGetLocation() {
         coroutineScope.launch {
@@ -121,6 +111,9 @@ fun CustomerHomePage(
     }
 
     LaunchedEffect(Unit) {
+//        val googleApiAvailability = GoogleApiAvailability.getInstance()
+//        val resultCode = googleApiAvailability.isGooglePlayServicesAvailable(context)
+//        Log.d("debug1", "available:${resultCode == ConnectionResult.SUCCESS}")
         val locationPermissionStatus = getLocationPermissionStatus(context)
         if (!locationPermissionStatus) {
             launcher.launch(locationPermission)
@@ -134,11 +127,6 @@ fun CustomerHomePage(
             .fillMaxSize()
             .pointerInput(Unit) {
                 detectTapGestures(onTap = {
-                    coroutineScope.launch {
-                        if (modalBottomSheetState.isVisible) {
-                            modalBottomSheetState.hide()
-                        }
-                    }
                     localFocusManager.clearFocus()
                 })
             },
@@ -166,32 +154,25 @@ fun CustomerHomePage(
                         )
                 ) {
                     TodayApprovedAppointmentList(
-                        todayApprovedAppointmentList,
-                        progressIndicatorVisible,
+                        homeViewModel,
                         navigateToAppointmentDetail
                     )
                 }
             }
-        }
-        Box(
-            Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            CircularProgressIndicator(visible = progressIndicatorVisible)
         }
     }
 }
 
 @Composable
 fun TodayApprovedAppointmentList(
-    appointmentList: List<AppointmentDetail>,
-    loading: Boolean,
+    homeViewModel: HomeViewModel,
     navigateToAppointmentDetail: (appointmentId: Int) -> Unit
 ){
+    val todayApprovedAppointmentList = homeViewModel.todayApprovedAppointmentList.collectAsLazyPagingItems()
     Column {
         Column {
             Text(
-                "Janji Temu Yang Akan Datang",
+                stringResource(R.string.coming_soon_appointment),
                 style = PetClinicAppointmentTheme.typography.h3,
                 fontWeight = FontWeight.SemiBold,
                 modifier = Modifier.padding(
@@ -201,19 +182,35 @@ fun TodayApprovedAppointmentList(
             )
             Divider(Modifier.fillMaxWidth())
         }
-        if (appointmentList.isEmpty() && !loading) {
-            MessageView(
-                message = "Tidak ada janji temu",
-                modifier = Modifier.fillMaxSize()
-            )
-        } else {
-            LazyColumn(
-                Modifier.fillMaxSize()
-            ) {
-                items(appointmentList) {
+        LazyColumn(
+            Modifier.fillMaxSize()
+        ) {
+            items(todayApprovedAppointmentList) {
+                if (it != null) {
                     TodayApprovedAppointmentItem(it, navigateToAppointmentDetail)
                 }
             }
+            todayApprovedAppointmentList.apply {
+                when {
+                    loadState.refresh is LoadState.Loading -> {
+                        item { ProgressIndicatorView(modifier = Modifier.fillParentMaxSize()) }
+                    }
+                    loadState.append is LoadState.Loading -> {
+                        item { ProgressIndicatorView() }
+                    }
+                    (loadState.refresh is LoadState.NotLoading &&
+                            todayApprovedAppointmentList.itemCount == 0) -> {
+                        item {
+                            MessageView(
+                                message = stringResource(R.string.no_coming_soon_appointment),
+                                modifier = Modifier
+                                    .fillParentMaxSize()
+                            )
+                        }
+                    }
+                }
+            }
+
         }
     }
 }
@@ -233,12 +230,13 @@ fun TodayApprovedAppointmentItem(
         Card(
             Modifier
                 .fillMaxWidth()
-                .height(PetClinicAppointmentTheme.dimensions.grid_6 * 2)
+                .height(PetClinicAppointmentTheme.dimensions.grid_8 * 2)
                 .clickable { navigateToAppointmentDetail(appointment.id) },
             elevation = 0.dp
         ) {
             Row(
                 Modifier.fillMaxSize(),
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 View(
                     Modifier
@@ -253,7 +251,7 @@ fun TodayApprovedAppointmentItem(
                             contentScale = ContentScale.Fit,
                             contentDescription = "clinic image",
                             modifier = Modifier
-                                .fillMaxHeight()
+                                .size(PetClinicAppointmentTheme.dimensions.grid_10)
                                 .clip(RoundedCornerShape(10))
                         )
                     } else {
@@ -282,6 +280,23 @@ fun TodayApprovedAppointmentItem(
                         )
                     )
                     Column {
+                        Row(
+                            Modifier
+                                .padding(bottom = PetClinicAppointmentTheme.dimensions.grid_0_25),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Icon(
+                                imageVector = Icons.Rounded.MedicalServices,
+                                contentDescription = "medical service icon",
+                                modifier = Modifier
+                                    .padding(end = PetClinicAppointmentTheme.dimensions.grid_1)
+                                    .size(PetClinicAppointmentTheme.dimensions.grid_2_5),
+                                tint = Gray
+                            )
+                            Text(appointment.service.name,
+                                style = PetClinicAppointmentTheme.typography.body1,
+                                fontWeight = FontWeight.SemiBold)
+                        }
                         Row(
                             Modifier
                                 .padding(bottom = PetClinicAppointmentTheme.dimensions.grid_0_25),

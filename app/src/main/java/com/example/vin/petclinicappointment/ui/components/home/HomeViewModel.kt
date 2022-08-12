@@ -1,14 +1,16 @@
 package com.example.vin.petclinicappointment.ui.components.home
 
 import androidx.lifecycle.viewModelScope
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import com.example.vin.petclinicappointment.data.datasource.AppointmentDataSource
 import com.example.vin.petclinicappointment.data.model.AppointmentDetail
-import com.example.vin.petclinicappointment.data.model.Call
 import com.example.vin.petclinicappointment.data.repository.AppointmentRepository
 import com.example.vin.petclinicappointment.data.repository.UserRepository
 import com.example.vin.petclinicappointment.ui.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -24,36 +26,27 @@ class HomeViewModel @Inject constructor(
     private val _username = MutableStateFlow("")
     val username = _username.asStateFlow()
 
-    private val _todayApprovedAppointmentList = MutableStateFlow(listOf<AppointmentDetail>())
-    val todayApprovedAppointmentList = _todayApprovedAppointmentList.asStateFlow()
+    private val _userId = MutableStateFlow<Int?>(null)
+    val userId = _userId.asStateFlow()
 
-    suspend fun getUserData() {
+    init {
+        viewModelScope.launch {
+            _userId.value = userRepository.getUserId()
+        }
+    }
+
+    suspend fun getUserName() {
         viewModelScope.launch {
             _username.value = userRepository.getUserName() ?: ""
         }
     }
 
-    suspend fun getTodayApprovedAppointmentList(){
-        val userId = userRepository.getUserId()
-        if(userId !== null) {
-            val response = viewModelScope.async(Dispatchers.IO) {
-                appointmentRepository.getAppointmentList(
-                    customerId = userId,
-                    startSchedule = "${LocalDate.now()}T00:00:00",
-                    status = 1
-                )
-            }.await()
-            when (response) {
-                is Call.Success -> {
-                    val data = response.data?.body()?.data
-                    if(data !== null) {
-                        _todayApprovedAppointmentList.value = data
-                    } else {
-                        setMessage(response.data?.body()?.status?.message as String)
-                    }
-                }
-                else -> setMessage(response.data?.message() as String)
-            }
-        }
-    }
+    val todayApprovedAppointmentList: Flow<PagingData<AppointmentDetail>> = Pager(PagingConfig(pageSize = 10, prefetchDistance = 1)) {
+        AppointmentDataSource(
+            appointmentRepository,
+            customerId = userId.value,
+            startSchedule = "${LocalDate.now()}T00:00:00",
+            status = 1
+        )
+    }.flow
 }

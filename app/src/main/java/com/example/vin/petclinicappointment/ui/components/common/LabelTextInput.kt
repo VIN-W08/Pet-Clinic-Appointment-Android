@@ -6,7 +6,10 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import com.example.vin.petclinicappointment.ui.theme.PetClinicAppointmentTheme
 
 @Composable
@@ -21,6 +24,28 @@ fun LabelTextInput(
     readOnly: Boolean = false,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default
 ){
+    val annotatedString = buildAnnotatedString {
+        withStyle(
+            style = SpanStyle(
+                fontWeight = FontWeight.SemiBold,
+                fontSize = PetClinicAppointmentTheme.typography.h3.fontSize
+            )
+        ) {
+            append(label)
+        }
+        if(required) {
+            withStyle(
+                style = SpanStyle(
+                    color = PetClinicAppointmentTheme.colors.error,
+                    fontWeight = PetClinicAppointmentTheme.typography.h3.fontWeight,
+                    fontSize = PetClinicAppointmentTheme.typography.h3.fontSize
+                )
+            ) {
+                append("*")
+            }
+        }
+    }
+
     Row (
         modifier = modifier,
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -31,17 +56,7 @@ fun LabelTextInput(
             modifier = Modifier
                 .weight(0.4f),
         ) {
-            Text(
-                label,
-                style = PetClinicAppointmentTheme.typography.h3
-            )
-            if(required){
-                Text(
-                    "*",
-                    style = PetClinicAppointmentTheme.typography.h3,
-                    color = Color.Red
-                )
-            }
+            Text(annotatedString)
         }
         Row(
             Modifier

@@ -4,6 +4,7 @@ import android.content.Context
 import android.database.Cursor
 import android.net.Uri
 import android.provider.MediaStore
+import android.util.Patterns
 import androidx.lifecycle.viewModelScope
 import com.example.vin.petclinicappointment.data.model.Call
 import com.example.vin.petclinicappointment.data.repository.LocationRepository
@@ -16,6 +17,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -28,6 +30,15 @@ class EditClinicProfileViewModel @Inject constructor(
     private val userRepository: UserRepository,
     private val locationRepository: LocationRepository
 ): BaseViewModel() {
+    private val _userId = MutableStateFlow<Int?>(null)
+    val userId = _userId.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            _userId.value = userRepository.getUserId()
+        }
+    }
+
     private val _clinicName = MutableStateFlow("")
     val clinicName = _clinicName.asStateFlow()
 
@@ -64,7 +75,10 @@ class EditClinicProfileViewModel @Inject constructor(
     private val _locationOptionList = MutableStateFlow(listOf<DropdownOption>())
     val locationOptionList = _locationOptionList.asStateFlow()
 
-    private val _clinicImage = MutableStateFlow<Uri?>(null)
+    private val _changedClinicImage = MutableStateFlow<Uri?>(null)
+    val changedClinicImage = _changedClinicImage.asStateFlow()
+
+    private val _clinicImage = MutableStateFlow<String>("")
     val clinicImage = _clinicImage.asStateFlow()
 
     fun setClinicName(value: String){
@@ -111,12 +125,16 @@ class EditClinicProfileViewModel @Inject constructor(
         _clinicAddress.value = value
     }
 
-    fun setClinicImage(value: Uri?){
-        _clinicImage.value = value
+    fun setChangedClinicImage(value: Uri?){
+        _changedClinicImage.value = value
     }
 
     fun setInitialClinicImage(value: String){
         _initialClinicImage.value = value
+    }
+
+    fun setClinicImage(value: String){
+        _clinicImage.value = value
     }
 
     private fun validateClinic(): Boolean{
@@ -126,6 +144,10 @@ class EditClinicProfileViewModel @Inject constructor(
         }
         if(clinicEmail.value.trim().isEmpty()){
             setMessage("Email wajib diinput")
+            return false
+        }
+        if(!Patterns.EMAIL_ADDRESS.matcher(clinicEmail.value.trim()).matches()){
+            setMessage("Format email tidak valid")
             return false
         }
         if(clinicPhoneNum.value.trim().isEmpty()){
@@ -154,23 +176,33 @@ class EditClinicProfileViewModel @Inject constructor(
         return true
     }
 
-    suspend fun getClinicData(){
-        userRepository.let {
-            _clinicName.value = it.getUserName() ?: ""
-            _clinicEmail.value = it.getUserEmail() ?: ""
-            _initialClinicImage.value = it.getUserImage() ?: ""
-            _clinicPhoneNum.value = it.getUserPhoneNum() ?: ""
-            _clinicAddress.value = it.getUserAddress() ?: ""
-            val selectedVillageId =  it.getUserVillageId()
-            _selectedVillageOption.value = DropdownOption(
-                if(selectedVillageId !== null) selectedVillageId.toString() else "",
-                ""
-            )
-            val clinicLatitude = it.getUserLatitude()
-            val clinicLongitude = it.getUserLongitude()
-            _clinicLatitude.value = if (clinicLatitude !== null) clinicLatitude.toString() else ""
-            _clinicLongitude.value =
-                if (clinicLongitude !== null) clinicLongitude.toString() else ""
+    suspend fun getClinicDetail() {
+        val userId = userId.value
+        if (userId !== null) {
+            val response = viewModelScope.async(Dispatchers.IO) {
+                petClinicRepository.getPetClinicDetail(userId)
+            }.await()
+            when (response) {
+                is Call.Success -> {
+                    val data = response.data?.body()?.data
+                    if (data !== null) {
+                        _clinicName.value = data.name ?: ""
+                        _clinicEmail.value = data.email ?: ""
+                        _initialClinicImage.value = data.image ?: ""
+                        _clinicPhoneNum.value = data.phoneNum ?: ""
+                        _clinicAddress.value = data.address ?: ""
+                        _selectedVillageOption.value = DropdownOption(
+                            data.villageId.toString(),
+                            ""
+                        )
+                        _clinicLatitude.value = data.latitude.toString()
+                        _clinicLongitude.value = data.longitude.toString()
+                    } else {
+                        setMessage(response.data?.body()?.status?.message as String)
+                    }
+                }
+                else -> setMessage(response.data?.message() as String)
+            }
         }
     }
 
@@ -336,7 +368,7 @@ class EditClinicProfileViewModel @Inject constructor(
 
     suspend fun updateClinic(context: Context): Boolean {
         if(validateClinic()) {
-            val userId = userRepository.getUserId()
+            val userId = userId.value
             val selectedVillageOption = selectedVillageOption.value
             if (userId !== null && selectedVillageOption !== null) {
                 val nameRequest =
@@ -353,8 +385,8 @@ class EditClinicProfileViewModel @Inject constructor(
                     clinicLatitude.value)
                 val longitudeRequest = RequestBody.create("multipart/form-data".toMediaTypeOrNull(),
                     clinicLongitude.value)
-                if (clinicImage.value !== null) {
-                    val imageFile = clinicImage.value?.let { getFile(context, it) }
+                if (changedClinicImage.value !== null) {
+                    val imageFile = changedClinicImage.value?.let { getFile(context, it) }
                     if (imageFile !== null) {
                         val imageRequest =
                             RequestBody.create("multipart/form-data".toMediaTypeOrNull(), imageFile)
@@ -390,9 +422,8 @@ class EditClinicProfileViewModel @Inject constructor(
                                         if (data.longitude !== null) data.longitude.toString() else ""
                                     _selectedVillageOption.value =
                                         if (data.villageId !== null) DropdownOption(data.villageId.toString(),
-                                            "") else null
+                                            selectedVillageOption.value) else null
                                     _initialClinicImage.value = data.image ?: ""
-                                    _clinicImage.value = null
                                 } else {
                                     setMessage(response.data?.body()?.status?.message as String)
                                 }
@@ -405,10 +436,8 @@ class EditClinicProfileViewModel @Inject constructor(
                         }
                     }
                 } else {
-                    if(initialClinicImage.value.isEmpty() && clinicImage.value == null) {
-                        val storedClinicImage = userRepository.getUserImage()
-                        if(storedClinicImage !== null) {
-                            if (storedClinicImage.isNotEmpty()) {
+                    if(clinicImage.value.isEmpty() && changedClinicImage.value == null) {
+                        if(initialClinicImage.value.isNotEmpty()) {
                                 val deleteImageResponse = viewModelScope.async(Dispatchers.IO) {
                                     petClinicRepository.deletePetClinicImage(userId)
                                 }.await()
@@ -417,7 +446,6 @@ class EditClinicProfileViewModel @Inject constructor(
                                         val data = deleteImageResponse.data?.body()?.data
                                         if (data !== null) {
                                             _initialClinicImage.value = data.image ?: ""
-                                            _clinicImage.value = null
                                         } else {
                                             setMessage(deleteImageResponse.data?.body()?.status?.message as String)
                                         }
@@ -426,7 +454,6 @@ class EditClinicProfileViewModel @Inject constructor(
                                         setMessage(deleteImageResponse.data?.message() as String)
                                         return false
                                     }
-                                }
                             }
                         }
                     }
@@ -457,9 +484,8 @@ class EditClinicProfileViewModel @Inject constructor(
                                     if (data.longitude !== null) data.longitude.toString() else ""
                                 _selectedVillageOption.value =
                                     if (data.villageId !== null) DropdownOption(data.villageId.toString(),
-                                        "") else null
+                                        selectedVillageOption.value) else null
                                 _initialClinicImage.value = data.image ?: ""
-                                _clinicImage.value = null
                             } else {
                                 setMessage(response.data?.body()?.status?.message as String)
                             }
@@ -477,19 +503,9 @@ class EditClinicProfileViewModel @Inject constructor(
         return false
     }
 
-    suspend fun saveClinic(){
+    suspend fun updateLocalUser(){
         userRepository.saveUserName(clinicName.value)
         userRepository.saveUserEmail(clinicEmail.value)
-        userRepository.saveUserImage(initialClinicImage.value)
-        userRepository.saveUserPhoneNum(clinicPhoneNum.value)
-        userRepository.saveUserAddress(clinicAddress.value)
-        val selectedVillageOption = selectedVillageOption.value
-        if(selectedVillageOption !== null) {
-            if(selectedVillageOption.id.trim().isNotEmpty()) userRepository.saveUserVillageId(selectedVillageOption.id.toLong())
-            else userRepository.saveUserVillageId(0)
-        }
-        userRepository.saveUserLatitude(if(clinicLatitude.value.trim().isNotEmpty()) clinicLatitude.value.toDouble() else 0.0)
-        userRepository.saveUserLongitude(if(clinicLongitude.value.trim().isNotEmpty()) clinicLongitude.value.toDouble() else 0.0)
     }
 
     private fun getFile(context: Context, uri: Uri): File? {

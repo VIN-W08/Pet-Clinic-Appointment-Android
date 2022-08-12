@@ -2,7 +2,6 @@ package com.example.vin.petclinicappointment.ui.components.service
 
 import androidx.lifecycle.viewModelScope
 import com.example.vin.petclinicappointment.data.model.Call
-import com.example.vin.petclinicappointment.data.model.ResponseStatus
 import com.example.vin.petclinicappointment.data.model.Service
 import com.example.vin.petclinicappointment.data.repository.ServiceRepository
 import com.example.vin.petclinicappointment.data.repository.UserRepository
@@ -12,8 +11,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import org.json.JSONObject
-import retrofit2.Response
+import kotlinx.coroutines.launch
 import java.text.DecimalFormat
 import javax.inject.Inject
 
@@ -22,11 +20,20 @@ class ServiceViewModel @Inject constructor(
     private val serviceRepository: ServiceRepository,
     private val userRepository: UserRepository
 ): BaseViewModel() {
+    private val _userId = MutableStateFlow<Int?>(null)
+    val userId = _userId.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            _userId.value = userRepository.getUserId()
+        }
+    }
+
     private val _serviceList = MutableStateFlow<List<Service>>(listOf())
     val serviceList = _serviceList.asStateFlow()
 
     suspend fun getServiceList(){
-        val userId = userRepository.getUserId()
+        val userId = userId.value
         if(userId !== null) {
             val response = viewModelScope.async(Dispatchers.IO) {
                 serviceRepository.getServiceList(

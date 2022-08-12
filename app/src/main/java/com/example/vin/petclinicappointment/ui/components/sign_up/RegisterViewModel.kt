@@ -3,6 +3,7 @@ package com.example.vin.petclinicappointment.ui.components.sign_up
 import android.util.Patterns
 import androidx.lifecycle.viewModelScope
 import com.example.vin.petclinicappointment.data.model.*
+import com.example.vin.petclinicappointment.data.repository.CustomerRepository
 import com.example.vin.petclinicappointment.data.repository.LocationRepository
 import com.example.vin.petclinicappointment.data.repository.PetClinicRepository
 import com.example.vin.petclinicappointment.data.repository.UserRepository
@@ -21,6 +22,7 @@ import javax.inject.Inject
 @HiltViewModel
 class RegisterViewModel @Inject constructor(
     private val userRepository: UserRepository,
+    private val customerRepository: CustomerRepository,
     private val petClinicRepository: PetClinicRepository,
     private val locationRepository: LocationRepository
 ): BaseViewModel() {
@@ -48,12 +50,6 @@ class RegisterViewModel @Inject constructor(
 
     private val _isLoggedIn = MutableStateFlow(false)
     val isLoggedIn = _isLoggedIn.asStateFlow()
-
-    private val _customer = MutableStateFlow<User?>(null)
-    val customer = _customer.asStateFlow()
-
-    private val _clinic = MutableStateFlow<PetClinic?>(null)
-    val clinic = _clinic.asStateFlow()
 
     private val _provinceList = MutableStateFlow(listOf<Province>())
     val provinceList = _provinceList.asStateFlow()
@@ -125,70 +121,101 @@ class RegisterViewModel @Inject constructor(
     }
 
 
-    private fun validateCustomer(user: User): Boolean {
+    private fun validateUser(role: String): Boolean {
         val passwordRegex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[a-zA-Z\\d]{8,}\$"
         val passwordPattern = Pattern.compile(passwordRegex)
-        if(user.email.trim().isEmpty() || !Patterns.EMAIL_ADDRESS.matcher(user.email.trim()).matches()){
+        if(name.value.trim().isEmpty()){
+            setMessage("Nama wajib diinput")
             return false
         }
-        if(user.password == null || !passwordPattern.matcher(user.password.trim()).matches()){
+        if(email.value.trim().isEmpty()){
+            setMessage("Email wajib diinput")
             return false
         }
-        if(user.name == null){
+        if(!Patterns.EMAIL_ADDRESS.matcher(email.value.trim()).matches()){
+            setMessage("Format email tidak valid")
             return false
-        }else if(user.name.trim().isEmpty()){
+        }
+        if(password.value.trim().isEmpty()){
+            setMessage("Kata sandi wajib diinput")
             return false
+        }
+        if(!passwordPattern.matcher(password.value.trim()).matches()){
+            setMessage("Kata sandi harus memiliki minimal 8 karakter yang terdiri huruf besar, huruf kecil, dan angka")
+            return false
+        }
+        if(role == "clinic") {
+            if(phoneNum.value.trim().isEmpty()){
+                setMessage("No. telp wajib diinput")
+                return false
+            }
+            if(address.value.trim().isEmpty()){
+                setMessage("Alamat wajib diinput")
+                return false
+            }
+            if(selectedVillageId.value == null){
+                setMessage("Kelurahan, kecamatan, kota/kabupatan, dan provinsi wajib diinput")
+                return false
+            }
+            if(latitude.value.trim().isEmpty()){
+                setMessage("Lintang wajib diinput")
+                return false
+            }
+            if(longitude.value.trim().isEmpty()){
+                setMessage("Bujur wajib diinput")
+                return false
+            }
         }
         return true
     }
 
-    suspend fun registerCustomer(user: User) {
-        if(validateCustomer(user)) {
-            if(user.password !== null) {
-                val response = viewModelScope.async(Dispatchers.IO) {
-                    userRepository.registerCustomer(RegisterBody(
-                        email = user.email,
-                        password = user.password,
-                        name = if (user.name !== null) user.name else ""
-                    ))
-                }.await()
-                when (response) {
-                    is Call.Success -> {
-                        val data = response.data?.body()?.data
-                        if (data == null) {
-                            setMessage(response.data?.body()?.status?.message as String)
-                            return
-                        }
-                        _customer.value =  Customer(
-                            id = data.customer.id,
-                            name = data.customer.name,
-                            email = data.customer.email
-                        )
-                        userRepository.saveUserRole(data.role)
-                        saveUserData(data.role)
-                        if (data.status) {
-                            _isLoggedIn.value = true
-                        }
+    suspend fun registerCustomer() {
+        if(validateUser("customer")) {
+            val response = viewModelScope.async(Dispatchers.IO) {
+                customerRepository.registerCustomer(RegisterBody(
+                    email = email.value,
+                    password = password.value,
+                    name = name.value
+                ))
+            }.await()
+            when (response) {
+                is Call.Success -> {
+                    val data = response.data?.body()?.data
+                    if (data == null) {
+                        setMessage(response.data?.body()?.status?.message as String)
+                        return
                     }
-                    else -> setMessage(response.data?.message() as String)
+                    saveUserData(data.customer)
+                    userRepository.saveUserRole(data.role)
+                    if (data.status) {
+                        _isLoggedIn.value = true
+                    }
                 }
+                else -> setMessage(response.data?.message() as String)
             }
         }
     }
 
-    suspend fun registerClinic(){
-        val selectedVillageId = selectedVillageId.value
-        if(selectedVillageId!== null) {
-            val nameRequest = RequestBody.create("multipart/form-data".toMediaTypeOrNull(), name.value)
-            val emailRequest = RequestBody.create("multipart/form-data".toMediaTypeOrNull(), email.value)
-            val passwordRequest = RequestBody.create("multipart/form-data".toMediaTypeOrNull(), password.value)
-            val phoneNumRequest = RequestBody.create("multipart/form-data".toMediaTypeOrNull(), phoneNum.value)
-            val addressRequest = RequestBody.create("multipart/form-data".toMediaTypeOrNull(), address.value)
-            val villageIdRequest = RequestBody.create("multipart/form-data".toMediaTypeOrNull(), selectedVillageId.toString())
-            val latitudeRequest = RequestBody.create("multipart/form-data".toMediaTypeOrNull(), latitude.value)
-            val longitudeRequest = RequestBody.create("multipart/form-data".toMediaTypeOrNull(), longitude.value)
+    suspend fun registerPetClinic(){
+        if(validateUser("clinic")) {
+            val nameRequest =
+                RequestBody.create("multipart/form-data".toMediaTypeOrNull(), name.value)
+            val emailRequest =
+                RequestBody.create("multipart/form-data".toMediaTypeOrNull(), email.value)
+            val passwordRequest =
+                RequestBody.create("multipart/form-data".toMediaTypeOrNull(), password.value)
+            val phoneNumRequest =
+                RequestBody.create("multipart/form-data".toMediaTypeOrNull(), phoneNum.value)
+            val addressRequest =
+                RequestBody.create("multipart/form-data".toMediaTypeOrNull(), address.value)
+            val villageIdRequest = RequestBody.create("multipart/form-data".toMediaTypeOrNull(),
+                selectedVillageId.value.toString())
+            val latitudeRequest =
+                RequestBody.create("multipart/form-data".toMediaTypeOrNull(), latitude.value)
+            val longitudeRequest =
+                RequestBody.create("multipart/form-data".toMediaTypeOrNull(), longitude.value)
             val response = viewModelScope.async(Dispatchers.IO) {
-                petClinicRepository.createPetClinic(
+                petClinicRepository.registerPetClinic(
                     nameRequest,
                     emailRequest,
                     passwordRequest,
@@ -203,25 +230,13 @@ class RegisterViewModel @Inject constructor(
                 is Call.Success -> {
                     val data = response.data?.body()?.data
                     if (data !== null) {
-                        _clinic.value = data.pet_clinic.let {
-                            PetClinic(
-                                id = it.id,
-                                name = it.name,
-                                email = it.email,
-                                password = it.password,
-                                phoneNum = it.phoneNum,
-                                address = it.address,
-                                villageId = it.villageId,
-                                rating = it.rating,
-                                latitude = it.latitude,
-                                longitude = it.longitude
-                            )
-                        }
+                        saveUserData(data.pet_clinic)
                         userRepository.saveUserRole(data.role)
-                        saveUserData(data.role)
                         if (data.status) {
                             _isLoggedIn.value = true
                         }
+                    }else{
+                        setMessage(response.data?.body()?.status?.message as String)
                     }
                 }
                 else -> {
@@ -311,25 +326,10 @@ class RegisterViewModel @Inject constructor(
         }
     }
 
-    private suspend fun saveUserData(role: String) {
-        if(role == "customer") {
-            _customer.value?.let {
-                userRepository.saveUserId(it.id ?: 0)
-                userRepository.saveUserName(it.name ?: "")
-                userRepository.saveUserEmail(it.email)
-            }
-        }else if(role == "clinic") {
-            _clinic.value?.let {
-                userRepository.saveUserId(it.id ?: 0)
-                userRepository.saveUserName(it.name?:"")
-                userRepository.saveUserEmail(it.email)
-                userRepository.saveUserImage(it.image ?: "")
-                userRepository.saveUserPhoneNum(it.phoneNum ?: "")
-                userRepository.saveUserAddress(it.address ?: "")
-                userRepository.saveUserVillageId(it.villageId ?: 0)
-                userRepository.saveUserLatitude(it.latitude ?: 0.0)
-                userRepository.saveUserLongitude(it.longitude ?: 0.0)
-            }
-        }
+    private suspend fun saveUserData(user: User) {
+        userRepository.saveUserId(user.id ?: 0)
+        userRepository.saveUserName(user.name ?: "")
+        userRepository.saveUserEmail(user.email)
+        userRepository.saveUserPassword(user.password ?: "")
     }
 }

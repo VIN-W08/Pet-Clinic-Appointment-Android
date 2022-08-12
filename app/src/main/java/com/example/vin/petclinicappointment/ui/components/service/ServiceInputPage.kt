@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.vin.petclinicappointment.ui.components.common.*
 import com.example.vin.petclinicappointment.ui.theme.PetClinicAppointmentTheme
@@ -29,7 +30,8 @@ fun ServiceInputPage(
     serviceId: Int? = null,
     pageType: String,
     navigateBack: () -> Unit,
-    navigateToService: ((serviceId: Int) -> Unit)? = null,
+    navigateToService: (() -> Unit)? = null,
+    navigateToServiceDetail: ((serviceId: Int) -> Unit)? = null,
     scaffoldState: ScaffoldState
 ){
     val localFocusManager = LocalFocusManager.current
@@ -45,7 +47,9 @@ fun ServiceInputPage(
             val isSuccess = serviceInputViewModel.addService()
             progressIndicatorVisible = false
             if(isSuccess) {
-                navigateBack()
+                if (navigateToService != null) {
+                    navigateToService()
+                }
             }
         }
     }
@@ -56,19 +60,21 @@ fun ServiceInputPage(
             val isSuccess = serviceInputViewModel.updateService()
             progressIndicatorVisible = false
             if(isSuccess) {
-                navigateBack()
+                if (navigateToServiceDetail != null && serviceId != null) {
+                    navigateToServiceDetail(serviceId)
+                }
             }
         }
     }
 
-    fun onClickDeleteSchedule(){
+    fun onClickDeleteService(){
         coroutineScope.launch {
             progressIndicatorVisible = true
             val isSuccess = serviceInputViewModel.deleteService()
             progressIndicatorVisible = false
             if(isSuccess) {
-                if (navigateToService !== null && serviceId !== null) {
-                    navigateToService(serviceId)
+                if (navigateToService !== null) {
+                    navigateToService()
                 }
             }
         }
@@ -175,7 +181,7 @@ fun ServiceInputPage(
                 Divider(Modifier.fillMaxWidth())
                 if(pageType !== "add") {
                     AppButton(
-                        onClick = { onClickDeleteSchedule() },
+                        onClick = { onClickDeleteService() },
                         modifier = Modifier
                             .padding(
                                 start = PetClinicAppointmentTheme.dimensions.grid_2,
@@ -206,7 +212,8 @@ fun ServiceInputPage(
                         .padding(
                             start = PetClinicAppointmentTheme.dimensions.grid_2,
                             end = PetClinicAppointmentTheme.dimensions.grid_2,
-                            bottom = PetClinicAppointmentTheme.dimensions.grid_2
+                            bottom = PetClinicAppointmentTheme.dimensions.grid_2,
+                            top = if(pageType == "add") PetClinicAppointmentTheme.dimensions.grid_2 else 0.dp
                         )
                         .fillMaxWidth()
                         .height(PetClinicAppointmentTheme.dimensions.grid_5_5),

@@ -40,8 +40,12 @@ fun CustomerProfilePage(
 
     LaunchedEffect(Unit){
         progressIndicatorVisible = true
-        customerProfileViewModel.getUserData()
+        customerProfileViewModel.getCustomerDetail()
         progressIndicatorVisible = false
+    }
+
+    fun checkDataReady(): Boolean {
+        return name.trim().isNotEmpty() && email.trim().isNotEmpty()
     }
 
     fun logout(){
@@ -74,7 +78,7 @@ fun CustomerProfilePage(
                     style = PetClinicAppointmentTheme.typography.h1
                 )
             }
-            if(!progressIndicatorVisible) {
+            if(checkDataReady()) {
                 Column(
                     Modifier
                         .weight(1f)

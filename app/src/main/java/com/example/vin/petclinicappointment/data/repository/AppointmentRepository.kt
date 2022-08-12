@@ -26,14 +26,20 @@ class AppointmentRepository {
         clinicId: Int? = null,
         status: Int? = null,
         startSchedule: String? = null,
-        finished: Boolean? = null
+        fromSchedule: String? = null,
+        finished: Boolean? = null,
+        sortOrder: String? = null,
+        pageNumber: Int? = null
     ): Call<Response<GetAppointmentListResponse>>{
         val response = apiService.getAppointmentList(
             customerId = customerId,
             clinicId = clinicId,
             status = status,
             startSchedule = startSchedule,
-            finished = finished
+            fromSchedule = fromSchedule,
+            finished = finished,
+            sortOrder = sortOrder,
+            pageNumber = pageNumber
         )
         if(response.isSuccessful){
             return Call.Success(response)

@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.vin.petclinicappointment.ui.components.common.*
 import com.example.vin.petclinicappointment.ui.theme.PetClinicAppointmentTheme
@@ -31,6 +32,7 @@ fun ServiceScheduleInputPage(
     serviceScheduleId: Int? = null,
     pageType: String,
     navigateBack: () -> Unit,
+    navigateToServiceDetail: (serviceId: Int) -> Unit,
     serviceScheduleInputViewModel: ServiceScheduleInputViewModel = hiltViewModel(),
     scaffoldState: ScaffoldState
 ){
@@ -50,7 +52,9 @@ fun ServiceScheduleInputPage(
             val isSuccess = serviceScheduleInputViewModel.addServiceSchedule()
             progressIndicatorVisible = false
             if(isSuccess) {
-                navigateBack()
+                if (serviceId != null) {
+                    navigateToServiceDetail(serviceId)
+                }
             }
         }
     }
@@ -61,7 +65,9 @@ fun ServiceScheduleInputPage(
             val isSuccess = serviceScheduleInputViewModel.deleteServiceSchedule()
             progressIndicatorVisible = false
             if(isSuccess) {
-                navigateBack()
+                if (serviceId != null) {
+                    navigateToServiceDetail(serviceId)
+                }
             }
         }
     }
@@ -72,7 +78,9 @@ fun ServiceScheduleInputPage(
             val isSuccess = serviceScheduleInputViewModel.updateServiceSchedule()
             progressIndicatorVisible = false
             if(isSuccess) {
-                navigateBack()
+                if (serviceId != null) {
+                    navigateToServiceDetail(serviceId)
+                }
             }
         }
     }
@@ -92,6 +100,14 @@ fun ServiceScheduleInputPage(
             serviceScheduleInputViewModel.populateServiceScheduleData()
         }else if(serviceId !== null && pageType == "add"){
             serviceScheduleInputViewModel.setServiceId(serviceId)
+        }
+    }
+
+    LaunchedEffect(startDate, endDate){
+        if(startDate !== null && endDate == null){
+            serviceScheduleInputViewModel.setEndDate(startDate)
+        }else if(endDate !== null && startDate == null){
+            serviceScheduleInputViewModel.setStartDate(endDate)
         }
     }
 
@@ -138,8 +154,6 @@ fun ServiceScheduleInputPage(
                     timeValue = if(startTime !== null) startTime.toString() else "",
                     onDateValueChange = { serviceScheduleInputViewModel.setStartDate(it) },
                     onTimeValueChange = { serviceScheduleInputViewModel.setStartTime(it) },
-                    minDate = System.currentTimeMillis(),
-                    maxDate = System.currentTimeMillis() + (6 * 24 * 60 * 60 * 1000),
                     required = pageType == "add",
                     modifier = Modifier
                         .padding(
@@ -157,8 +171,6 @@ fun ServiceScheduleInputPage(
                     timeValue = if(endTime !== null) endTime.toString() else "",
                     onDateValueChange = { serviceScheduleInputViewModel.setEndDate(it) },
                     onTimeValueChange = { serviceScheduleInputViewModel.setEndTime(it) },
-                    minDate = System.currentTimeMillis(),
-                    maxDate = System.currentTimeMillis() + (6 * 24 * 60 * 60 * 1000),
                     required = pageType == "add",
                     modifier = Modifier
                         .padding(
@@ -172,7 +184,6 @@ fun ServiceScheduleInputPage(
                     label = "Kuota",
                     value = quota,
                     onValueChange = { serviceScheduleInputViewModel.setQuota(it) },
-                    required = pageType == "add",
                     numberOnly = true,
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Number
@@ -185,6 +196,18 @@ fun ServiceScheduleInputPage(
                         )
                         .fillMaxWidth()
                 )
+                if(pageType == "add"){
+                    RepeatScheduleInput(
+                        serviceScheduleInputViewModel,
+                        modifier = Modifier
+                            .padding(
+                                start = PetClinicAppointmentTheme.dimensions.grid_2,
+                                end = PetClinicAppointmentTheme.dimensions.grid_2,
+                                bottom = PetClinicAppointmentTheme.dimensions.grid_4
+                            )
+                            .fillMaxWidth()
+                    )
+                }
                 if(pageType == "update") {
                     LabelSwitchInput(
                         label = "Status",
@@ -235,7 +258,8 @@ fun ServiceScheduleInputPage(
                         .padding(
                             start = PetClinicAppointmentTheme.dimensions.grid_2,
                             end = PetClinicAppointmentTheme.dimensions.grid_2,
-                            bottom = PetClinicAppointmentTheme.dimensions.grid_2
+                            bottom = PetClinicAppointmentTheme.dimensions.grid_2,
+                            top = if (pageType == "add") PetClinicAppointmentTheme.dimensions.grid_2 else 0.dp
                         )
                         .fillMaxWidth()
                         .height(PetClinicAppointmentTheme.dimensions.grid_5_5),
@@ -273,6 +297,37 @@ fun ServiceScheduleInputPage(
                         .size(PetClinicAppointmentTheme.dimensions.grid_2_5)
                 )
             }
+        }
+    }
+}
+
+@Composable
+fun RepeatScheduleInput(
+    serviceScheduleInputViewModel: ServiceScheduleInputViewModel,
+    modifier: Modifier = Modifier,
+){
+    val repeatScheduleEnable by serviceScheduleInputViewModel.repeatScheduleEnable.collectAsState()
+    val repeatScheduleWeekCount by serviceScheduleInputViewModel.repeatScheduleWeekCount.collectAsState()
+
+    Column(modifier = modifier) {
+        Row(
+            Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.End,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text("Jadwal Berulang Mingguan")
+            Checkbox(
+                checked = repeatScheduleEnable,
+                onCheckedChange = { serviceScheduleInputViewModel.setRepeatScheduleEnable(it) }
+            )
+        }
+        if(repeatScheduleEnable) {
+            LabelTextInput(
+                label = "Jumlah minggu jadwal berulang",
+                value = repeatScheduleWeekCount,
+                onValueChange = { serviceScheduleInputViewModel.setRepeatScheduleWeekCount(it) },
+                numberOnly = true
+            )
         }
     }
 }

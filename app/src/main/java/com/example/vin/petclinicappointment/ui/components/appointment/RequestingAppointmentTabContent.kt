@@ -1,31 +1,30 @@
 package com.example.vin.petclinicappointment.ui.components.appointment
 
-import androidx.compose.foundation.layout.Box
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.Surface
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.vin.petclinicappointment.ui.components.common.CircularProgressIndicator
+import androidx.paging.LoadState
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
+import com.example.vin.petclinicappointment.R
+import com.example.vin.petclinicappointment.data.model.AppointmentDetail
 import com.example.vin.petclinicappointment.ui.components.common.MessageView
+import com.example.vin.petclinicappointment.ui.components.common.ProgressIndicatorView
 import com.example.vin.petclinicappointment.ui.theme.PetClinicAppointmentTheme
 
 @Composable
 fun RequestingAppointmentTabContent(
     navigateToAppointmentDetail: (id: Int) -> Unit,
+    currentPage: Int,
     appointmentViewModel: AppointmentViewModel = hiltViewModel(),
 ){
-    var progressIndicatorVisible by rememberSaveable { mutableStateOf(false) }
-    val clinicRequestingAppointmentList by appointmentViewModel.clinicRequestingAppointmentList.collectAsState()
-
-    LaunchedEffect(Unit){
-        progressIndicatorVisible = true
-        appointmentViewModel.getClinicRequestingAppointmentList()
-        progressIndicatorVisible = false
-    }
+    val requestingAppointmentList = if(currentPage == 1) appointmentViewModel.requestingAppointmentList.collectAsLazyPagingItems() else null
 
     Surface(
         color = PetClinicAppointmentTheme.colors.background
@@ -33,23 +32,29 @@ fun RequestingAppointmentTabContent(
         Column(
             Modifier.fillMaxSize()
         ) {
-            if(clinicRequestingAppointmentList.isEmpty() && !progressIndicatorVisible) {
-                MessageView(
-                    message = "Tidak ada pengajuan janji temu",
-                    modifier = Modifier.fillMaxSize()
-                )
-            }else {
-                AppointmentList(
-                    appointmentList = clinicRequestingAppointmentList,
-                    navigateToAppointmentDetail = navigateToAppointmentDetail
-                )
+            requestingAppointmentList.apply {
+                if(this !== null) {
+                    AppointmentList(
+                        appointmentList = this,
+                        navigateToAppointmentDetail = navigateToAppointmentDetail
+                    )
+                    when {
+                        loadState.refresh == LoadState.Loading -> {
+                            ProgressIndicatorView(Modifier.fillMaxSize())
+                        }
+                        loadState.append == LoadState.Loading -> {
+                            ProgressIndicatorView(Modifier.fillMaxWidth())
+                        }
+                        (loadState.refresh is LoadState.NotLoading &&
+                                this.itemCount == 0) -> {
+                            MessageView(
+                                message = stringResource(R.string.no_requesting_appointment),
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        }
+                    }
+                }
             }
-        }
-        Box(
-            Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            CircularProgressIndicator(visible = progressIndicatorVisible)
         }
     }
 }

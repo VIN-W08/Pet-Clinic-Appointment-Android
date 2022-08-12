@@ -69,6 +69,8 @@ fun PetClinicDetailPage(
         progressIndicatorVisible = false
     }
 
+    fun checkDataReady(): Boolean = clinicDetail !== null
+
     val clinicName = clinicDetail?.name
     val clinicImage = clinicDetail?.image
 
@@ -86,8 +88,7 @@ fun PetClinicDetailPage(
             },
         color = PetClinicAppointmentTheme.colors.background
     ) {
-        if(!progressIndicatorVisible){
-        if(clinicDetail?.equals(null) == false) {
+        if(checkDataReady()) {
             Column {
                 Column(
                     Modifier
@@ -175,7 +176,7 @@ fun PetClinicDetailPage(
                         Divider(Modifier.fillMaxWidth())
                         clinicDetail?.serviceList?.let {
                             ServiceList(
-                                serviceList = it,
+                                serviceList = it.filter { service -> service.status },
                                 modifier = Modifier.weight(1f),
                                 modalBottomSheetState,
                                 petClinicDetailViewModel
@@ -213,7 +214,6 @@ fun PetClinicDetailPage(
                     visible = progressIndicatorVisible
                 )
             }
-        }
     }
 }
 
@@ -255,6 +255,7 @@ fun ServiceItem(
             Modifier
                 .clickable {
                     petClinicDetailViewModel.setSelectedServiceId(service.id)
+                    petClinicDetailViewModel.setSelectedServiceName(service.name)
                     coroutineScope.launch {
                         modalBottomSheetState.animateTo(ModalBottomSheetValue.Expanded)
                     }
@@ -284,82 +285,72 @@ fun ServiceScheduleContent(
     id: Int?,
     onClickRegisterAppointment: () -> Unit
 ) {
-    val serviceDetail by petClinicDetailViewModel.serviceDetail.collectAsState()
+    val selectedServiceName by petClinicDetailViewModel.selectedServiceName.collectAsState()
     val selectedScheduleId by petClinicDetailViewModel.selectedScheduleId.collectAsState()
-    val serviceName = serviceDetail?.name
-    val scheduleList = serviceDetail?.scheduleList
+    val scheduleList by petClinicDetailViewModel.scheduleList.collectAsState()
 
-    LaunchedEffect(Unit){
-        if(id !== null) {
-            petClinicDetailViewModel.getServiceDetail(id)
+    Column(
+        Modifier.pointerInput(Unit) {
+            detectTapGestures(onTap = {
+                petClinicDetailViewModel.setSelectedScheduleId(null)
+            })
         }
-    }
-
-    if(serviceDetail?.equals(null) == false) {
+    ) {
         Column(
-            Modifier.pointerInput(Unit) {
-                detectTapGestures(onTap = {
-                    petClinicDetailViewModel.setSelectedScheduleId(null)
-                })
-            }
+            Modifier.padding(PetClinicAppointmentTheme.dimensions.grid_2)
         ) {
-            if (scheduleList != null) {
-                Column(
-                    Modifier.padding(PetClinicAppointmentTheme.dimensions.grid_2)
-                ) {
-                    Text(
-                        "Jadwal $serviceName",
-                        style = PetClinicAppointmentTheme.typography.h2
-                    )
-                }
-                DateList(
-                    petClinicDetailViewModel,
-                    modifier = Modifier.padding(
-                        start = PetClinicAppointmentTheme.dimensions.grid_2,
-                        bottom = PetClinicAppointmentTheme.dimensions.grid_2
-                    )
-                )
-                Divider(Modifier.fillMaxWidth())
-                if (id !== null) {
-                    TimeList(
-                        modifier = Modifier.weight(1f),
-                        petClinicDetailViewModel
-                    )
+            Text(
+                "Jadwal $selectedServiceName",
+                style = PetClinicAppointmentTheme.typography.h2
+            )
+        }
+        DateList(
+            petClinicDetailViewModel,
+            modifier = Modifier.padding(
+                start = PetClinicAppointmentTheme.dimensions.grid_2,
+                bottom = PetClinicAppointmentTheme.dimensions.grid_2
+            )
+        )
+        Divider(Modifier.fillMaxWidth())
+        if (id !== null) {
+            TimeList(
+                scheduleList = scheduleList.filter { schedule -> schedule.status },
+                modifier = Modifier.weight(1f),
+                petClinicDetailViewModel = petClinicDetailViewModel
+            )
 
-                    Column(
-                        Modifier
-                            .fillMaxWidth(),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        Divider(Modifier.fillMaxWidth())
-                        AppButton(
-                            onClick = onClickRegisterAppointment,
-                            disabled = selectedScheduleId == null,
-                            modifier = Modifier
-                                .padding(PetClinicAppointmentTheme.dimensions.grid_2)
-                                .fillMaxWidth()
-                                .height(PetClinicAppointmentTheme.dimensions.grid_5_5),
-                            colors = ButtonDefaults.buttonColors(PetClinicAppointmentTheme.colors.primary),
-                            shape = RoundedCornerShape(PetClinicAppointmentTheme.dimensions.grid_5)
-                        ) {
-                            Text("Daftar")
-                        }
-                    }
-                } else {
-                    Column(
-                        Modifier
-                            .fillMaxWidth()
-                            .weight(1f)
-                            .padding(PetClinicAppointmentTheme.dimensions.grid_2),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            "Maaf, jadwal layanan $serviceName tidak tersedia.",
-                            style = PetClinicAppointmentTheme.typography.h2,
-                        )
-                    }
+            Column(
+                Modifier
+                    .fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Divider(Modifier.fillMaxWidth())
+                AppButton(
+                    onClick = onClickRegisterAppointment,
+                    disabled = selectedScheduleId == null,
+                    modifier = Modifier
+                        .padding(PetClinicAppointmentTheme.dimensions.grid_2)
+                        .fillMaxWidth()
+                        .height(PetClinicAppointmentTheme.dimensions.grid_5_5),
+                    colors = ButtonDefaults.buttonColors(PetClinicAppointmentTheme.colors.primary),
+                    shape = RoundedCornerShape(PetClinicAppointmentTheme.dimensions.grid_5)
+                ) {
+                    Text("Daftar")
                 }
+            }
+        } else {
+            Column(
+                Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .padding(PetClinicAppointmentTheme.dimensions.grid_2),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    "Maaf, jadwal layanan $selectedServiceName tidak tersedia.",
+                    style = PetClinicAppointmentTheme.typography.h2,
+                )
             }
         }
     }
@@ -419,9 +410,9 @@ fun DateItem(
 @Composable
 fun TimeList(
     modifier: Modifier = Modifier,
+    scheduleList: List<ServiceSchedule>,
     petClinicDetailViewModel: PetClinicDetailViewModel
 ){
-    val scheduleList by petClinicDetailViewModel.scheduleList.collectAsState()
     val selectedDate by petClinicDetailViewModel.selectedDate.collectAsState()
 
     LaunchedEffect(selectedDate){
@@ -449,6 +440,7 @@ fun TimeItem(
     schedule: ServiceSchedule,
     petClinicDetailViewModel: PetClinicDetailViewModel
 ){
+    if(!schedule.status) return
     val selectedScheduleId by petClinicDetailViewModel.selectedScheduleId.collectAsState()
     val startScheduleDateTime = LocalDateTime.parse(schedule.startSchedule)
     val currentDateTime = LocalDateTime.now()

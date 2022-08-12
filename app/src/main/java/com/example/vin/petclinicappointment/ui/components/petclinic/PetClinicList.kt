@@ -1,10 +1,8 @@
 package com.example.vin.petclinicappointment.ui.components.petclinic
 
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -13,32 +11,58 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
+import androidx.paging.LoadState
+import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.items
 import com.example.vin.petclinicappointment.R
 import com.example.vin.petclinicappointment.data.model.PetClinic
 import com.example.vin.petclinicappointment.ui.theme.PetClinicAppointmentTheme
 import com.example.vin.petclinicappointment.ui.components.common.Image
+import com.example.vin.petclinicappointment.ui.components.common.MessageView
+import com.example.vin.petclinicappointment.ui.components.common.ProgressIndicatorView
 import java.text.DecimalFormat
-import java.text.DecimalFormatSymbols
-import java.util.*
 
 @Composable
 fun PetClinicList(
-    petClinicList: List<PetClinic>,
+    searchPetClinicListViewModel: SearchPetClinicListViewModel,
     navigateToDetail: (id: Int) -> Unit
 ){
+    val clinicList = searchPetClinicListViewModel.sortedClinicList.collectAsLazyPagingItems()
     Column(
         Modifier.fillMaxHeight()
     ) {
         LazyColumn {
-            items(petClinicList) { petClinic ->
-                PetClinicListItem(
-                    modifier =  Modifier.height(PetClinicAppointmentTheme.dimensions.grid_4 * 3),
-                    petClinic,
-                    navigateToDetail = navigateToDetail
-                )
+            items(clinicList) { petClinic ->
+                if (petClinic != null) {
+                    PetClinicListItem(
+                        modifier = Modifier.height(PetClinicAppointmentTheme.dimensions.grid_4 * 3),
+                        petClinic,
+                        navigateToDetail = navigateToDetail
+                    )
+                }
+            }
+            clinicList.apply {
+                when {
+                    loadState.refresh is LoadState.Loading -> {
+                        item { ProgressIndicatorView(modifier = Modifier.fillParentMaxSize()) }
+                    }
+                    loadState.append is LoadState.Loading -> {
+                        item { ProgressIndicatorView(Modifier.fillMaxWidth()) }
+                    }
+                    (loadState.refresh is LoadState.NotLoading &&
+                            clinicList.itemCount == 0) -> {
+                        item {
+                            MessageView(
+                                message = stringResource(R.string.clinic_not_found),
+                                modifier = Modifier
+                                    .fillParentMaxSize()
+                            )
+                        }
+                    }
+                }
             }
         }
     }

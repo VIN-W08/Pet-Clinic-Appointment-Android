@@ -18,4 +18,13 @@
     <string name="change">Ubah</string>
     <string name="new_password">Kata Sandi Baru</string>
     <string name="email">Email</string>
+    <string name="coming_soon_appointment">Janji Temu Yang Akan Datang</string>
+    <string name="no_coming_soon_appointment">Tidak ada janji temu yang akan datang</string>
+    <string name="past_appointment">Janji Temu Lalu</string>
+    <string name="current_appointment">Janji Temu Saat Ini</string>
+    <string name="no_past_appointment">Tidak ada riwayat janji temu</string>
+    <string name="clinic_not_found">Klinik tidak ditemukan</string>
+    <string name="no_approved_appointment">Tidak ada persetujuan janji temu</string>
+    <string name="no_requesting_appointment">Tidak ada pengajuan janji temu</string>
+    <string name="clinic_operation_status">Status Operasi Klinik</string>
 </resources>

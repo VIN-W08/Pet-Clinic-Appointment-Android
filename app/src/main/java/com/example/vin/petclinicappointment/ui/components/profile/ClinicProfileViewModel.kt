@@ -2,22 +2,33 @@ package com.example.vin.petclinicappointment.ui.components.profile
 
 import androidx.lifecycle.viewModelScope
 import com.example.vin.petclinicappointment.data.model.Call
+import com.example.vin.petclinicappointment.data.model.UpdateClinicStatusBody
 import com.example.vin.petclinicappointment.data.repository.LocationRepository
+import com.example.vin.petclinicappointment.data.repository.PetClinicRepository
 import com.example.vin.petclinicappointment.data.repository.UserRepository
 import com.example.vin.petclinicappointment.ui.BaseViewModel
-import com.example.vin.petclinicappointment.ui.components.common.DropdownOption
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class ClinicProfileViewModel @Inject constructor(
     private val userRepository: UserRepository,
-    private val locationRepository: LocationRepository
+    private val locationRepository: LocationRepository,
+    private val petClinicRepository: PetClinicRepository
 ): BaseViewModel() {
+    private val _userId = MutableStateFlow<Int?>(null)
+    val userId = _userId.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            _userId.value = userRepository.getUserId()
+        }
+    }
 
     private val _clinicName = MutableStateFlow("")
     val clinicName = _clinicName.asStateFlow()
@@ -52,20 +63,14 @@ class ClinicProfileViewModel @Inject constructor(
     private val _clinicProvinceId = MutableStateFlow<Long?>(null)
     val clinicProvinceId = _clinicProvinceId.asStateFlow()
 
+    private val _clinicStatus = MutableStateFlow<Boolean?>(null)
+    val clinicStatus = _clinicStatus.asStateFlow()
+
     private val _clinicLocationName = MutableStateFlow("")
     val clinicLocationName = _clinicLocationName.asStateFlow()
 
-    suspend fun getClinicData(){
-        userRepository.let {
-            _clinicName.value = it.getUserName() ?: ""
-            _clinicEmail.value = it.getUserEmail() ?: ""
-            _clinicImage.value = it.getUserImage() ?: ""
-            _clinicPhoneNum.value = it.getUserPhoneNum() ?: ""
-            _clinicAddress.value = it.getUserAddress() ?: ""
-            _clinicVillageId.value = it.getUserVillageId()
-            _clinicLatitude.value = it.getUserLatitude()
-            _clinicLongitude.value = it.getUserLongitude()
-        }
+    fun setClinicStatus(value: Boolean){
+        _clinicStatus.value = value
     }
 
     suspend fun getVillageDetail(){
@@ -143,10 +148,59 @@ class ClinicProfileViewModel @Inject constructor(
         }
     }
 
-    suspend fun logout(){
-        val userRole = userRepository.getUserRole()
-        if (userRole != null) {
-            userRepository.logout(userRole)
+    suspend fun getPetClinicDetail() {
+        val userId = userId.value
+        if (userId !== null) {
+            val response = viewModelScope.async(Dispatchers.IO) {
+                petClinicRepository.getPetClinicDetail(userId)
+            }.await()
+            when (response) {
+                is Call.Success -> {
+                    val data = response.data?.body()?.data
+                    if (data !== null) {
+                        _clinicName.value = data.name ?: ""
+                        _clinicEmail.value = data.email ?: ""
+                        _clinicImage.value = data.image ?: ""
+                        _clinicPhoneNum.value = data.phoneNum ?: ""
+                        _clinicAddress.value = data.address ?: ""
+                        _clinicVillageId.value = data.villageId
+                        _clinicLatitude.value = data.latitude
+                        _clinicLongitude.value = data.longitude
+                        _clinicStatus.value = data.status
+                    } else {
+                        setMessage(response.data?.body()?.status?.message as String)
+                    }
+                }
+                else -> setMessage(response.data?.message() as String)
+            }
         }
     }
+
+    suspend fun updateClinicStatus(status: Boolean): Boolean {
+        val userId = userId.value
+        if (userId !== null) {
+            val body = UpdateClinicStatusBody(status = status)
+            val response = viewModelScope.async(Dispatchers.IO) {
+                petClinicRepository.updateStatus(userId, body)
+            }.await()
+            return when (response) {
+                is Call.Success -> {
+                    val data = response.data?.body()?.data
+                    if (data !== null) {
+                        _clinicStatus.value = data.status
+                    } else {
+                        setMessage(response.data?.body()?.status?.message as String)
+                    }
+                    data !== null
+                }
+                else -> {
+                    setMessage(response.data?.message() as String)
+                    return false
+                }
+            }
+        }
+        return false
+    }
+
+    suspend fun logout() = userRepository.logout()
 }

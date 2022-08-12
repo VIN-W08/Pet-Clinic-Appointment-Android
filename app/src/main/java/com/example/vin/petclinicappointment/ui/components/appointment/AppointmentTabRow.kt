@@ -69,6 +69,6 @@ fun AppointmentTabContent(
     navigateToAppointmentDetail: (id: Int) -> Unit
 ){
     HorizontalPager(count = tabs.size, state = pagerState) { idx ->
-        tabs[idx].view(navigateToAppointmentDetail)
+        tabs[idx].view(navigateToAppointmentDetail, pagerState.currentPage)
     }
 }

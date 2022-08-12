@@ -9,10 +9,6 @@ open class Appointment (
         val customer: Customer,
         @SerializedName("pet_clinic")
         val petClinic: PetClinic,
-        @SerializedName("total_payable")
-        val totalPayable: Float,
-        @SerializedName("payment_status")
-        val paymentStatus: Boolean,
         val note: String,
         val status: Int,
         @SerializedName("created_at")
@@ -21,8 +17,6 @@ open class Appointment (
 
 class AppointmentDetail(
         id: Int,
-        totalPayable: Float,
-        paymentStatus: Boolean,
         note: String,
         status: Int,
         customerId: Int,
@@ -31,13 +25,19 @@ class AppointmentDetail(
         val service: Service,
         @SerializedName("schedule_service")
         val serviceSchedule: ServiceSchedule,
+        @SerializedName("service_name")
+        val serviceName: String,
+        @SerializedName("service_price")
+        val servicePrice: Float,
+        @SerializedName("start_schedule")
+        val startSchedule: String,
+        @SerializedName("end_schedule")
+        val endSchedule: String,
         createdAt: String
 ): Appointment(
         id = id,
         customer = customer,
         petClinic = petClinic,
-        totalPayable = totalPayable,
-        paymentStatus = paymentStatus,
         note = note,
         status = status,
         createdAt = createdAt

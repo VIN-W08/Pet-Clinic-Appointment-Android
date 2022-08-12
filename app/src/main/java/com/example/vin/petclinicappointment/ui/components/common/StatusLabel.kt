@@ -45,7 +45,7 @@ fun StatusLabel(
 
     var statusText = appointmentStatusCodeToMap[statusCode]
     if(statusText !== null) {
-        statusText = "${statusText[0].uppercase()}${statusText.substring(1)}"
+        statusText = statusText.replaceFirstChar { it.uppercase() }
     }
     val statusBackgroundColor = apppointmentStatusBackgroundColorMap[statusCode]
     val statusTextColor = appointmentStatusCodeToColorMap[statusCode]

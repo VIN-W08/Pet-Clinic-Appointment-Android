@@ -73,13 +73,9 @@ fun LoginPage(
         }
         progressIndicatorVisible = true
         coroutineScope.launch {
-            when(userRole.value) {
-                "customer" -> loginViewModel.login()
-                "clinic" -> loginViewModel.loginClinic()
-                else -> return@launch
-            }
+            val isSuccess = loginViewModel.login(userRole.value ?: "")
             progressIndicatorVisible = false
-            if (loginViewModel.isLoggedIn.value) {
+            if(isSuccess){
                 if(userRole.value.equals("customer")) {
                     navigateToCustomerHome()
                 }else if(userRole.value.equals("clinic")){

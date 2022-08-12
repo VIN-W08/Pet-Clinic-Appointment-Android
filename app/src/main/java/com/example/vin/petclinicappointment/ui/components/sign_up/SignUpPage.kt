@@ -21,9 +21,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.vin.petclinicappointment.data.model.Customer
 import com.example.vin.petclinicappointment.ui.components.common.*
-import com.example.vin.petclinicappointment.ui.components.profile.EditClinicProfileViewModel
 import com.example.vin.petclinicappointment.ui.theme.PetClinicAppointmentTheme
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -101,7 +99,7 @@ fun CustomerSignUpContent(
         }
         progressIndicatorVisible = true
         coroutineScope.launch {
-            registerViewModel.registerCustomer(Customer(email = email, password = password, name = name))
+            registerViewModel.registerCustomer()
             progressIndicatorVisible = false
             if (registerViewModel.isLoggedIn.value) {
                 navigateToHome()
@@ -234,8 +232,14 @@ fun CustomerSignUpContent(
                     ),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Row {
-                    Text("Sudah punya akun?")
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        "Sudah punya akun?",
+                        style = PetClinicAppointmentTheme.typography.h3,
+                        fontWeight = FontWeight.Normal
+                    )
                     Spacer(modifier = Modifier.width(PetClinicAppointmentTheme.dimensions.grid_1))
                     ClickableText(
                         text = AnnotatedString("Masuk"),
@@ -327,7 +331,7 @@ fun ClinicSignUpContent(
         }
         progressIndicatorVisible = true
         coroutineScope.launch {
-            registerViewModel.registerClinic()
+            registerViewModel.registerPetClinic()
             progressIndicatorVisible = false
             if (registerViewModel.isLoggedIn.value) {
                 navigateToHome()
@@ -621,7 +625,9 @@ fun ClinicSignUpContent(
                         fontWeight = FontWeight.Bold
                     )
                 }
-                Row {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     Text("Sudah punya akun?")
                     Spacer(modifier = Modifier.width(PetClinicAppointmentTheme.dimensions.grid_1))
                     ClickableText(

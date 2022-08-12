@@ -16,7 +16,10 @@ interface AppointmentApiService {
         @Query("clinic_id") clinicId: Int?,
         @Query("status") status: Int?,
         @Query("start_schedule") startSchedule: String?,
-        @Query("finished") finished: Boolean?
+        @Query("from_schedule") fromSchedule: String?,
+        @Query("finished") finished: Boolean?,
+        @Query("sort_order") sortOrder: String? = null,
+        @Query("page_number") pageNumber: Int? = null
     ): Response<GetAppointmentListResponse>
 
     @GET("appointment/{id}")

@@ -1,10 +1,7 @@
 package com.example.vin.petclinicappointment.ui.components.service
 
 import androidx.lifecycle.viewModelScope
-import com.example.vin.petclinicappointment.data.model.Call
-import com.example.vin.petclinicappointment.data.model.ResponseStatus
-import com.example.vin.petclinicappointment.data.model.ServiceDetail
-import com.example.vin.petclinicappointment.data.model.ServiceSchedule
+import com.example.vin.petclinicappointment.data.model.*
 import com.example.vin.petclinicappointment.data.repository.ServiceRepository
 import com.example.vin.petclinicappointment.data.repository.ServiceScheduleRepository
 import com.example.vin.petclinicappointment.ui.BaseViewModel
@@ -13,8 +10,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import org.json.JSONObject
-import retrofit2.Response
 import java.time.LocalDate
 import javax.inject.Inject
 
@@ -27,8 +22,8 @@ class ServiceDetailViewModel @Inject constructor(
     private val _serviceId = MutableStateFlow<Int?>(null)
     val serviceId = _serviceId.asStateFlow()
 
-    private val _serviceDetail = MutableStateFlow<ServiceDetail?>(null)
-    val serviceDetail = _serviceDetail.asStateFlow()
+    private val _service = MutableStateFlow<Service?>(null)
+    val service = _service.asStateFlow()
 
     private val _selectedServiceStartDate = MutableStateFlow<LocalDate>(LocalDate.now())
     val selectedServiceStartDate = _selectedServiceStartDate.asStateFlow()
@@ -54,7 +49,7 @@ class ServiceDetailViewModel @Inject constructor(
                 is Call.Success -> {
                     val data = response.data?.body()?.data
                     if (data !== null) {
-                        _serviceDetail.value = data
+                        _service.value = data
                     }else{
                         setMessage(response.data?.body()?.status?.message as String)
                     }

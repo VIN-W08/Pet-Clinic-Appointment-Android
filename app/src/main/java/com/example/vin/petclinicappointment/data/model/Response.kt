@@ -63,7 +63,7 @@ data class PetClinicDetailResponse (
 
 data class ServiceDetailResponse (
     val status: ResponseStatus,
-    val data: ServiceDetail
+    val data: Service
     )
 
 data class ServiceScheduleListResponse (
@@ -184,4 +184,14 @@ data class UpdateCustomerResponse(
 data class UpdatePasswordResponse(
     val status: ResponseStatus,
     val data: Any
+)
+
+data class UpdateClinicStatusResponse(
+    val status: ResponseStatus,
+    val data: PetClinic
+)
+
+data class GetCustomerDetailResponse(
+    val status: ResponseStatus,
+    val data: Customer
 )

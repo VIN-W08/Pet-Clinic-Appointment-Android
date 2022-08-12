@@ -11,6 +11,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -18,6 +19,15 @@ class ClinicScheduleViewModel @Inject constructor(
     private val clinicScheduleRepository: ClinicScheduleRepository,
     private val userRepository: UserRepository
 ): BaseViewModel() {
+
+    private val _userId = MutableStateFlow<Int?>(null)
+    val userId = _userId.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            _userId.value = userRepository.getUserId()
+        }
+    }
 
     private val _clinicScheduleList = MutableStateFlow<List<ClinicSchedule>>(listOf())
     val clinicScheduleList = _clinicScheduleList.asStateFlow()
@@ -33,7 +43,7 @@ class ClinicScheduleViewModel @Inject constructor(
     )
 
     suspend fun getClinicScheduleList(){
-        val userId = userRepository.getUserId()
+        val userId = userId.value
         if(userId !== null) {
             val response = viewModelScope.async(Dispatchers.IO) {
                 clinicScheduleRepository.getClinicScheduleList(userId, null)

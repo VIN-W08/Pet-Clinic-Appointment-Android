@@ -6,7 +6,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import com.example.vin.petclinicappointment.MainAppState
@@ -31,13 +30,6 @@ fun NavGraphBuilder.customerMainNavGraph (appState: MainAppState, scaffoldState:
             getGpsEnabledStatus = appState::getGpsEnabledStatus,
         )
     }
-    composable(route = "pet-clinic-list/{title}/{type}"){ navBackStackEntry ->
-        PetClinicListPage(
-            navBackStackEntry.arguments?.getString("title")?:"",
-            navBackStackEntry.arguments?.getString("type")?:"",
-            navigateBack = appState::navigateBack
-        )
-    }
     composable(route = "search-pet-clinic-list"){
         SearchPetClinicListPage(
             navigateToCurrentLocationMap = { appState.navigateTo("current-location-map") },
@@ -52,8 +44,13 @@ fun NavGraphBuilder.customerMainNavGraph (appState: MainAppState, scaffoldState:
             scaffoldState = scaffoldState,
             navigateBack = appState::navigateBack,
             selectedLocationState = appState.selectedLocation,
+            setSelectedLocation = appState::setSelectedLocation,
             deviceLocationState = appState.deviceLocation,
-            getDeviceLocation = appState::getDeviceLocation
+            getDeviceLocation = appState::getDeviceLocation,
+            navigateToSearchPetClinic = {
+                appState.navigateTo("search-pet-clinic-list",
+                    "search-pet-clinic-list")
+            }
         )
     }
     composable(route = "detail-pet-clinic/{id}"){ navBackStackEntry ->
@@ -74,7 +71,6 @@ fun NavGraphBuilder.customerMainNavGraph (appState: MainAppState, scaffoldState:
             scaffoldState = appState.scaffoldState
         )
     }
-
     composable(route = "location-map?name={name}&lat={lat}&lon={lon}"){ navBackStackEntry ->
         LocationMapPage(
             lat = navBackStackEntry.arguments?.getString("lat")?.toDouble() ?: 0.0,
@@ -99,6 +95,7 @@ fun NavGraphBuilder.customerMainNavGraph (appState: MainAppState, scaffoldState:
     composable(route = "profile/customer/update"){
         EditCustomerProfilePage(
             navigateBack = appState::navigateBack,
+            navigateToCustomerProfile = { appState.navigateTo("profile/customer", "profile/customer") },
             scaffoldState = appState.scaffoldState
         )
     }
@@ -140,8 +137,8 @@ fun NavGraphBuilder.clinicMainNavGraph (appState: MainAppState, scaffoldState: S
         ServiceDetailPage(
             serviceId = it.arguments?.getString("id")?.toInt() ?: 0,
             navigateToUpdateService = { id -> appState.navigateTo("service/update/$id")  },
-            navigateToAddServiceSchedule = { id -> appState.navigateTo("service/schedule/add/$id") },
-            navigateToServiceScheduleUpdate = { id -> appState.navigateTo("service/schedule/update/$id") },
+            navigateToAddServiceSchedule = { serviceId -> appState.navigateTo("service/schedule/add/$serviceId") },
+            navigateToServiceScheduleUpdate = { serviceId, id -> appState.navigateTo("service/schedule/update/$serviceId/$id") },
             navigateBack = appState::navigateBack,
             scaffoldState = appState.scaffoldState
         )
@@ -152,7 +149,8 @@ fun NavGraphBuilder.clinicMainNavGraph (appState: MainAppState, scaffoldState: S
             serviceId = it.arguments?.getString("id")?.toInt() ?: 0,
             pageType = "update",
             navigateBack = appState::navigateBack,
-            navigateToService = { id -> appState.navigateTo("service", "service/update/$id") },
+            navigateToService = { appState.navigateTo("service", "service") },
+            navigateToServiceDetail = { id -> appState.navigateTo("service/detail/$id", "service/detail/{id}") },
             scaffoldState = appState.scaffoldState
         )
     }
@@ -160,22 +158,26 @@ fun NavGraphBuilder.clinicMainNavGraph (appState: MainAppState, scaffoldState: S
         ServiceInputPage(
             pageType = "add",
             navigateBack = appState::navigateBack,
+            navigateToService = { appState.navigateTo("service", "service") },
             scaffoldState = appState.scaffoldState
         )
     }
-    composable(route = "service/schedule/add/{id}") {
+    composable(route = "service/schedule/add/{serviceId}") {
         ServiceScheduleInputPage(
             pageType = "add",
-            serviceId = it.arguments?.getString("id")?.toInt() ?: 0,
+            serviceId = it.arguments?.getString("serviceId")?.toInt() ?: 0,
             navigateBack = appState::navigateBack,
+            navigateToServiceDetail = { id -> appState.navigateTo("service/detail/$id", "service/detail/{id}")},
             scaffoldState = appState.scaffoldState
         )
     }
-    composable(route = "service/schedule/update/{id}") {
+    composable(route = "service/schedule/update/{serviceId}/{id}") {
         ServiceScheduleInputPage(
+            serviceId = it.arguments?.getString("serviceId")?.toInt() ?: 0,
             pageType = "update",
             serviceScheduleId = it.arguments?.getString("id")?.toInt() ?: 0,
             navigateBack = appState::navigateBack,
+            navigateToServiceDetail = { id -> appState.navigateTo("service/detail/$id", "service/detail/{id}")},
             scaffoldState = appState.scaffoldState
         )
     }
@@ -204,18 +206,20 @@ fun NavGraphBuilder.clinicMainNavGraph (appState: MainAppState, scaffoldState: S
     }
 
     composable(route = "clinic/schedule/update/{id}"){
-        EditClinicSchedulePage(
+        ClinicScheduleInputPage(
             id = it.arguments?.getString("id")?.toInt() ?: 0,
             pageType = "update",
             navigateBack = appState::navigateBack,
+            navigateToClinicSchedule = { appState.navigateTo("clinic/schedule", "clinic/schedule") },
             scaffoldState = scaffoldState
         )
     }
 
     composable(route = "clinic/schedule/add"){
-        EditClinicSchedulePage(
+        ClinicScheduleInputPage(
             pageType = "add",
             navigateBack = appState::navigateBack,
+            navigateToClinicSchedule = { appState.navigateTo("clinic/schedule", "clinic/schedule") },
             scaffoldState = scaffoldState
         )
     }

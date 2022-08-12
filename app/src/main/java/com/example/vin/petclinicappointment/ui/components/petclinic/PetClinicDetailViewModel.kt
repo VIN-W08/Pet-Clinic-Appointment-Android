@@ -20,11 +20,12 @@ class PetClinicDetailViewModel @Inject constructor(
     private val serviceScheduleRepository: ServiceScheduleRepository,
     private val userRepository: UserRepository
 ): BaseViewModel() {
+
     private val _clinicDetail = MutableStateFlow<PetClinicDetail?>(null)
     val clinicDetail = _clinicDetail.asStateFlow()
 
-    private val _serviceDetail = MutableStateFlow<ServiceDetail?>(null)
-    val serviceDetail = _serviceDetail.asStateFlow()
+    private val _service = MutableStateFlow<Service?>(null)
+    val service = _service.asStateFlow()
 
     private val _selectedServiceId = MutableStateFlow<Int?>(null)
     val selectedServiceId = _selectedServiceId.asStateFlow()
@@ -38,8 +39,8 @@ class PetClinicDetailViewModel @Inject constructor(
     private val _selectedScheduleId = MutableStateFlow<Int?>(null)
     val selectedScheduleId = _selectedScheduleId.asStateFlow()
 
-    private val _appointment = MutableStateFlow<Appointment?>(null)
-    val appointment = _appointment.asStateFlow()
+    private val _selectedServiceName = MutableStateFlow("")
+    val selectedServiceName = _selectedServiceName.asStateFlow()
 
     fun setSelectedScheduleId(id: Int?){
         _selectedScheduleId.value = id
@@ -51,6 +52,10 @@ class PetClinicDetailViewModel @Inject constructor(
 
     fun setSelectedServiceId(id: Int?){
         _selectedServiceId.value = id
+    }
+
+    fun setSelectedServiceName(value: String){
+        _selectedServiceName.value = value
     }
 
     suspend fun getPetClinicDetail(id: Int){
@@ -78,7 +83,7 @@ class PetClinicDetailViewModel @Inject constructor(
             is Call.Success -> {
                 val data = response.data?.body()?.data
                 if(data !== null) {
-                    _serviceDetail.value = data
+                    _service.value = data
                 }else{
                     setMessage(response.data?.body()?.status?.message as String)
                 }
@@ -112,30 +117,31 @@ class PetClinicDetailViewModel @Inject constructor(
     }
 
     suspend fun createAppointment(): Boolean {
-        val selectedServiceId = selectedServiceId.value
-        val selectedServiceDetail = serviceDetail.value
-        val selectedScheduleId = selectedScheduleId.value
+        val selectedClinicId = clinicDetail.value?.id
+        val selectedService = clinicDetail.value?.serviceList?.find { service -> service.id == selectedServiceId.value }
+        val selectedSchedule = scheduleList.value.find { schedule ->  schedule.id == selectedScheduleId.value}
         val userId = userRepository.getUserId()
         if( userId !== null &&
-            selectedServiceId !== null &&
-            selectedServiceDetail !== null &&
-            selectedScheduleId !== null
+            selectedClinicId !== null &&
+            selectedService !== null &&
+                    selectedSchedule !== null
         ) {
             val response = viewModelScope.async(Dispatchers.IO) {
                 appointmentRepository.createAppointment(CreateAppointmentBody(
                     customerId = userId,
-                    petClinicId = selectedServiceDetail.petClinicId,
-                    serviceId = selectedServiceId,
-                    scheduleServiceId = selectedScheduleId,
-                    totalPayable = selectedServiceDetail.price
+                    petClinicId = selectedClinicId,
+                    serviceId = selectedService.id,
+                    scheduleServiceId = selectedSchedule.id,
+                    serviceName = selectedService.name,
+                    servicePrice = selectedService.price,
+                    startSchedule = selectedSchedule.startSchedule,
+                    endSchedule = selectedSchedule.endSchedule
                 ))
             }.await()
             return when (response) {
                 is Call.Success -> {
                     val data = response.data?.body()?.data
-                    if (data != null) {
-                        _appointment.value = data
-                    }else{
+                    if (data == null) {
                         setMessage(response.data?.body()?.status?.message as String)
                     }
                     data !== null

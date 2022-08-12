@@ -1,6 +1,7 @@
 package com.example.vin.petclinicappointment.ui.components.profile
 
 import android.net.Uri
+import android.util.Log
 import android.util.Patterns
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -49,6 +50,7 @@ fun EditClinicProfilePage(
     val clinicName by editClinicProfileViewModel.clinicName.collectAsState()
     val clinicEmail by editClinicProfileViewModel.clinicEmail.collectAsState()
     val initialClinicImage by editClinicProfileViewModel.initialClinicImage.collectAsState()
+    val changedClinicImage by editClinicProfileViewModel.changedClinicImage.collectAsState()
     val clinicImage by editClinicProfileViewModel.clinicImage.collectAsState()
     val clinicPhoneNumber by editClinicProfileViewModel.clinicPhoneNum.collectAsState()
     val clinicAddress by editClinicProfileViewModel.clinicAddress.collectAsState()
@@ -70,11 +72,12 @@ fun EditClinicProfilePage(
     var lonErrorMessage by rememberSaveable { mutableStateOf<String?>( null )}
 
     var progressIndicatorVisible by rememberSaveable { mutableStateOf(false) }
+    var isNotInitPage by rememberSaveable {mutableStateOf(false)}
 
     val getImageLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ){ uri: Uri? ->
-        editClinicProfileViewModel.setClinicImage(uri)
+        editClinicProfileViewModel.setChangedClinicImage(uri)
     }
 
     fun onReadStoragePermissionGranted() {
@@ -97,7 +100,7 @@ fun EditClinicProfilePage(
 
     LaunchedEffect(Unit){
         progressIndicatorVisible = true
-        editClinicProfileViewModel.getClinicData()
+        editClinicProfileViewModel.getClinicDetail()
         editClinicProfileViewModel.getVillageDetail()
         editClinicProfileViewModel.getDistrictDetail()
         editClinicProfileViewModel.getCityDetail()
@@ -105,12 +108,16 @@ fun EditClinicProfilePage(
         progressIndicatorVisible = false
     }
 
+    LaunchedEffect(initialClinicImage){
+        editClinicProfileViewModel.setClinicImage(initialClinicImage)
+    }
+
     fun onClickEdit(){
         progressIndicatorVisible = true
         coroutineScope.launch {
             val isSuccess = editClinicProfileViewModel.updateClinic(context)
             if(isSuccess){
-                editClinicProfileViewModel.saveClinic()
+                editClinicProfileViewModel.updateLocalUser()
                 progressIndicatorVisible = false
                 navigateToProfile()
             }else{
@@ -151,7 +158,8 @@ fun EditClinicProfilePage(
                     style = PetClinicAppointmentTheme.typography.h1
                 )
             }
-            if(!progressIndicatorVisible) {
+            if(!progressIndicatorVisible || isNotInitPage) {
+                isNotInitPage = true
                 Column(
                     Modifier
                         .weight(1f)
@@ -174,16 +182,16 @@ fun EditClinicProfilePage(
                                 style = Stroke(width = 4f, pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f), 10f))
                             )
                         }
-                        if (clinicImage !== null) {
+                        if (changedClinicImage !== null) {
                             Image(
-                                painter = rememberAsyncImagePainter(model = clinicImage),
+                                painter = rememberAsyncImagePainter(model = changedClinicImage),
                                 contentDescription = "clinic image",
                                 contentScale = ContentScale.Fit,
                                 modifier = Modifier.fillMaxSize()
                             )
-                        } else if (initialClinicImage.isNotEmpty()) {
+                        } else if (clinicImage.isNotEmpty()) {
                             Image(
-                                base64 = initialClinicImage,
+                                base64 = clinicImage,
                                 contentDescription = "clinic image",
                                 contentScale = ContentScale.Fit,
                                 modifier = Modifier.fillMaxSize()
@@ -199,8 +207,8 @@ fun EditClinicProfilePage(
                             View(
                                 Modifier.background(color = PetClinicAppointmentTheme.colors.error.copy(alpha = 0.8f)),
                                 onClick = {
-                                    editClinicProfileViewModel.setClinicImage(null)
-                                    editClinicProfileViewModel.setInitialClinicImage("")
+                                    editClinicProfileViewModel.setChangedClinicImage(null)
+                                    editClinicProfileViewModel.setClinicImage("")
                                 }
                             ) {
                                 Icon(
@@ -467,6 +475,8 @@ fun LocationInputs(
     val selectedCityOption by editClinicProfileViewModel.selectedCityOption.collectAsState()
     val selectedProvinceOption by editClinicProfileViewModel.selectedProvinceOption.collectAsState()
 
+    Log.d("debug1", "village option:$selectedVillageOption")
+    Log.d("debug1", "village:${selectedVillageOption?.value}")
     fun initLocationInput(){
         inputType = "province"
         editClinicProfileViewModel.setSelectedVillageOption(null)
@@ -475,16 +485,18 @@ fun LocationInputs(
         editClinicProfileViewModel.setSelectedProvinceOption(null)
     }
 
-    LaunchedEffect(Unit){
-        locationValue = "${selectedVillageOption?.value}, ${selectedDistrictOption?.value}, ${selectedCityOption?.value}, ${selectedProvinceOption?.value}"
-    }
-
     LaunchedEffect(selectedVillageOption, selectedDistrictOption, selectedCityOption, selectedProvinceOption){
         if(selectedVillageOption == null &&
             selectedDistrictOption == null &&
             selectedCityOption == null &&
             selectedProvinceOption == null
         ) { locationValue = "" }
+        else if(
+            selectedVillageOption != null &&
+            selectedDistrictOption != null &&
+            selectedCityOption != null &&
+            selectedProvinceOption != null
+        ) { locationValue = "${selectedVillageOption?.value}, ${selectedDistrictOption?.value}, ${selectedCityOption?.value}, ${selectedProvinceOption?.value}" }
     }
 
     LaunchedEffect(inputType){

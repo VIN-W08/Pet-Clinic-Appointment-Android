@@ -2,6 +2,7 @@ package com.example.vin.petclinicappointment.ui.components.petclinic
 
 import android.content.Context
 import android.content.res.Resources
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -12,6 +13,7 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MyLocation
 import androidx.compose.material.icons.filled.NavigateNext
+import androidx.compose.material.icons.rounded.AddLocation
 import androidx.compose.material.icons.rounded.NavigateBefore
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -43,16 +45,20 @@ import kotlinx.coroutines.launch
 import com.example.vin.petclinicappointment.ui.components.common.IconButton
 import com.example.vin.petclinicappointment.ui.components.common.CircularProgressIndicator
 import com.example.vin.petclinicappointment.ui.theme.Black_50
+import kotlinx.coroutines.flow.StateFlow
 
 @Composable
 fun CurrentLocationMapPage(
     scaffoldState: ScaffoldState,
     currentLocationMapViewModel: CurrentLocationMapViewModel = hiltViewModel(),
-    selectedLocationState: MutableState<GeocodingApiResult?>,
+    selectedLocationState: StateFlow<GeocodingApiResult?>,
+    setSelectedLocation: (location: GeocodingApiResult?) -> Unit,
     deviceLocationState: MutableState<GeocodingApiResult?>,
     getDeviceLocation: (context: Context, onFail: () -> Unit) -> Unit,
     navigateBack: () -> Unit,
+    navigateToSearchPetClinic: () -> Unit
 ) {
+    val selectedLocationState by selectedLocationState.collectAsState()
     val context = LocalContext.current
     val localFocusManager = LocalFocusManager.current
     var progressIndicatorVisible by rememberSaveable { mutableStateOf(false) }
@@ -63,6 +69,14 @@ fun CurrentLocationMapPage(
     var searchJob: Job? = null
     var textFieldDropDownExpanded by rememberSaveable { mutableStateOf(false) }
     var searchLocationTextFieldWidth by rememberSaveable { mutableStateOf(0) }
+    val selectedLat = selectedLocation?.lat
+    val selectedLon = selectedLocation?.lon
+    val cameraPositionState = rememberCameraPositionState {
+        position = CameraPosition.fromLatLngZoom(
+            LatLng(selectedLat ?: 0.0, selectedLon ?: 0.0),
+            15f
+        )
+    }
 
     fun onFailGetLocation(){
         coroutineScope.launch {
@@ -73,181 +87,194 @@ fun CurrentLocationMapPage(
     }
 
     fun onClickNext(){
-        selectedLocationState.value = selectedLocation
-        navigateBack()
+        setSelectedLocation(selectedLocation)
+        navigateToSearchPetClinic()
     }
 
     LaunchedEffect(Unit) {
         progressIndicatorVisible = true
-        selectedLocationState.value?.let { selectedLocation ->
-            currentLocationMapViewModel.setSearchLocationValue(selectedLocation.formatted)
-            currentLocationMapViewModel.setSelectedLocation(selectedLocation)
+        selectedLocationState.let { selectedLocation ->
+            if(selectedLocation !== null) {
+                currentLocationMapViewModel.setSearchLocationValue(selectedLocation.formatted)
+                currentLocationMapViewModel.setSelectedLocation(selectedLocation)
+            }
         }
         progressIndicatorVisible = false
     }
+
+    LaunchedEffect(selectedLocation){
+        selectedLocation.let {
+            if (it !== null &&
+                cameraPositionState.position.target == LatLng(0.0, 0.0)
+            ) {
+                cameraPositionState.move(
+                    CameraUpdateFactory.newLatLng(LatLng(it.lat, it.lon))
+                )
+            }
+        }
+    }
+
     Surface(
         Modifier.fillMaxSize()
     ) {
         selectedLocation.let {
-            if (it != null && !progressIndicatorVisible) {
-                Box {
-                    val cameraPositionState = rememberCameraPositionState {
-                        position = CameraPosition.fromLatLngZoom(LatLng(it.lat, it.lon), 15f)
-                    }
-                    GoogleMap(
-                        modifier = Modifier.fillMaxSize(),
-                        cameraPositionState = cameraPositionState,
-                        onMapClick = { localFocusManager.clearFocus() }
-                    ) {
+            Box {
+                GoogleMap(
+                    modifier = Modifier.fillMaxSize(),
+                    cameraPositionState = cameraPositionState,
+                    onMapClick = { localFocusManager.clearFocus() }
+                ) {
+                    if (it !== null) {
                         Marker(
                             position = LatLng(it.lat, it.lon),
                             title = stringResource(R.string.my_location)
                         )
                     }
-                    Row(
+                }
+                if(it == null){
+                    Column(
                         Modifier
-                            .fillMaxWidth()
-                            .height(PetClinicAppointmentTheme.dimensions.grid_8)
-                            .padding(
-                                start = PetClinicAppointmentTheme.dimensions.grid_2,
-                                end = PetClinicAppointmentTheme.dimensions.grid_2
-                            ),
-                        horizontalArrangement = Arrangement.End,
-                        verticalAlignment = Alignment.CenterVertically
+                            .fillMaxSize()
+                            .background(PetClinicAppointmentTheme.colors.background),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
                     ) {
-                        Column {
-                            TextInput(
-                                value = searchLocationValue,
-                                onValueChange = { value ->
-                                    if(value.isNotEmpty()) {
-                                        searchJob?.cancel()
-                                        searchJob = coroutineScope.launch(Dispatchers.IO) {
-                                            currentLocationMapViewModel.setSearchLocationValue(value)
-                                            delay(1000)
-                                            currentLocationMapViewModel.getAddressAutocompleteList()
-                                            textFieldDropDownExpanded = true
-                                        }
-                                    } else {
+                        Icon(
+                            imageVector = Icons.Rounded.AddLocation,
+                            contentDescription = "add location icon",
+                            tint = PetClinicAppointmentTheme.colors.primaryVariant,
+                            modifier = Modifier.size(PetClinicAppointmentTheme.dimensions.grid_9_5)
+                        )
+                        Text(
+                            "Tambah Lokasi",
+                            style = PetClinicAppointmentTheme.typography.h1
+                        )
+                    }
+                }
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .height(PetClinicAppointmentTheme.dimensions.grid_8)
+                        .padding(
+                            start = PetClinicAppointmentTheme.dimensions.grid_2,
+                            end = PetClinicAppointmentTheme.dimensions.grid_2
+                        ),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    IconButton(
+                        icon = Icons.Rounded.NavigateBefore,
+                        contentDescription = "arrow_back",
+                        hasBorder = true,
+                        onClick = { navigateBack() },
+                        containerModifier = Modifier
+                            .padding(
+                                end = PetClinicAppointmentTheme.dimensions.grid_2
+                            )
+                            .background(Black_50, CircleShape),
+                        modifier = Modifier.padding(end = PetClinicAppointmentTheme.dimensions.grid_0_25),
+                        tint = Color.White
+                    )
+                    Column(
+                        Modifier.weight(1f)
+                    ) {
+                        TextInput(
+                            value = searchLocationValue,
+                            onValueChange = { value ->
+                                if(value.isNotEmpty()) {
+                                    searchJob?.cancel()
+                                    searchJob = coroutineScope.launch(Dispatchers.IO) {
                                         currentLocationMapViewModel.setSearchLocationValue(value)
-                                        textFieldDropDownExpanded = true
-                                    }
-                                },
-                                containerModifier = Modifier
-                                    .width(PetClinicAppointmentTheme.dimensions.grid_5 * 7)
-                                    .onSizeChanged { size ->
-                                        searchLocationTextFieldWidth = size.width
-                                    },
-                                modifier = Modifier
-                                    .width(PetClinicAppointmentTheme.dimensions.grid_5 * 7)
-                                    .background(Color.White)
-                                    .onSizeChanged { size ->
-                                        searchLocationTextFieldWidth = size.width
-                                    },
-                                shape = RoundedCornerShape(10),
-                                onFocus = { textFieldDropDownExpanded = true },
-                                keyBoardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-                                keyBoardActions = KeyboardActions(onSearch = {
-                                    coroutineScope.launch {
+                                        delay(1000)
                                         currentLocationMapViewModel.getAddressAutocompleteList()
                                         textFieldDropDownExpanded = true
                                     }
-                                })
-                            )
-                            DropdownMenu(
-                                expanded = textFieldDropDownExpanded,
-                                onDismissRequest = { textFieldDropDownExpanded = false },
-                                properties = PopupProperties(focusable = false),
-                                modifier = Modifier.width(with(LocalDensity.current) { searchLocationTextFieldWidth.toDp() })
-                            ) {
-                            DropdownMenuItem(onClick = {
-                                getDeviceLocation(context) { onFailGetLocation() }
-                                deviceLocationState.value.let { deviceLocation ->
-                                    if (deviceLocation != null) {
-                                        currentLocationMapViewModel.setSearchLocationValue(deviceLocation.formatted)
-                                        currentLocationMapViewModel.setSelectedLocation(deviceLocation)
-                                        cameraPositionState.move(CameraUpdateFactory.newLatLng(
-                                            LatLng(deviceLocation.lat, deviceLocation.lon)))
-                                    }
+                                } else {
+                                    currentLocationMapViewModel.setSearchLocationValue(value)
+                                    textFieldDropDownExpanded = true
                                 }
-                            }) { CurrentLocationOption() }
-                                if (locationRecommendationList.isNotEmpty()) {
-                                    locationRecommendationList.forEach { location ->
-                                        DropdownMenuItem(onClick = {
-                                            currentLocationMapViewModel.setSelectedLocation(location)
+                            },
+                            placeholder = "Cari Lokasi",
+                            containerModifier = Modifier
+                                .fillMaxWidth()
+                                .onSizeChanged { size ->
+                                    searchLocationTextFieldWidth = size.width
+                                },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(Color.White)
+                                .onSizeChanged { size ->
+                                    searchLocationTextFieldWidth = size.width
+                                },
+                            shape = RoundedCornerShape(10),
+                            onFocus = { textFieldDropDownExpanded = true },
+                            keyBoardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                            keyBoardActions = KeyboardActions(onSearch = {
+                                coroutineScope.launch {
+                                    currentLocationMapViewModel.getAddressAutocompleteList()
+                                    textFieldDropDownExpanded = true
+                                }
+                            })
+                        )
+                        DropdownMenu(
+                            expanded = textFieldDropDownExpanded,
+                            onDismissRequest = { textFieldDropDownExpanded = false },
+                            properties = PopupProperties(focusable = false),
+                            modifier = Modifier.width(with(LocalDensity.current) { searchLocationTextFieldWidth.toDp() })
+                        ) {
+                            if(selectedLocation !== null) {
+                                DropdownMenuItem(onClick = {
+                                    getDeviceLocation(context) { onFailGetLocation() }
+                                    deviceLocationState.value.let { deviceLocation ->
+                                        if (deviceLocation != null) {
                                             currentLocationMapViewModel.setSearchLocationValue(
-                                                location.formatted)
+                                                deviceLocation.formatted)
+                                            currentLocationMapViewModel.setSelectedLocation(
+                                                deviceLocation)
                                             cameraPositionState.move(CameraUpdateFactory.newLatLng(
-                                                LatLng(location.lat, location.lon)))
-                                        }) {
-                                            Text(location.formatted)
+                                                LatLng(deviceLocation.lat, deviceLocation.lon)))
                                         }
                                     }
-                                } else {
-                                    DropdownMenuItem(onClick = {}) {
-                                        Text(stringResource(R.string.location_not_found))
+                                }) { CurrentLocationOption() }
+                            }
+                            if (locationRecommendationList.isNotEmpty()) {
+                                locationRecommendationList.forEach { location ->
+                                    DropdownMenuItem(onClick = {
+                                        Log.d("debug1", "selected loc: (${location.lat},${location.lon})")
+                                        currentLocationMapViewModel.setSelectedLocation(location)
+                                        currentLocationMapViewModel.setSearchLocationValue(
+                                            location.formatted)
+                                        cameraPositionState.move(CameraUpdateFactory.newLatLng(
+                                            LatLng(location.lat, location.lon)))
+                                    }) {
+                                        Text(location.formatted)
                                     }
+                                }
+                            } else {
+                                DropdownMenuItem(onClick = {}) {
+                                    Text(stringResource(R.string.location_not_found))
                                 }
                             }
                         }
                     }
                 }
-                Box (
-                    contentAlignment = Alignment.BottomEnd
-                ){
-                    FloatingActionButton(
-                        onClick = { onClickNext() },
-                        modifier = Modifier.padding(
-                            horizontal = PetClinicAppointmentTheme.dimensions.grid_2,
-                            vertical = PetClinicAppointmentTheme.dimensions.grid_5 * 3
-                        )
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.NavigateNext,
-                            contentDescription = "set location",
-                            tint = PetClinicAppointmentTheme.colors.onPrimary,
-                            modifier = Modifier.size(PetClinicAppointmentTheme.dimensions.grid_4)
-                        )
-                    }
-                }
-                Box {
-                    Row(
-                        Modifier.height(PetClinicAppointmentTheme.dimensions.grid_7_5),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        IconButton(
-                            icon = Icons.Rounded.NavigateBefore,
-                            contentDescription = "arrow_back",
-                            hasBorder = true,
-                            onClick = { navigateBack() },
-                            containerModifier = Modifier
-                                .padding(
-                                    horizontal = PetClinicAppointmentTheme.dimensions.grid_2
-                                )
-                                .background(Black_50, CircleShape),
-                            modifier = Modifier.padding(end = PetClinicAppointmentTheme.dimensions.grid_0_25),
-                            tint = Color.White
-                        )
-                    }
-                }
-                Box {
-                    Row(
-                        Modifier.height(PetClinicAppointmentTheme.dimensions.grid_7_5),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        IconButton(
-                            icon = Icons.Rounded.NavigateBefore,
-                            contentDescription = "arrow_back",
-                            hasBorder = true,
-                            onClick = { navigateBack() },
-                            containerModifier = Modifier
-                                .padding(
-                                    horizontal = PetClinicAppointmentTheme.dimensions.grid_2
-                                )
-                                .background(Black_50, CircleShape),
-                            modifier = Modifier.padding(end = PetClinicAppointmentTheme.dimensions.grid_0_25),
-                            tint = Color.White
-                        )
-                    }
+            }
+            Box (
+                contentAlignment = Alignment.BottomEnd
+            ){
+                FloatingActionButton(
+                    onClick = { onClickNext() },
+                    modifier = Modifier.padding(
+                        horizontal = PetClinicAppointmentTheme.dimensions.grid_2,
+                        vertical = PetClinicAppointmentTheme.dimensions.grid_5 * 3
+                    )
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.NavigateNext,
+                        contentDescription = "set location",
+                        tint = PetClinicAppointmentTheme.colors.onPrimary,
+                        modifier = Modifier.size(PetClinicAppointmentTheme.dimensions.grid_4)
+                    )
                 }
             }
         }

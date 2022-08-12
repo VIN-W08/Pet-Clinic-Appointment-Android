@@ -1,17 +1,13 @@
 package com.example.vin.petclinicappointment.ui.components.petclinic
 
-import androidx.lifecycle.viewModelScope
-import com.example.vin.petclinicappointment.data.model.Call
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import com.example.vin.petclinicappointment.data.datasource.PetClinicDataSource
 import com.example.vin.petclinicappointment.data.model.Coordinate
-import com.example.vin.petclinicappointment.data.model.PetClinic
 import com.example.vin.petclinicappointment.data.repository.PetClinicRepository
 import com.example.vin.petclinicappointment.ui.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.async
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 
 @HiltViewModel
@@ -22,31 +18,25 @@ class SearchPetClinicListViewModel @Inject constructor(
     private val _searchPetClinicListInputValue = MutableStateFlow("")
     val searchPetClinicListInputValue = _searchPetClinicListInputValue.asStateFlow()
 
-    private val _nearbyPetClinicList = MutableStateFlow<List<PetClinic>>(listOf())
-    val nearbyPetClinicList = _nearbyPetClinicList.asStateFlow()
+    private val _selectedCoordinate = MutableStateFlow<Coordinate?>(null)
+    val selectedCoordinate = _selectedCoordinate.asStateFlow()
+
+    fun setSelectedCoordinate(coordinate: Coordinate?){
+        _selectedCoordinate.value = coordinate
+    }
 
     fun setSearchPetClinicListInputValue(value: String){
         _searchPetClinicListInputValue.value = value
     }
 
-    suspend fun getNearbyPetClinicList(coordinate: Coordinate? = null){
-        val response = viewModelScope.async(Dispatchers.IO) {
-            petClinicRepository.getPetClinicList(
-                searchPetClinicListInputValue.value,
-                coordinate?.latitude,
-                coordinate?.longitude
-            )
-        }.await()
-        when(response) {
-            is Call.Success -> {
-                val data = response.data?.body()?.data
-                if (data !== null) {
-                    _nearbyPetClinicList.value = data
-                } else{
-                    setMessage(response.data?.body()?.status?.message as String)
-                }
-            }
-            else -> setMessage(response.data?.message() as String)
-        }
+    val sortedClinicList = listOf(_searchPetClinicListInputValue, selectedCoordinate).merge().flatMapLatest {
+        Pager(PagingConfig(pageSize = 10, prefetchDistance = 1)) {
+                PetClinicDataSource(
+                    petClinicRepository,
+                    searchPetClinicListInputValue.value,
+                    selectedCoordinate.value?.latitude,
+                    selectedCoordinate.value?.longitude
+                )
+        }.flow.debounce(1000)
     }
 }

@@ -2,7 +2,6 @@ package com.example.vin.petclinicappointment.ui.components.history
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Divider
 import androidx.compose.material.Surface
@@ -10,13 +9,17 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowBackIos
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.paging.LoadState
+import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.items
 import com.example.vin.petclinicappointment.data.model.Appointment
 import com.example.vin.petclinicappointment.ui.components.common.*
 import com.example.vin.petclinicappointment.ui.theme.PetClinicAppointmentTheme
@@ -30,18 +33,11 @@ fun HistoryPage(
     navigateToAppointmentDetail: (id: Int) -> Unit,
     navigateBack: () -> Unit
 ){
-    val finishedAppointmentList by historyViewModel.finishedAppointmentList.collectAsState()
-    val unfinishedAppointmentList by historyViewModel.unfinishedAppointmentList.collectAsState()
-    var progressIndicatorVisible by rememberSaveable { mutableStateOf(false) }
-
-    LaunchedEffect(Unit){
-        progressIndicatorVisible = true
-        historyViewModel.getUnfinishedAppointmentList()
-        historyViewModel.getFinishedAppointmentList()
-        progressIndicatorVisible = false
-    }
+    val pastAppointmentList  = historyViewModel.pastAppointmentList.collectAsLazyPagingItems()
+    val currentAppointmentList  = historyViewModel.currentAppointmentList.collectAsLazyPagingItems()
 
     Surface (
+        Modifier.fillMaxSize(),
         color = PetClinicAppointmentTheme.colors.background
     ) {
         Column(
@@ -69,32 +65,78 @@ fun HistoryPage(
                     .fillMaxWidth()
                     .weight(1f)
             ) {
-                if(finishedAppointmentList.isEmpty() && unfinishedAppointmentList.isEmpty() && !progressIndicatorVisible){
-                    NoAppointmentContent(
-                        modifier = Modifier.fillMaxSize()
-                    )
-                }
-                if(unfinishedAppointmentList.isNotEmpty()){
-                    AppointmentList(
-                        title = "Janji Temu Saat Ini",
-                        appointmentList = unfinishedAppointmentList,
-                        navigateToAppointmentDetail = navigateToAppointmentDetail
-                    )
-                }
-                if (finishedAppointmentList.isNotEmpty()) {
-                    AppointmentList(
-                        title = "Janji Temu Lalu",
-                        appointmentList = finishedAppointmentList,
-                        navigateToAppointmentDetail = navigateToAppointmentDetail
-                    )
+                Column {
+                    if(
+                        currentAppointmentList.loadState.refresh is LoadState.Loading ||
+                        pastAppointmentList.loadState.refresh is LoadState.Loading
+                    ){
+                        ProgressIndicatorView(Modifier.fillMaxSize())
+                    } else if(
+                        currentAppointmentList.loadState.refresh is LoadState.NotLoading &&
+                        pastAppointmentList.loadState.refresh is LoadState.NotLoading &&
+                        currentAppointmentList.itemCount == 0 &&
+                        pastAppointmentList.itemCount == 0
+                    ){
+                        MessageView(
+                            message = stringResource(R.string.no_past_appointment),
+                            modifier = Modifier
+                                .fillMaxSize()
+                        )
+                    }else {
+                        LazyColumn {
+                            if(
+                                currentAppointmentList.loadState.refresh is LoadState.NotLoading &&
+                                currentAppointmentList.itemCount > 0
+                            ) {
+                                item {
+                                    AppointmentListTitle(
+                                        "Janji Temu Saat Ini",
+                                        Modifier
+                                            .padding(
+                                                start = PetClinicAppointmentTheme.dimensions.grid_2,
+                                                bottom = PetClinicAppointmentTheme.dimensions.grid_1
+                                            )
+                                    )
+                                }
+                                items(currentAppointmentList) {
+                                    if (it != null) {
+                                        AppointmentItem(
+                                            appointment = it,
+                                            navigateToAppointmentDetail = navigateToAppointmentDetail
+                                        )
+                                    }
+                                }
+                                item {
+                                    Spacer(Modifier.height(PetClinicAppointmentTheme.dimensions.grid_4))
+                                }
+                            }
+                            if(
+                                pastAppointmentList.loadState.refresh is LoadState.NotLoading &&
+                                pastAppointmentList.itemCount > 0
+                            ) {
+                                item {
+                                    AppointmentListTitle(
+                                        "Janji Temu Lalu",
+                                        Modifier
+                                            .padding(
+                                                start = PetClinicAppointmentTheme.dimensions.grid_2,
+                                                bottom = PetClinicAppointmentTheme.dimensions.grid_1
+                                            )
+                                    )
+                                }
+                                items(pastAppointmentList) {
+                                    if (it != null) {
+                                        AppointmentItem(
+                                            appointment = it,
+                                            navigateToAppointmentDetail = navigateToAppointmentDetail
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
-        }
-        Box(
-            Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            CircularProgressIndicator(visible = progressIndicatorVisible)
         }
         Box {
             Row (
@@ -115,11 +157,27 @@ fun HistoryPage(
 }
 
 @Composable
-fun AppointmentList(
+fun AppointmentListTitle(
     title: String,
-    appointmentList: List<Appointment>,
-    navigateToAppointmentDetail: (id: Int) -> Unit
+    modifier: Modifier
 ){
+    Column {
+        Text(
+            title,
+            style = PetClinicAppointmentTheme.typography.h2,
+            modifier = modifier
+        )
+        Divider(Modifier.fillMaxWidth())
+    }
+}
+
+@Composable
+fun CurrentAppointmentList(
+    historyViewModel: HistoryViewModel,
+    title: String,
+    navigateToAppointmentDetail: (id: Int) -> Unit,
+){
+    val currentAppointmentList = historyViewModel.currentAppointmentList.collectAsLazyPagingItems()
     Column(
         Modifier
             .fillMaxWidth()
@@ -136,11 +194,49 @@ fun AppointmentList(
         )
         Divider(Modifier.fillMaxWidth())
         LazyColumn {
-            items(appointmentList) {
-                AppointmentItem(
-                    appointment = it,
-                    navigateToAppointmentDetail = navigateToAppointmentDetail
+            items(currentAppointmentList) {
+                if (it != null) {
+                    AppointmentItem(
+                        appointment = it,
+                        navigateToAppointmentDetail = navigateToAppointmentDetail
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun PastAppointmentList(
+    historyViewModel: HistoryViewModel,
+    title: String,
+    navigateToAppointmentDetail: (id: Int) -> Unit
+){
+    val pastAppointmentList = historyViewModel.pastAppointmentList.collectAsLazyPagingItems()
+    Column(
+        Modifier.fillMaxWidth()
+    ) {
+        Text(
+            title,
+            style = PetClinicAppointmentTheme.typography.h2,
+            modifier = Modifier
+                .padding(
+                    start = PetClinicAppointmentTheme.dimensions.grid_2,
+                    bottom = PetClinicAppointmentTheme.dimensions.grid_1
                 )
+        )
+        Divider(Modifier.fillMaxWidth())
+        LazyColumn {
+            items(pastAppointmentList) {
+                if (it != null) {
+                    AppointmentItem(
+                        appointment = it,
+                        navigateToAppointmentDetail = navigateToAppointmentDetail
+                    )
+                }
+            }
+            if(pastAppointmentList.loadState.append is LoadState.Loading){
+                item { ProgressIndicatorView() }
             }
         }
     }
@@ -193,16 +289,21 @@ fun AppointmentItem(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Column(
-                        Modifier.fillMaxHeight(0.6f),
+                        Modifier
+                            .fillMaxHeight(0.6f)
+                            .weight(1f)
+                            .padding(end = PetClinicAppointmentTheme.dimensions.grid_2),
                         verticalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(
                             "${appointment.petClinic.name}",
-                            style = PetClinicAppointmentTheme.typography.h2,
+                            style = PetClinicAppointmentTheme.typography.h3,
+                            overflow = TextOverflow.Ellipsis,
+                            maxLines = 2
                         )
                         Text(
                             LocalDateTime.parse(appointment.createdAt)
-                                .format(DateTimeFormatter.ofPattern("dd-MM-YYYY HH:mm")),
+                                .format(DateTimeFormatter.ofPattern("dd-MM-YYYY HH:mm"))
                         )
                     }
                     StatusLabel(
@@ -214,18 +315,5 @@ fun AppointmentItem(
             }
             Divider(Modifier.fillMaxWidth())
         }
-    }
-}
-
-@Composable
-fun NoAppointmentContent(
-    modifier: Modifier = Modifier
-){
-    Column(
-        modifier = modifier,
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text("Tidak memiliki riwayat janji temu")
     }
 }

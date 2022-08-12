@@ -8,13 +8,16 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowBackIos
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.vin.petclinicappointment.ui.components.common.CircularProgressIndicator
+import androidx.paging.LoadState
+import androidx.paging.compose.collectAsLazyPagingItems
+import com.example.vin.petclinicappointment.R
 import com.example.vin.petclinicappointment.ui.components.common.IconButton
 import com.example.vin.petclinicappointment.ui.components.common.MessageView
+import com.example.vin.petclinicappointment.ui.components.common.ProgressIndicatorView
 import com.example.vin.petclinicappointment.ui.theme.PetClinicAppointmentTheme
 import kotlinx.coroutines.flow.collectLatest
 
@@ -25,8 +28,7 @@ fun ClinicAppointmentHistoryPage(
     navigateBack: () -> Unit,
     scaffoldState: ScaffoldState
 ){
-    val clinicFinishedAppointmentList by clinicAppointmentHistoryViewModel.clinicFinishedAppointmentList.collectAsState()
-    var progressIndicatorVisible by rememberSaveable { mutableStateOf(false) }
+    val pastAppointmentList = clinicAppointmentHistoryViewModel.pastAppointmentList.collectAsLazyPagingItems()
 
     LaunchedEffect(Unit){
         clinicAppointmentHistoryViewModel.message.collectLatest {
@@ -34,12 +36,6 @@ fun ClinicAppointmentHistoryPage(
                 scaffoldState.snackbarHostState.showSnackbar(it)
             }
         }
-    }
-
-    LaunchedEffect(Unit){
-        progressIndicatorVisible = true
-        clinicAppointmentHistoryViewModel.getClinicFinishedAppointmentList()
-        progressIndicatorVisible = false
     }
 
     Surface(
@@ -68,25 +64,29 @@ fun ClinicAppointmentHistoryPage(
                     .fillMaxWidth()
                     .weight(1f)
             ) {
-                if(clinicFinishedAppointmentList.isEmpty() && !progressIndicatorVisible) {
-                    MessageView(
-                        message = "Riwayat janji temu tidak tersedia",
-                        modifier = Modifier.fillMaxSize()
-                    )
-                } else {
+                pastAppointmentList.apply {
                     AppointmentList(
-                        title = "Janji Temu Lalu",
-                        appointmentList = clinicFinishedAppointmentList,
+                        title = stringResource(R.string.past_appointment),
+                        appointmentList = pastAppointmentList,
                         navigateToAppointmentDetail = navigateToAppointmentDetail
                     )
+                    when {
+                        loadState.refresh == LoadState.Loading -> {
+                            ProgressIndicatorView(Modifier.fillMaxSize())
+                        }
+                        loadState.append == LoadState.Loading -> {
+                            ProgressIndicatorView(Modifier.fillMaxWidth())
+                        }
+                        (loadState.refresh is LoadState.NotLoading &&
+                                pastAppointmentList.itemCount == 0) -> {
+                            MessageView(
+                                message = stringResource(R.string.no_past_appointment),
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        }
+                    }
                 }
             }
-        }
-        Box(
-            Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            CircularProgressIndicator(visible = progressIndicatorVisible)
         }
         Box {
             Row (

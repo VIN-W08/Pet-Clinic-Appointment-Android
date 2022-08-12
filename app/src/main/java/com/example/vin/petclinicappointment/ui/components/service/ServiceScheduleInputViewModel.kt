@@ -9,8 +9,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import org.json.JSONObject
-import retrofit2.Response
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -49,6 +47,12 @@ class ServiceScheduleInputViewModel @Inject constructor(
     private val _status = MutableStateFlow(false)
     val status = _status.asStateFlow()
 
+    private val _repeatScheduleEnable = MutableStateFlow(false)
+    val repeatScheduleEnable = _repeatScheduleEnable.asStateFlow()
+
+    private val _repeatScheduleWeekCount = MutableStateFlow("")
+    val repeatScheduleWeekCount = _repeatScheduleWeekCount.asStateFlow()
+
     fun setServiceId(value: Int){
         _serviceId.value = value
     }
@@ -57,11 +61,11 @@ class ServiceScheduleInputViewModel @Inject constructor(
         _serviceScheduleId.value = value
     }
 
-    fun setStartDate(value: LocalDate){
+    fun setStartDate(value: LocalDate?){
         _startDate.value = value
     }
 
-    fun setEndDate(value: LocalDate){
+    fun setEndDate(value: LocalDate?){
         _endDate.value = value
     }
 
@@ -81,6 +85,14 @@ class ServiceScheduleInputViewModel @Inject constructor(
         _status.value = value
     }
 
+    fun setRepeatScheduleEnable(value: Boolean){
+        _repeatScheduleEnable.value = value
+    }
+
+    fun setRepeatScheduleWeekCount(value: String){
+        _repeatScheduleWeekCount.value = value
+    }
+
     fun populateServiceScheduleData(){
         val serviceScheduleDetail = serviceScheduleDetail.value
         if(serviceScheduleDetail !== null) {
@@ -93,7 +105,7 @@ class ServiceScheduleInputViewModel @Inject constructor(
         }
     }
 
-    private fun validateServiceSchedule(): Boolean{
+    private fun validateServiceScheduleInput(): Boolean{
         if(startDate.value == null){
             setMessage("Tanggal mulai layanan wajib diinput")
             return false
@@ -110,8 +122,12 @@ class ServiceScheduleInputViewModel @Inject constructor(
             setMessage("Waktu berakhir layanan wajib diinput")
             return false
         }
-        if(quota.value.isEmpty()){
+        if(quota.value.trim().isEmpty()){
             setMessage("Kuota layanan wajib diinput")
+            return false
+        }
+        if(repeatScheduleEnable.value && repeatScheduleWeekCount.value.trim().isEmpty()){
+            setMessage("Jumlah minggu jadwal berulang wajib diinput")
             return false
         }
         return true
@@ -140,7 +156,7 @@ class ServiceScheduleInputViewModel @Inject constructor(
 
 
     suspend fun updateServiceSchedule(): Boolean {
-        if(validateServiceSchedule()) {
+        if(validateServiceScheduleInput()) {
             val serviceScheduleId = serviceScheduleId.value
             if (serviceScheduleId !== null) {
                 val response = viewModelScope.async(Dispatchers.IO) {
@@ -179,7 +195,7 @@ class ServiceScheduleInputViewModel @Inject constructor(
     }
 
     suspend fun addServiceSchedule(): Boolean {
-        if (validateServiceSchedule()) {
+        if (validateServiceScheduleInput()) {
             val serviceId = serviceId.value
             if (serviceId !== null) {
                 val response = viewModelScope.async(Dispatchers.IO) {
@@ -193,7 +209,8 @@ class ServiceScheduleInputViewModel @Inject constructor(
                             endSchedule = LocalDateTime.of(endDate.value, endTime.value).format(
                                 DateTimeFormatter.ISO_LOCAL_DATE_TIME
                             ),
-                            quota = quota.value.toInt()
+                            quota = quota.value.toInt(),
+                            repeatScheduleWeekCount = if(repeatScheduleEnable.value) repeatScheduleWeekCount.value.toInt() else 0
                         )
                     )
                 }.await()

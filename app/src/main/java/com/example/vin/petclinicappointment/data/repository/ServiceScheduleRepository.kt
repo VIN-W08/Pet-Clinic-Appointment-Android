@@ -1,6 +1,5 @@
 package com.example.vin.petclinicappointment.data.repository
 
-import android.util.Log
 import com.example.vin.petclinicappointment.data.model.*
 import retrofit2.Response
 import retrofit2.Retrofit

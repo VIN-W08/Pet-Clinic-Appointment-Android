@@ -11,7 +11,9 @@ interface PetClinicApiService {
     suspend fun getPetClinicList(
         @Query("name") name: String? = "",
         @Query("latitude") latitude: Double? = null,
-        @Query("longitude") longitude: Double? = null
+        @Query("longitude") longitude: Double? = null,
+        @Query("page_number") pageNumber: Int? = null,
+        @Query("page_size") pageSize: Int? = null
     ): Response<PetClinicListResponse>
 
     @GET("petclinic/{id}")
@@ -21,7 +23,7 @@ interface PetClinicApiService {
 
     @Multipart
     @POST("petclinic")
-    suspend fun createPetClinic(
+    suspend fun registerPetClinic(
         @Part("name") name: RequestBody,
         @Part("email") email: RequestBody,
         @Part("password") password: RequestBody,
@@ -35,14 +37,14 @@ interface PetClinicApiService {
     @Multipart
     @PUT("petclinic/{id}")
     suspend fun updatePetClinic(
-        @Path("id") clinicId: Int,
-        @Part("name") name: RequestBody,
-        @Part("email") email: RequestBody,
-        @Part("phone_num") phoneNum: RequestBody,
-        @Part("address") address: RequestBody,
-        @Part("village_id") villageId: RequestBody,
-        @Part("latitude") latitude: RequestBody,
-        @Part("longitude") longitude: RequestBody,
+        @Path("id") clinicId: Int? = null,
+        @Part("name") name: RequestBody? = null,
+        @Part("email") email: RequestBody? = null,
+        @Part("phone_num") phoneNum: RequestBody? =null,
+        @Part("address") address: RequestBody? = null,
+        @Part("village_id") villageId: RequestBody? = null,
+        @Part("latitude") latitude: RequestBody? = null,
+        @Part("longitude") longitude: RequestBody?=null,
         @Part image: MultipartBody.Part? = null
     ): Response<UpdateClinicResponse>
 
@@ -60,4 +62,10 @@ interface PetClinicApiService {
     suspend fun updatePassword(
         @Body body: UpdatePasswordBody
     ): Response<UpdatePasswordResponse>
+
+    @PATCH("petclinic/{id}/status")
+    suspend fun updateStatus(
+        @Path("id") clinicId: Int,
+        @Body body: UpdateClinicStatusBody
+    ): Response<UpdateClinicStatusResponse>
 }

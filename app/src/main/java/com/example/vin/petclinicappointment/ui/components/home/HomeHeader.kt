@@ -1,29 +1,18 @@
 package com.example.vin.petclinicappointment.ui.components.home
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.IconButton
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.vin.petclinicappointment.R
 import com.example.vin.petclinicappointment.ui.theme.PetClinicAppointmentTheme
 import com.example.vin.petclinicappointment.ui.components.common.IconButton
-import com.example.vin.petclinicappointment.ui.theme.Black_50
 
 @Composable
 fun HomeHeader(
@@ -33,7 +22,7 @@ fun HomeHeader(
     val username by homeViewModel.username.collectAsState()
 
     LaunchedEffect(Unit){
-        homeViewModel.getUserData()
+        homeViewModel.getUserName()
     }
             Row(
                 Modifier

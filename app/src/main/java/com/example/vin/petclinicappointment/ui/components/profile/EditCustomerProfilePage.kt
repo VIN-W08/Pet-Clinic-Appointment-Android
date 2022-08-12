@@ -29,6 +29,7 @@ import kotlinx.coroutines.launch
 fun EditCustomerProfilePage(
     editCustomerProfilePageViewModel: EditCustomerProfilePageViewModel = hiltViewModel(),
     navigateBack: () -> Unit,
+    navigateToCustomerProfile: () -> Unit,
     scaffoldState: ScaffoldState
 ){
     val localFocusManager = LocalFocusManager.current
@@ -41,10 +42,10 @@ fun EditCustomerProfilePage(
         coroutineScope.launch {
             progressIndicatorVisible = true
             val isSuccess = editCustomerProfilePageViewModel.updateCustomer()
+            progressIndicatorVisible = false
             if(isSuccess){
-                editCustomerProfilePageViewModel.updateLocalCustomer()
-                progressIndicatorVisible = false
-                navigateBack()
+                editCustomerProfilePageViewModel.updateLocalUser()
+                navigateToCustomerProfile()
             }
         }
     }
@@ -59,7 +60,7 @@ fun EditCustomerProfilePage(
 
     LaunchedEffect(Unit){
         progressIndicatorVisible = true
-        editCustomerProfilePageViewModel.getUserData()
+        editCustomerProfilePageViewModel.getCustomerDetail()
         progressIndicatorVisible = false
     }
 
@@ -93,44 +94,42 @@ fun EditCustomerProfilePage(
                     style = PetClinicAppointmentTheme.typography.h1
                 )
             }
-            if(!progressIndicatorVisible) {
-                Column(
-                    Modifier
-                        .padding(
-                            horizontal = PetClinicAppointmentTheme.dimensions.grid_2
-                        )
-                        .weight(1f)
-                        .verticalScroll(rememberScrollState())
+            Column(
+                Modifier
+                    .padding(
+                        horizontal = PetClinicAppointmentTheme.dimensions.grid_2
+                    )
+                    .weight(1f)
+                    .verticalScroll(rememberScrollState())
+            ) {
+                LabelTextInput(
+                    label = "Nama",
+                    value = name,
+                    onValueChange = { editCustomerProfilePageViewModel.setName(it) },
+                    modifier = Modifier.padding(bottom = PetClinicAppointmentTheme.dimensions.grid_2)
+                )
+                LabelTextInput(
+                    label = "Email",
+                    value = email,
+                    onValueChange = { editCustomerProfilePageViewModel.setEmail(it) },
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Email
+                    ),
+                    modifier = Modifier.padding(bottom = PetClinicAppointmentTheme.dimensions.grid_2)
+                )
+            }
+            Column {
+                Divider(Modifier.fillMaxWidth())
+                AppButton(
+                    onClick = { onUpdateCustomer() },
+                    modifier = Modifier
+                        .padding(PetClinicAppointmentTheme.dimensions.grid_2)
+                        .fillMaxWidth()
+                        .height(PetClinicAppointmentTheme.dimensions.grid_5_5),
+                    colors = ButtonDefaults.buttonColors(PetClinicAppointmentTheme.colors.primary),
+                    shape = RoundedCornerShape(PetClinicAppointmentTheme.dimensions.grid_5)
                 ) {
-                    LabelTextInput(
-                        label = "Nama",
-                        value = name,
-                        onValueChange = { editCustomerProfilePageViewModel.setName(it) },
-                        modifier = Modifier.padding(bottom = PetClinicAppointmentTheme.dimensions.grid_2)
-                    )
-                    LabelTextInput(
-                        label = "Email",
-                        value = email,
-                        onValueChange = { editCustomerProfilePageViewModel.setEmail(it) },
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Email
-                        ),
-                        modifier = Modifier.padding(bottom = PetClinicAppointmentTheme.dimensions.grid_2)
-                    )
-                }
-                Column {
-                    Divider(Modifier.fillMaxWidth())
-                    AppButton(
-                        onClick = { onUpdateCustomer() },
-                        modifier = Modifier
-                            .padding(PetClinicAppointmentTheme.dimensions.grid_2)
-                            .fillMaxWidth()
-                            .height(PetClinicAppointmentTheme.dimensions.grid_5_5),
-                        colors = ButtonDefaults.buttonColors(PetClinicAppointmentTheme.colors.primary),
-                        shape = RoundedCornerShape(PetClinicAppointmentTheme.dimensions.grid_5)
-                    ) {
-                        Text("Ubah Profil")
-                    }
+                    Text("Ubah Profil")
                 }
             }
         }

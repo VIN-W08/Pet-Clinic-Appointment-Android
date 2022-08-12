@@ -4,13 +4,10 @@ import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Location
-import android.os.Looper
-import android.util.Log
 import androidx.compose.material.ScaffoldState
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalContext
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -55,7 +52,10 @@ class MainAppState(
         fastestInterval = 5000
         priority = LocationRequest.PRIORITY_HIGH_ACCURACY
     }
-    val selectedLocation: MutableState<GeocodingApiResult?> = mutableStateOf(null)
+
+    private val _selectedLocation = MutableStateFlow<GeocodingApiResult?>(null)
+    val selectedLocation = _selectedLocation.asStateFlow()
+
     val deviceCoordinate: MutableState<LatLng?> = mutableStateOf(null)
     val deviceLocation: MutableState<GeocodingApiResult?> = mutableStateOf(null)
 
@@ -70,6 +70,10 @@ class MainAppState(
 
     val currentRoute: String?
             get() = navController.currentDestination?.route
+
+    fun setSelectedLocation(value: GeocodingApiResult?){
+        _selectedLocation.value = value
+    }
 
     fun navigateMainBottomNavBarTo(route: String){
         if(route != currentRoute) {
@@ -98,24 +102,6 @@ class MainAppState(
         return role ?: ""
     }
 
-    private fun getUpdatingDeviceCoordinate(context: Context, onLocationResult: (locationResult: LocationResult) -> Unit){
-        val fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context)
-        val locationCallback = object : LocationCallback() {
-            override fun onLocationResult(locationResult: LocationResult) {
-                onLocationResult(locationResult)
-            }
-        }
-        if (ActivityCompat.checkSelfPermission(context,
-                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                context,
-                Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED
-        ) {
-            return
-        }
-        fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback,
-            Looper.getMainLooper())
-    }
-
     fun getDeviceCoordinate(
         context: Context,
         onSuccessListener: (locationResult: Location) -> Unit,
@@ -126,7 +112,12 @@ class MainAppState(
         val task = fusedLocationProviderClient.getCurrentLocation(LocationRequest.PRIORITY_HIGH_ACCURACY,
                 tokenSource.token)
         task.addOnSuccessListener {
-            onSuccessListener(it)
+//            val googleApiAvailability = GoogleApiAvailability.getInstance()
+//            val resultCode = googleApiAvailability.isGooglePlayServicesAvailable(context)
+//            Log.d("debug1", "available:${resultCode == ConnectionResult.SUCCESS}")
+            if(it !== null) {
+                onSuccessListener(it)
+            }
         }
         task.addOnFailureListener {
             onFailListener()
@@ -155,7 +146,9 @@ class MainAppState(
                     it.longitude
                 )
                 getReverseGeocodingDeviceLocation()},
-        onFailListener = onFail)
+        onFailListener = {
+            onFail()
+        })
     }
 
     fun getReverseGeocodingDeviceLocation(){
@@ -174,7 +167,7 @@ class MainAppState(
                 locationRepository.getReverseGeocodingLocation(deviceCoordinate.value as LatLng)
             if (currentLocation !== null) {
                 deviceLocation.value = currentLocation
-                selectedLocation.value = currentLocation
+                _selectedLocation.value = currentLocation
             }
         }
     }
@@ -199,8 +192,10 @@ class MainAppState(
         }
     }
 
-    fun getLocationPermissionStatus(context: Context): Boolean =
-        ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) === PackageManager.PERMISSION_GRANTED
+    fun getLocationPermissionStatus(context: Context): Boolean {
+        return ContextCompat.checkSelfPermission(context,
+            Manifest.permission.ACCESS_FINE_LOCATION) === PackageManager.PERMISSION_GRANTED
+    }
 
     fun getUserAuthStatus(): Boolean {
         val auth = runBlocking {
@@ -218,7 +213,6 @@ class MainAppState(
     ){
         navController.navigate(route) {
             if(!popUpToRoute.isNullOrEmpty()) {
-                Log.d("debug1", "pop route:${popUpToRoute}")
                 popUpTo(popUpToRoute) { inclusive = inclusiveCurrent }
                 launchSingleTop = true
             }

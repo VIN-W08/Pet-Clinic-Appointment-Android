@@ -3,13 +3,15 @@ package com.example.vin.petclinicappointment.ui.components.appointment
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.items
 import com.example.vin.petclinicappointment.data.model.Appointment
+import com.example.vin.petclinicappointment.data.model.AppointmentDetail
 import com.example.vin.petclinicappointment.ui.components.common.*
 import com.example.vin.petclinicappointment.ui.theme.PetClinicAppointmentTheme
 import com.google.accompanist.pager.ExperimentalPagerApi
@@ -92,7 +94,7 @@ fun AppointmentPage(
 @Composable
 fun AppointmentList(
     title: String? = null,
-    appointmentList: List<Appointment>,
+    appointmentList: LazyPagingItems<AppointmentDetail>,
     navigateToAppointmentDetail: (id: Int) -> Unit
 ){
     Column(
@@ -113,10 +115,12 @@ fun AppointmentList(
         }
         LazyColumn {
             items(appointmentList) {
-                AppointmentItem(
-                    appointment = it,
-                    navigateToAppointmentDetail = navigateToAppointmentDetail
-                )
+                if (it != null) {
+                    AppointmentItem(
+                        appointment = it,
+                        navigateToAppointmentDetail = navigateToAppointmentDetail
+                    )
+                }
             }
         }
     }

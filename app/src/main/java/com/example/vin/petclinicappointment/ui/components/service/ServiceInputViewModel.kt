@@ -1,5 +1,6 @@
 package com.example.vin.petclinicappointment.ui.components.service
 
+import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.example.vin.petclinicappointment.data.model.*
 import com.example.vin.petclinicappointment.data.repository.ServiceRepository
@@ -10,8 +11,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import org.json.JSONObject
-import retrofit2.Response
 import java.text.DecimalFormat
 import javax.inject.Inject
 
@@ -24,8 +23,8 @@ class ServiceInputViewModel @Inject constructor(
     private val _serviceId = MutableStateFlow<Int?>(null)
     val serviceId = _serviceId.asStateFlow()
 
-    private val _serviceDetail = MutableStateFlow<ServiceDetail?>(null)
-    val serviceDetail = _serviceDetail.asStateFlow()
+    private val _service = MutableStateFlow<Service?>(null)
+    val service = _service.asStateFlow()
 
     private val _serviceName = MutableStateFlow("")
     val serviceName = _serviceName.asStateFlow()
@@ -53,20 +52,20 @@ class ServiceInputViewModel @Inject constructor(
     }
 
     fun populateServiceData(){
-        val serviceDetail = serviceDetail.value
-        if(serviceDetail !== null) {
+        val service = service.value
+        if(service !== null) {
             val decimalFormat = DecimalFormat("0.#")
-            _serviceName.value = serviceDetail.name
-            _servicePrice.value = decimalFormat.format(serviceDetail.price)
-            _serviceStatus.value = serviceDetail.status
+            _serviceName.value = service.name
+            _servicePrice.value = decimalFormat.format(service.price)
+            _serviceStatus.value = service.status
         }
     }
 
     private fun validateServiceInput(): Boolean{
-        if(serviceName.value.isEmpty()){
+        if(serviceName.value.trim().isEmpty()){
             setMessage("Nama layanan wajib diinput")
             return false
-        }else if(servicePrice.value.isEmpty()){
+        }else if(servicePrice.value.trim().isEmpty()){
             setMessage("Harga layanan wajib diinput")
             return false
         }
@@ -83,7 +82,7 @@ class ServiceInputViewModel @Inject constructor(
                 is Call.Success -> {
                     val data = response.data?.body()?.data
                     if (data !== null) {
-                        _serviceDetail.value = data
+                        _service.value = data
                     }else{
                         setMessage(response.data?.body()?.status?.message as String)
                     }
@@ -95,9 +94,8 @@ class ServiceInputViewModel @Inject constructor(
 
     suspend fun updateService(): Boolean {
         if(validateServiceInput()) {
-            val userId = userRepository.getUserId()
             val serviceId = serviceId.value
-            if (userId !== null && serviceId !== null) {
+            if (serviceId !== null) {
                 val response = viewModelScope.async(Dispatchers.IO) {
                     serviceRepository.updateService(
                         serviceId = serviceId,
@@ -156,6 +154,7 @@ class ServiceInputViewModel @Inject constructor(
             }
             return false
         }
+        Log.d("debug1", "in validate false")
         return false
     }
 

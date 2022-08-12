@@ -2,14 +2,11 @@ package com.example.vin.petclinicappointment.ui.components.petclinic
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.ArrowBackIos
 import androidx.compose.material.icons.rounded.Call
 import androidx.compose.material.icons.rounded.NavigateBefore
 import androidx.compose.runtime.*
@@ -50,6 +47,7 @@ fun PetClinicInfoPage(
     val clinicName = clinicDetail?.name
     val clinicAddress = clinicDetail?.address
     val clinicPhoneNum = clinicDetail?.phoneNum
+    val clinicStatus = clinicDetail?.status
     val clinicScheduleList = clinicDetail?.clinicScheduleList
     val clinicLatitude = clinicDetail?.latitude
     val clinicLongitude = clinicDetail?.longitude
@@ -60,6 +58,15 @@ fun PetClinicInfoPage(
                 scaffoldState.snackbarHostState.showSnackbar(it)
             }
         }
+    }
+
+    fun checkDataReady(): Boolean {
+        return (clinicDetail !== null &&
+                clinicAddress !== null &&
+                clinicVillage !== null &&
+                clinicDistrict !== null &&
+                clinicCity !== null &&
+                clinicProvince !== null)
     }
 
     LaunchedEffect(Unit){
@@ -75,8 +82,7 @@ fun PetClinicInfoPage(
     Surface (
         color = PetClinicAppointmentTheme.colors.background
     ) {
-        if(!progressIndicatorVisible){
-        if(clinicDetail !== null) {
+        if(checkDataReady()) {
             Column(
                 Modifier
                     .fillMaxWidth()
@@ -129,26 +135,27 @@ fun PetClinicInfoPage(
                         Modifier.fillMaxWidth()
                     ) {
                         Row(
-                            Modifier.fillMaxWidth(),
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(
+                                    bottom = PetClinicAppointmentTheme.dimensions.grid_1
+                                ),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             if (clinicName != null) {
                                 Text(
                                     clinicName,
-                                    style = PetClinicAppointmentTheme.typography.h1,
-                                    modifier = Modifier.padding(
-                                        bottom = PetClinicAppointmentTheme.dimensions.grid_1
-                                    )
+                                    style = PetClinicAppointmentTheme.typography.h1
+                                )
+                            }
+                            if (clinicStatus != null) {
+                                ClinicStatusLabel(
+                                    statusCode = clinicStatus,
+                                    modifier = Modifier.padding(start = PetClinicAppointmentTheme.dimensions.grid_2)
                                 )
                             }
                         }
-                        if (clinicAddress !== null &&
-                            clinicVillage !== null &&
-                            clinicDistrict !== null &&
-                            clinicCity !== null &&
-                            clinicProvince !== null
-                        ) {
                             Text(
                                 "$clinicAddress, ${clinicVillage?.name}, ${clinicDistrict?.name}, ${clinicCity?.name}, ${clinicProvince?.name}",
                                 style = PetClinicAppointmentTheme.typography.h3,
@@ -157,7 +164,6 @@ fun PetClinicInfoPage(
                                     bottom = PetClinicAppointmentTheme.dimensions.grid_1
                                 )
                             )
-                        }
                         if (clinicPhoneNum !== null) {
                             Row(
                                 verticalAlignment = Alignment.CenterVertically
@@ -206,7 +212,6 @@ fun PetClinicInfoPage(
                     )
                 }
             }
-        }
         Box(
             Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
@@ -233,17 +238,6 @@ fun ClinicAvailableScheduleList(
             )
         }
     }
-//    LazyColumn(
-//        Modifier.padding(PetClinicAppointmentTheme.dimensions.grid_2)
-//    ) {
-//        items((1..7).toList()){
-//            ClinicAvailableScheduleItem(
-//                it,
-//                scheduleList.filter { schedule -> schedule.day == it },
-//                dayToStringMap
-//            )
-//        }
-//    }
 }
 
 @Composable

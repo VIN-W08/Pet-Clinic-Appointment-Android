@@ -1,6 +1,5 @@
 package com.example.vin.petclinicappointment.ui.components.appointment
 
-import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.example.vin.petclinicappointment.data.model.AppointmentDetail
 import com.example.vin.petclinicappointment.data.model.Call
@@ -45,7 +44,7 @@ class AppointmentDetailViewModel @Inject constructor(
         1 to "setuju",
         2 to "tidak setuju",
         3 to "batal",
-        4 to "menyelesaikan"
+        4 to "selesaikan"
     )
 
     fun setSelectedAppointmentStatusId(value: Int){
@@ -96,7 +95,6 @@ class AppointmentDetailViewModel @Inject constructor(
     suspend fun updateAppointmentStatus(): Boolean {
         val appointmentId = appointmentDetail.value?.id
         val selectedAppointmentStatusId = selectedAppointmentStatusId.value
-        Log.d("debug1", "status id:$selectedAppointmentStatusId")
         if(appointmentId !== null && selectedAppointmentStatusId!==null) {
             val response = viewModelScope.async(Dispatchers.IO) {
                 appointmentRepository.updateAppointmentStatus(
@@ -107,7 +105,6 @@ class AppointmentDetailViewModel @Inject constructor(
             return when (response) {
                 is Call.Success -> {
                     val data = response.data?.body()?.data
-                    Log.d("debug1", "data:$response")
                     if (data !== null) {
                         _appointmentDetail.value = data
                     }else{

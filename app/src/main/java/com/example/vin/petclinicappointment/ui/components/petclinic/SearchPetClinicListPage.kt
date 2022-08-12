@@ -4,7 +4,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -27,9 +26,8 @@ import com.example.vin.petclinicappointment.data.model.GeocodingApiResult
 import com.example.vin.petclinicappointment.ui.components.common.TextInput
 import com.example.vin.petclinicappointment.ui.theme.PetClinicAppointmentTheme
 import com.example.vin.petclinicappointment.ui.components.common.IconButton
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 
 @Composable
 fun SearchPetClinicListPage(
@@ -37,14 +35,14 @@ fun SearchPetClinicListPage(
     navigateToCurrentLocationMap: () -> Unit,
     navigateBack: () -> Unit,
     navigateToDetail: (id: Int) -> Unit,
-    selectedLocationState: MutableState<GeocodingApiResult?>,
+    selectedLocationState: StateFlow<GeocodingApiResult?>,
     scaffoldState: ScaffoldState
 ) {
+    val selectedLocationState by selectedLocationState.collectAsState()
     var progressIndicatorVisible by rememberSaveable { mutableStateOf(false) }
     val localFocusManager = LocalFocusManager.current
     val searchPetClinicListInputValue by searchPetClinicListViewModel.searchPetClinicListInputValue.collectAsState()
-    val nearbyPetClinicList by searchPetClinicListViewModel.nearbyPetClinicList.collectAsState()
-    val coroutineScope = rememberCoroutineScope()
+    val selectedLocation = selectedLocationState
 
     LaunchedEffect(Unit){
         searchPetClinicListViewModel.message.collectLatest {
@@ -54,14 +52,12 @@ fun SearchPetClinicListPage(
         }
     }
 
-    LaunchedEffect(selectedLocationState.value){
-        progressIndicatorVisible = true
-        searchPetClinicListViewModel.getNearbyPetClinicList(
-            selectedLocationState.value?.let {
+    LaunchedEffect(selectedLocation){
+        searchPetClinicListViewModel.setSelectedCoordinate(
+            selectedLocation?.let {
                 Coordinate(it.lat, it.lon)
             }
         )
-        progressIndicatorVisible = false
     }
 
     Surface (
@@ -88,21 +84,30 @@ fun SearchPetClinicListPage(
                         icon = Icons.Default.ArrowBackIos,
                         contentDescription = "arrow_back"
                     ) { navigateBack() }
-                    selectedLocationState.value?.let {
-                        Row(
-                            Modifier.clickable { navigateToCurrentLocationMap() },
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.LocationOn,
-                                contentDescription = "location on",
-                                tint = Color.Red,
-                                modifier = Modifier
-                                    .padding(end = PetClinicAppointmentTheme.dimensions.grid_0_5)
-                                    .size(PetClinicAppointmentTheme.dimensions.grid_2_5)
-                            )
+                    Row(
+                        Modifier
+                            .fillMaxWidth()
+                            .clickable { navigateToCurrentLocationMap() },
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.LocationOn,
+                            contentDescription = "location on icon",
+                            tint = Color.Red,
+                            modifier = Modifier
+                                .padding(end = PetClinicAppointmentTheme.dimensions.grid_0_5)
+                                .size(PetClinicAppointmentTheme.dimensions.grid_2_5)
+                        )
+                        if(selectedLocation !== null){
                             Text(
-                                it.formatted,
+                                selectedLocation.formatted,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                style = PetClinicAppointmentTheme.typography.h3
+                            )
+                        }else{
+                            Text(
+                                "Pilih Lokasi",
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
                                 style = PetClinicAppointmentTheme.typography.h3
@@ -131,31 +136,12 @@ fun SearchPetClinicListPage(
                             icon = Icons.Default.Search,
                             contentDescription = "search"
                         ) {
-                            coroutineScope.launch {
-                                searchPetClinicListViewModel.getNearbyPetClinicList(
-                                    selectedLocationState.value?.let {
-                                        Coordinate(it.lat, it.lon)
-                                    }
-                                )
-                            }
                         }
                     },
                     keyBoardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-                    keyBoardActions = KeyboardActions(
-                        onSearch = {
-                            coroutineScope.launch {
-                                searchPetClinicListViewModel.getNearbyPetClinicList(
-                                    selectedLocationState.value?.let {
-                                        Coordinate(it.lat, it.lon)
-                                    }
-                                )
-                            }
-                            localFocusManager.clearFocus()
-                        }
-                    ),
                 )
                 PetClinicList(
-                    nearbyPetClinicList,
+                    searchPetClinicListViewModel = searchPetClinicListViewModel,
                     navigateToDetail
                 )
             }

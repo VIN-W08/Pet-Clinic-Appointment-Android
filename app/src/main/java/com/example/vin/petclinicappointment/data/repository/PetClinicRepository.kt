@@ -1,6 +1,5 @@
 package com.example.vin.petclinicappointment.data.repository
 
-import android.util.Log
 import com.example.vin.petclinicappointment.data.model.*
 import com.example.vin.petclinicappointment.data.network.PetClinicApiService
 import okhttp3.MultipartBody
@@ -17,9 +16,16 @@ class PetClinicRepository {
         .build()
         .create(PetClinicApiService::class.java)
 
-    suspend fun getPetClinicList(name: String? = "", latitude: Double? = null, longitude: Double? = null): Call<Response<PetClinicListResponse>> {
-        val response = apiService.getPetClinicList(name, latitude, longitude)
-        Log.d("debug1", "response:$response")
+    suspend fun loginClinic(body: LoginBody): Call<Response<LoginClinicResponse>> {
+        val response = apiService.loginPetClinic(body)
+        if(response.isSuccessful) {
+            return Call.Success(response)
+        }
+        return Call.Error(response)
+    }
+
+    suspend fun getPetClinicList(name: String? = "", latitude: Double? = null, longitude: Double? = null, pageNumber: Int? = null, pageSize: Int? = null): Call<Response<PetClinicListResponse>> {
+        val response = apiService.getPetClinicList(name, latitude, longitude, pageNumber, pageSize)
         if(response.isSuccessful){
             return Call.Success(response)
         }
@@ -34,7 +40,7 @@ class PetClinicRepository {
         return Call.Error(response)
     }
 
-    suspend fun createPetClinic(
+    suspend fun registerPetClinic(
         name: RequestBody,
         email: RequestBody,
         password: RequestBody,
@@ -44,7 +50,7 @@ class PetClinicRepository {
         latitude: RequestBody,
         longitude: RequestBody
     ): Call<Response<RegisterClinicResponse>>{
-        val response = apiService.createPetClinic(
+        val response = apiService.registerPetClinic(
             name,
             email,
             password,
@@ -98,6 +104,14 @@ class PetClinicRepository {
 
     suspend fun updatePassword(body: UpdatePasswordBody): Call<Response<UpdatePasswordResponse>>{
         val response = apiService.updatePassword(body)
+        if(response.isSuccessful){
+            return Call.Success(response)
+        }
+        return Call.Error(response)
+    }
+
+    suspend fun updateStatus(clinicId: Int, body: UpdateClinicStatusBody): Call<Response<UpdateClinicStatusResponse>>{
+        val response = apiService.updateStatus(clinicId, body)
         if(response.isSuccessful){
             return Call.Success(response)
         }

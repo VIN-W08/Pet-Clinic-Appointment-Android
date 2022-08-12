@@ -1,6 +1,5 @@
 package com.example.vin.petclinicappointment.data.repository
 
-import android.util.Log
 import com.example.vin.petclinicappointment.data.model.*
 import com.example.vin.petclinicappointment.data.network.GeocodeApiService
 import com.example.vin.petclinicappointment.data.network.IndonesiaLocationApiService

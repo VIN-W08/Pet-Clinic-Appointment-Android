@@ -22,8 +22,14 @@ data class CreateAppointmentBody (
     val serviceId: Int,
     @SerializedName("schedule_service_id")
     val scheduleServiceId: Int,
-    @SerializedName("total_payable")
-    val totalPayable: Float
+    @SerializedName("service_name")
+    val serviceName: String,
+    @SerializedName("service_price")
+    val servicePrice: Float,
+    @SerializedName("start_schedule")
+    val startSchedule: String,
+    @SerializedName("end_schedule")
+    val endSchedule: String
         )
 
 data class UpdateAppointmentStatusBody(
@@ -50,7 +56,9 @@ data class CreateServiceScheduleBody(
     val startSchedule: String,
     @SerializedName("end_schedule")
     val endSchedule: String,
-    val quota: Int
+    val quota: Int,
+    @SerializedName("repeat_schedule_week_count")
+    val repeatScheduleWeekCount: Int = 0
 )
 
 data class UpdateServiceScheduleBody(
@@ -89,4 +97,8 @@ data class UpdateCustomerBody(
 data class UpdatePasswordBody(
     val email: String,
     val password: String
+)
+
+data class UpdateClinicStatusBody(
+    val status: Boolean
 )

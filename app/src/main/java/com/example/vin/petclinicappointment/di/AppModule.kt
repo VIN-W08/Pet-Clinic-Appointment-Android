@@ -16,50 +16,42 @@ object AppModule {
 
     @Singleton
     @Provides
-    fun provideCustomerRepository(): CustomerRepository
-            = CustomerRepository()
+    fun provideCustomerRepository(): CustomerRepository = CustomerRepository()
+
 
     @Singleton
     @Provides
-    fun provideClinicScheduleRepository(): ClinicScheduleRepository
-            = ClinicScheduleRepository()
+    fun provideClinicScheduleRepository(): ClinicScheduleRepository = ClinicScheduleRepository()
 
     @Singleton
     @Provides
-    fun provideServiceScheduleRepository(): ServiceScheduleRepository
-            = ServiceScheduleRepository()
+    fun provideServiceScheduleRepository(): ServiceScheduleRepository = ServiceScheduleRepository()
 
     @Singleton
     @Provides
-    fun provideServiceRepository(): ServiceRepository
-            = ServiceRepository()
+    fun provideServiceRepository(): ServiceRepository = ServiceRepository()
 
     @Singleton
     @Provides
-    fun provideAppointmentRepository(): AppointmentRepository
-            = AppointmentRepository()
+    fun provideAppointmentRepository(): AppointmentRepository = AppointmentRepository()
 
     @Singleton
     @Provides
-    fun providePetClinicRepository(): PetClinicRepository
-            = PetClinicRepository()
+    fun providePetClinicRepository(): PetClinicRepository = PetClinicRepository()
 
     @Singleton
     @Provides
-    fun provideLocationRepository(): LocationRepository
-        = LocationRepository()
+    fun provideLocationRepository(): LocationRepository = LocationRepository()
 
     @Singleton
     @Provides
     fun provideUserRepository(
         userDataStore: UserDataStore
-    ): UserRepository
-            = UserRepository(userDataStore)
+    ): UserRepository = UserRepository(userDataStore)
 
     @Singleton
     @Provides
     fun provideUserDataStore(
         @ApplicationContext context: Context
-    ): UserDataStore =
-        UserDataStore(context)
+    ): UserDataStore = UserDataStore(context)
 }

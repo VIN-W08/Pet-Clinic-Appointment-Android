@@ -7,14 +7,17 @@ open class PetClinic(
     email: String,
     password: String? = null,
     name: String? = null,
-    phoneNum: String? = null,
-    image: String? = null,
+//    phoneNum: String? = null,
+//    image: String? = null,
+    @SerializedName("phone_num")
+    val phoneNum: String? = null,
+    val image: String? = null,
     val address: String? = null,
     @SerializedName("village_id")
     val villageId: Long? = null,
-    val rating: Float = 0f,
     val latitude: Double? = null,
     val longitude: Double? = null,
+    val status: Boolean = false,
     val distance: Double? = null,
     updatedAt: String? = null,
     createdAt: String? = null
@@ -23,8 +26,6 @@ open class PetClinic(
     email = email,
     password = password,
     name = name,
-    phoneNum = phoneNum,
-    image = image,
     updatedAt = updatedAt,
     createdAt = createdAt
 )
@@ -38,9 +39,9 @@ class PetClinicDetail(
     image: String,
     address: String,
     villageId: Long,
-    rating: Float,
     latitude: Double,
     longitude: Double,
+    status: Boolean,
     distance: Double,
     @SerializedName("services")
     val serviceList: List<Service>,
@@ -57,9 +58,9 @@ class PetClinicDetail(
     image,
     address,
     villageId,
-    rating,
     latitude,
     longitude,
+    status,
     distance,
     updatedAt,
     createdAt

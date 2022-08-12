@@ -35,13 +35,13 @@ import kotlinx.coroutines.launch
 @Composable
 fun UpdatePasswordPage(
     navigateBack: () -> Unit,
-    loginViewModel: LoginViewModel = hiltViewModel(),
+    updatePasswordViewModel: UpdatePasswordViewModel = hiltViewModel(),
     scaffoldState: ScaffoldState,
     userRole: MutableState<String?>
 ){
     val localFocusManager = LocalFocusManager.current
-    val email by loginViewModel.email.collectAsState()
-    val password by loginViewModel.password.collectAsState()
+    val email by updatePasswordViewModel.email.collectAsState()
+    val password by updatePasswordViewModel.password.collectAsState()
     var showEmailError by rememberSaveable { mutableStateOf( false ) }
     var emailErrorMessage by rememberSaveable { mutableStateOf<String?>( null) }
     var showPasswordError by rememberSaveable { mutableStateOf( false ) }
@@ -49,7 +49,7 @@ fun UpdatePasswordPage(
     var progressIndicatorVisible by rememberSaveable { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
     LaunchedEffect(Unit) {
-        loginViewModel.message.collectLatest {
+        updatePasswordViewModel.message.collectLatest {
             if(it.isNotEmpty()) {
                 scaffoldState.snackbarHostState.showSnackbar(it)
             }
@@ -71,7 +71,7 @@ fun UpdatePasswordPage(
         if(userRole !== null) {
             coroutineScope.launch {
                 progressIndicatorVisible = true
-                val isSuccess = loginViewModel.updatePassword(userRole)
+                val isSuccess = updatePasswordViewModel.updatePassword(userRole)
                 if (isSuccess) {
                     navigateBack()
                 }
@@ -120,7 +120,7 @@ fun UpdatePasswordPage(
             ){
                 TextInput(
                     value = email,
-                    onValueChange = { loginViewModel.setEmail(it) },
+                    onValueChange = { updatePasswordViewModel.setEmail(it) },
                     placeholder = stringResource(R.string.email),
                     containerModifier = Modifier
                         .padding(bottom = PetClinicAppointmentTheme.dimensions.grid_2),
@@ -139,7 +139,7 @@ fun UpdatePasswordPage(
                 )
                 TextInput(
                     value = password,
-                    onValueChange = { loginViewModel.setPassword(it) },
+                    onValueChange = { updatePasswordViewModel.setPassword(it) },
                     placeholder = stringResource(R.string.new_password),
                     containerModifier = Modifier
                         .padding(bottom = PetClinicAppointmentTheme.dimensions.grid_4_5),

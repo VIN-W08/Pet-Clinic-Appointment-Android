@@ -17,8 +17,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.vin.petclinicappointment.R
 import com.example.vin.petclinicappointment.ui.components.common.*
 import com.example.vin.petclinicappointment.ui.theme.PetClinicAppointmentTheme
 import kotlinx.coroutines.flow.collectLatest
@@ -43,6 +45,16 @@ fun ClinicProfilePage(
     val clinicImage by clinicProfileViewModel.clinicImage.collectAsState()
     val clinicLocationName by clinicProfileViewModel.clinicLocationName.collectAsState()
 
+    fun checkDataReady(): Boolean {
+        return (clinicName.isNotEmpty() &&
+                clinicEmail.isNotEmpty() &&
+                clinicAddress.isNotEmpty() &&
+                clinicLatitude !== null &&
+                clinicLongitude !== null &&
+                clinicPhoneNum.isNotEmpty() &&
+                clinicLocationName.isNotEmpty())
+    }
+
     fun logout(){
         coroutineScope.launch {
             progressIndicatorVisible = true
@@ -62,7 +74,7 @@ fun ClinicProfilePage(
 
     LaunchedEffect(Unit){
         progressIndicatorVisible = true
-        clinicProfileViewModel.getClinicData()
+        clinicProfileViewModel.getPetClinicDetail()
         clinicProfileViewModel.getVillageDetail()
         clinicProfileViewModel.getDistrictDetail()
         clinicProfileViewModel.getCityDetail()
@@ -91,7 +103,7 @@ fun ClinicProfilePage(
                     style = PetClinicAppointmentTheme.typography.h1
                 )
             }
-            if(!progressIndicatorVisible) {
+            if(checkDataReady()) {
                 Column(
                     Modifier
                         .weight(1f)
@@ -146,6 +158,7 @@ fun ClinicProfilePage(
                         PrefTextView(title = "Bujur",
                             value = if (clinicLongitude !== null) clinicLongitude.toString() else "")
                         ManageClinicScheduleView(navigateToClinicSchedule)
+                        ClinicStatusSwitchView(clinicProfileViewModel)
                     }
                     AppButton(
                         onClick = navigateToEditClinicProfile,
@@ -205,7 +218,8 @@ fun ManageClinicScheduleView(
             Modifier
                 .padding(PetClinicAppointmentTheme.dimensions.grid_2)
                 .fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 "Jadwal Operasi Klinik",
@@ -218,5 +232,50 @@ fun ManageClinicScheduleView(
             )
         }
         Divider(Modifier.fillMaxWidth())
+    }
+}
+
+@Composable
+fun ClinicStatusSwitchView(
+    clinicProfileViewModel: ClinicProfileViewModel
+){
+    val coroutineScope = rememberCoroutineScope()
+    val clinicStatus by clinicProfileViewModel.clinicStatus.collectAsState()
+
+    fun onCheckedChange(isChecked: Boolean){
+        coroutineScope.launch {
+            val isSuccess = clinicProfileViewModel.updateClinicStatus(isChecked)
+            if(isSuccess){
+                clinicProfileViewModel.setClinicStatus(isChecked)
+            }
+        }
+    }
+
+    if(clinicStatus !== null) {
+        Column(
+            Modifier.fillMaxWidth()
+        ) {
+            Row(
+                Modifier
+                    .padding(
+                        horizontal = PetClinicAppointmentTheme.dimensions.grid_2,
+                        vertical = PetClinicAppointmentTheme.dimensions.grid_1
+                    )
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    stringResource(R.string.clinic_operation_status),
+                    style = PetClinicAppointmentTheme.typography.h2,
+                    fontWeight = FontWeight.Normal
+                )
+                Switch(
+                    checked = clinicStatus ?: false,
+                    onCheckedChange = { onCheckedChange(it) }
+                )
+            }
+            Divider(Modifier.fillMaxWidth())
+        }
     }
 }
