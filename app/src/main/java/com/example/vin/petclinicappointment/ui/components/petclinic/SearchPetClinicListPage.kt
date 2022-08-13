@@ -26,6 +26,7 @@ import com.example.vin.petclinicappointment.data.model.GeocodingApiResult
 import com.example.vin.petclinicappointment.ui.components.common.TextInput
 import com.example.vin.petclinicappointment.ui.theme.PetClinicAppointmentTheme
 import com.example.vin.petclinicappointment.ui.components.common.IconButton
+import com.example.vin.petclinicappointment.ui.components.common.MessageView
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 
@@ -43,6 +44,7 @@ fun SearchPetClinicListPage(
     val localFocusManager = LocalFocusManager.current
     val searchPetClinicListInputValue by searchPetClinicListViewModel.searchPetClinicListInputValue.collectAsState()
     val selectedLocation = selectedLocationState
+    val selectedCoordinate by searchPetClinicListViewModel.selectedCoordinate.collectAsState()
 
     LaunchedEffect(Unit){
         searchPetClinicListViewModel.message.collectLatest {
@@ -140,10 +142,17 @@ fun SearchPetClinicListPage(
                     },
                     keyBoardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                 )
-                PetClinicList(
-                    searchPetClinicListViewModel = searchPetClinicListViewModel,
-                    navigateToDetail
-                )
+                if(selectedCoordinate?.latitude !== null && selectedCoordinate?.longitude !== null) {
+                    PetClinicList(
+                        searchPetClinicListViewModel = searchPetClinicListViewModel,
+                        navigateToDetail
+                    )
+                }else{
+                    MessageView(
+                        message = stringResource(R.string.please_set_location),
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
             }
         }
         Box(

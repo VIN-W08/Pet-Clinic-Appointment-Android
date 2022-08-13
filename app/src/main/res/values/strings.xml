@@ -24,6 +24,7 @@
     <string name="current_appointment">Janji Temu Saat Ini</string>
     <string name="no_past_appointment">Tidak ada riwayat janji temu</string>
     <string name="clinic_not_found">Klinik tidak ditemukan</string>
+    <string name="please_set_location">Mohon pilih lokasi terlebih dahulu</string>
     <string name="no_approved_appointment">Tidak ada persetujuan janji temu</string>
     <string name="no_requesting_appointment">Tidak ada pengajuan janji temu</string>
     <string name="clinic_operation_status">Status Operasi Klinik</string>
