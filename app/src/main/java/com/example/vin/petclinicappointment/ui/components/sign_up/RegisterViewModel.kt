@@ -1,5 +1,6 @@
 package com.example.vin.petclinicappointment.ui.components.sign_up
 
+import android.util.Log
 import android.util.Patterns
 import androidx.lifecycle.viewModelScope
 import com.example.vin.petclinicappointment.data.model.*
