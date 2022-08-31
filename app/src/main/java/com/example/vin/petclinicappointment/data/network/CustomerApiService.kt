@@ -8,12 +8,12 @@ interface CustomerApiService {
     @POST("customer")
     suspend fun registerCustomer(
         @Body body: RegisterBody
-    ): Response<RegisterResponse>
+    ): Response<RegisterCustomerResponse>
 
     @POST("customer/auth")
     suspend fun loginCustomer(
         @Body body: LoginBody
-    ): Response<LoginResponse>
+    ): Response<LoginCustomerResponse>
 
     @PUT("customer/{id}")
     suspend fun updateCustomer(

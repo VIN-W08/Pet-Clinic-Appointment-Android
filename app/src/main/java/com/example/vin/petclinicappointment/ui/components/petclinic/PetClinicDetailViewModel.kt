@@ -15,7 +15,6 @@ import javax.inject.Inject
 @HiltViewModel
 class PetClinicDetailViewModel @Inject constructor(
     private val petClinicRepository: PetClinicRepository,
-    private val serviceRepository: ServiceRepository,
     private val appointmentRepository: AppointmentRepository,
     private val serviceScheduleRepository: ServiceScheduleRepository,
     private val userRepository: UserRepository
@@ -72,23 +71,6 @@ class PetClinicDetailViewModel @Inject constructor(
                 }
             }
             else -> setMessage(response.data?.message() as String)
-        }
-    }
-
-    suspend fun getServiceDetail(id: Int){
-        val response = viewModelScope.async(Dispatchers.IO) {
-            serviceRepository.getServiceDetail(id)
-        }.await()
-        when(response){
-            is Call.Success -> {
-                val data = response.data?.body()?.data
-                if(data !== null) {
-                    _service.value = data
-                }else{
-                    setMessage(response.data?.body()?.status?.message as String)
-                }
-            }
-            else -> { setMessage(response.data?.message() as String) }
         }
     }
 

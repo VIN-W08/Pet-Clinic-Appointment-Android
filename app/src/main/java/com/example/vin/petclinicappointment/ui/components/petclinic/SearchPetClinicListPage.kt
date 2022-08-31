@@ -21,12 +21,12 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.vin.petclinicappointment.R
-import com.example.vin.petclinicappointment.data.model.Coordinate
 import com.example.vin.petclinicappointment.data.model.GeocodingApiResult
 import com.example.vin.petclinicappointment.ui.components.common.TextInput
 import com.example.vin.petclinicappointment.ui.theme.PetClinicAppointmentTheme
 import com.example.vin.petclinicappointment.ui.components.common.IconButton
 import com.example.vin.petclinicappointment.ui.components.common.MessageView
+import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 
@@ -57,7 +57,7 @@ fun SearchPetClinicListPage(
     LaunchedEffect(selectedLocation){
         searchPetClinicListViewModel.setSelectedCoordinate(
             selectedLocation?.let {
-                Coordinate(it.lat, it.lon)
+                LatLng(it.lat, it.lon)
             }
         )
     }

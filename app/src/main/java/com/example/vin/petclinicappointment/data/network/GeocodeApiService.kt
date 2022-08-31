@@ -2,11 +2,7 @@ package com.example.vin.petclinicappointment.data.network
 
 import com.example.vin.petclinicappointment.BuildConfig
 import com.example.vin.petclinicappointment.data.model.GeocodingApiResponse
-import com.example.vin.petclinicappointment.data.model.LoginResponse
-import com.example.vin.petclinicappointment.data.model.RegisterBody
-import com.example.vin.petclinicappointment.data.model.RegisterResponse
 import retrofit2.Response
-import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Query
 
