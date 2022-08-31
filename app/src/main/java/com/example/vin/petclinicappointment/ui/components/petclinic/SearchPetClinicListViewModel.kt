@@ -3,9 +3,9 @@ package com.example.vin.petclinicappointment.ui.components.petclinic
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import com.example.vin.petclinicappointment.data.datasource.PetClinicDataSource
-import com.example.vin.petclinicappointment.data.model.Coordinate
 import com.example.vin.petclinicappointment.data.repository.PetClinicRepository
 import com.example.vin.petclinicappointment.ui.BaseViewModel
+import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import javax.inject.Inject
@@ -18,10 +18,10 @@ class SearchPetClinicListViewModel @Inject constructor(
     private val _searchPetClinicListInputValue = MutableStateFlow("")
     val searchPetClinicListInputValue = _searchPetClinicListInputValue.asStateFlow()
 
-    private val _selectedCoordinate = MutableStateFlow<Coordinate?>(null)
+    private val _selectedCoordinate = MutableStateFlow<LatLng?>(null)
     val selectedCoordinate = _selectedCoordinate.asStateFlow()
 
-    fun setSelectedCoordinate(coordinate: Coordinate?){
+    fun setSelectedCoordinate(coordinate: LatLng?){
         _selectedCoordinate.value = coordinate
     }
 

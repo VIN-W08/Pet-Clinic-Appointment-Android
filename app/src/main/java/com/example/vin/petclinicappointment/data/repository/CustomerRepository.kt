@@ -13,7 +13,7 @@ class CustomerRepository {
         .build()
         .create(CustomerApiService::class.java)
 
-    suspend fun loginCustomer(body: LoginBody): Call<Response<LoginResponse>> {
+    suspend fun loginCustomer(body: LoginBody): Call<Response<LoginCustomerResponse>> {
         val response = customerApiService.loginCustomer(body)
         if(response.isSuccessful) {
             return Call.Success(response)
@@ -21,7 +21,7 @@ class CustomerRepository {
         return Call.Error(response)
     }
 
-    suspend fun registerCustomer(body: RegisterBody): Call<Response<RegisterResponse>>{
+    suspend fun registerCustomer(body: RegisterBody): Call<Response<RegisterCustomerResponse>>{
         val response = customerApiService.registerCustomer(body)
         if(response.isSuccessful) {
             return Call.Success(response)

@@ -7,17 +7,17 @@ data class ResponseStatus (
     val message: String
     )
 
-data class LoginResponse(
+data class LoginCustomerResponse(
     val status: ResponseStatus,
-    val data: AuthData?
+    val data: CustomerAuthData?
 )
 
-data class RegisterResponse(
+data class RegisterCustomerResponse(
     val status: ResponseStatus,
-    val data: AuthData?
+    val data: CustomerAuthData?
 )
 
-data class AuthData(
+data class CustomerAuthData(
     val customer: Customer,
     val status: Boolean,
     val role: String,
